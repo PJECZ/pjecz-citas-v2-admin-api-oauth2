@@ -1,0 +1,34 @@
+{
+    "FastAPI schemas": {
+        "scope": "python",
+        "prefix": "fschemas",
+        "body": [
+            "\"\"\"",
+            "${1:Modulos} v1, esquemas de pydantic",
+            "\"\"\"",
+            "from datetime import date",
+            "from typing import Optional",
+            "from pydantic import BaseModel",
+            "",
+            "",
+            "class ${2:EsquemaOut}(BaseModel):",
+            "\t\"\"\" Esquema para entregar ${3:comentario} \"\"\"",
+            "",
+            "\tid: int",
+            "\trelacion_id: int",
+            "\trelacion_nombre: str",
+            "\tfecha: date",
+            "\tnombre: str",
+            "\tdescripcion: str",
+            "\tarchivo: Optional[str] = \"\"",
+            "\turl: Optional[str] = \"\"",
+            "",
+            "\tclass Config:",
+            "\t\t\"\"\" SQLAlchemy config \"\"\"",
+            "",
+            "\t\torm_mode = True",
+            ""
+        ],
+        "description": "Contenido para schemas.py"
+    }
+}

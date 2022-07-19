@@ -1,0 +1,11 @@
+.bashrc
+.directory
+.env
+.DS_Store
+
+*.py[cod]
+__pycache__/
+
+app.yaml
+/instance/settings.py
+/venv
