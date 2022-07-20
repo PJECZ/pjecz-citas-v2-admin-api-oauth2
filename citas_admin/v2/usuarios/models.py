@@ -1,8 +1,7 @@
 """
 Usuarios v2, modelos
 """
-from collections import OrderedDict
-from sqlalchemy import Boolean, Column, Date, Enum, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -18,11 +17,24 @@ class Usuario(Base, UniversalMixin):
     # Clave primaria
     id = Column(Integer, primary_key=True)
 
+    # Claves foráneas
+    autoridad_id = Column(Integer, ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = relationship("Autoridad", back_populates="usuarios")
+    oficina_id = Column(Integer, ForeignKey("oficinas.id"), index=True, nullable=False)
+    oficina = relationship("Oficina", back_populates="usuarios")
+
     # Columnas
-    fecha = Column(Date, index=True, nullable=False)
-    descripcion = Column(String(256), nullable=False)
-    archivo = Column(String(256), default="")
-    url = Column(String(512), default="")
+    email = Column(String(256), nullable=False, unique=True, index=True)
+    contrasena = Column(String(256), nullable=False)
+    nombres = Column(String(256), nullable=False)
+    apellido_paterno = Column(String(256), nullable=False)
+    apellido_materno = Column(String(256))
+    curp = Column(String(18))
+    puesto = Column(String(256))
+    telefono_celular = Column(String(256))
+
+    # Hijos
+    usuarios_roles = relationship("UsuarioRol", back_populates="usuario")
 
     def __repr__(self):
         """Representación"""
