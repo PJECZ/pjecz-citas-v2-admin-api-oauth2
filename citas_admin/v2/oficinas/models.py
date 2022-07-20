@@ -36,8 +36,8 @@ class Oficina(Base, UniversalMixin):
     # Hijos
     usuarios = relationship("Usuario", back_populates="oficina")
     cit_citas = relationship("CitCita", back_populates="oficina")
-    # cit_horas_bloqueadas = relationship("CitHoraBloqueada", back_populates="oficina")
-    # cit_oficinas_servicios = relationship("CitOficinaServicio", back_populates="oficina")
+    cit_horas_bloqueadas = relationship("CitHoraBloqueada", back_populates="oficina")
+    cit_oficinas_servicios = relationship("CitOficinaServicio", back_populates="oficina")
 
     def __repr__(self):
         """Representación"""
