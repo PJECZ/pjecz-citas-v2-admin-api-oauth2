@@ -4,7 +4,7 @@
         "prefix": "fpaths",
         "body": [
             "\"\"\"",
-            "${1:Modulos} v1, rutas (paths)",
+            "${1:Modulos} v2, rutas (paths)",
             "\"\"\"",
             "from fastapi import APIRouter, Depends, HTTPException, status",
             "from fastapi_pagination.ext.sqlalchemy import paginate",

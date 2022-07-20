@@ -1,0 +1,16 @@
+black
+fastapi
+fastapi-pagination[sqlalchemy]
+hashids
+passlib[bcrypt]
+psycopg2
+pylint
+pylint-sqlalchemy
+python-jose[cryptography]
+python-multipart
+rich
+typer[all]
+SQLAlchemy
+SQLAlchemy-Utils
+Unidecode
+uvicorn[standard]
