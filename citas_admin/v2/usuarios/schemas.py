@@ -21,15 +21,37 @@ class UsuarioOut(BaseModel):
     oficina_descripcion: str
     oficina_descripcion_corta: str
     email: str
-    contrasena: str
     nombres: str
     apellido_paterno: str
-    apellido_materno: Optional[str] = None
-    curp: Optional[str] = None
-    puesto: Optional[str] = None
-    telefono_celular: Optional[str] = None
+    apellido_materno: Optional[str] = ""
+    curp: Optional[str] = ""
+    puesto: Optional[str] = ""
+    telefono_celular: Optional[str] = ""
 
     class Config:
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class UsuarioInDB(UsuarioOut):
+    """Usuario en base de datos"""
+
+    username: str
+    permissions: dict
+    hashed_password: str
+    disabled: bool
+
+
+class Token(BaseModel):
+    """Token"""
+
+    access_token: str
+    token_type: str
+    username: str
+
+
+class TokenData(BaseModel):
+    """Token data"""
+
+    username: Optional[str] = None

@@ -4,10 +4,15 @@ Citas V2 Admin API OAuth2
 from datetime import timedelta
 
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 
 from config.settings import ACCESS_TOKEN_EXPIRE_MINUTES
+from lib.database import get_db
 
-# FastAPI
+from .v2.usuarios.authentications import authenticate_user, create_access_token, get_current_active_user
+from .v2.usuarios.schemas import Token, UsuarioInDB
+
 app = FastAPI(
     title="Citas V2 Admin API OAuth2",
     description="API OAuth2 del sistema de citas para brindar informacion a otros sistemas.",
@@ -17,7 +22,7 @@ app = FastAPI(
 @app.get("/")
 async def root():
     """Mensaje de Bienvenida"""
-    return {"message": "Bienvenido a Citas V2 Admin API OAuth2."}
+    return {"message": "Bienvenido a Citas v2 admin API OAuth2 del Poder Judicial del Estado de Coahuila de Zaragoza."}
 
 
 @app.post("/token", response_model=Token)
@@ -39,7 +44,7 @@ async def ingresar_para_solicitar_token(form_data: OAuth2PasswordRequestForm = D
     }
 
 
-@app.get("/profile", response_model=CitClienteInDB)
+@app.get("/profile", response_model=UsuarioInDB)
 async def mi_perfil(current_user: UsuarioInDB = Depends(get_current_active_user)):
     """Mostrar el perfil del usuario"""
     return current_user
