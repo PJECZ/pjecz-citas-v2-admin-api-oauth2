@@ -11,8 +11,15 @@ from sqlalchemy.orm import Session
 from config.settings import ACCESS_TOKEN_EXPIRE_MINUTES
 from lib.database import get_db
 
+from .v2.autoridades.paths import autoridades
 from .v2.distritos.paths import distritos
+from .v2.domicilios.paths import domicilios
 from .v2.materias.paths import materias
+from .v2.oficinas.paths import oficinas
+from .v2.permisos.paths import permisos
+from .v2.roles.paths import roles
+from .v2.usuarios.paths import usuarios
+from .v2.usuarios_roles.paths import usuarios_roles
 
 from .v2.usuarios.authentications import authenticate_user, create_access_token, get_current_active_user
 from .v2.usuarios.schemas import Token, UsuarioInDB
@@ -22,8 +29,15 @@ app = FastAPI(
     description="API OAuth2 del sistema de citas para brindar informacion a otros sistemas.",
 )
 
+app.include_router(autoridades)
 app.include_router(distritos)
+app.include_router(domicilios)
 app.include_router(materias)
+app.include_router(oficinas)
+app.include_router(permisos)
+app.include_router(roles)
+app.include_router(usuarios)
+app.include_router(usuarios_roles)
 
 add_pagination(app)
 

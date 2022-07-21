@@ -4,7 +4,7 @@ Usuarios-Roles v2, esquemas de pydantic
 from pydantic import BaseModel
 
 
-class UsuarioRol(BaseModel):
+class UsuarioRolOut(BaseModel):
     """Esquema para entregar usuarios-roles"""
 
     id: int
