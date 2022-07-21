@@ -76,11 +76,6 @@ class Usuario(Base, UniversalMixin):
         """Descripcion corta de la oficina"""
         return self.oficina.descripcion_corta
 
-    @property
-    def domicilio_completo(self):
-        """Domicilio completo"""
-        return self.oficina.domicilio.completo
-
     def __repr__(self):
         """Representación"""
         return f"<Usuario {self.id}>"
