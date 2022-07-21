@@ -26,6 +26,31 @@ class CitOficinaServicio(Base, UniversalMixin):
     # Columnas
     descripcion = Column(String(256), nullable=False)
 
+    @property
+    def cit_servicio_clave(self):
+        """Clave del servicio"""
+        return self.cit_servicio.clave
+
+    @property
+    def cit_servicio_descripcion(self):
+        """Descripcion del servicio"""
+        return self.cit_servicio.descripcion
+
+    @property
+    def oficina_clave(self):
+        """Clave de la oficina"""
+        return self.oficina.clave
+
+    @property
+    def oficina_descripcion(self):
+        """Descripcion de la oficina"""
+        return self.oficina.descripcion
+
+    @property
+    def oficina_descripcion_corta(self):
+        """Descripcion corta de la oficina"""
+        return self.oficina.descripcion_corta
+
     def __repr__(self):
         """Representación"""
         return f"<CitOficinaServicio {self.id}>"

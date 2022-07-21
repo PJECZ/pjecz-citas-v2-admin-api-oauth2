@@ -27,6 +27,21 @@ class CitHoraBloqueada(Base, UniversalMixin):
     termino = Column(Time(), nullable=False)
     descripcion = Column(String(256))
 
+    @property
+    def oficina_clave(self):
+        """Clave de la oficina"""
+        return self.oficina.clave
+
+    @property
+    def oficina_descripcion(self):
+        """Descripcion de la oficina"""
+        return self.oficina.descripcion
+
+    @property
+    def oficina_descripcion_corta(self):
+        """Descripcion corta de la oficina"""
+        return self.oficina.descripcion_corta
+
     def __repr__(self):
         """Representación"""
         return f"<CitHoraBloqueada {self.id}>"

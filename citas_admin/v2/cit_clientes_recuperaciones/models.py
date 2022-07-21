@@ -27,6 +27,21 @@ class CitClienteRecuperacion(Base, UniversalMixin):
     mensajes_cantidad = Column(Integer(), nullable=False, default=0)
     ya_recuperado = Column(Boolean(), nullable=False, default=False)
 
+    @property
+    def cit_cliente_nombre(self):
+        """Nombre del cliente"""
+        return self.cit_cliente.nombre
+
+    @property
+    def cit_cliente_curp(self):
+        """Curp del cliente"""
+        return self.cit_cliente.curp
+
+    @property
+    def cit_cliente_email(self):
+        """Email del cliente"""
+        return self.cit_cliente.email
+
     def __repr__(self):
         """Representación"""
         return f"<CitClienteRecuperacion {self.id}>"
