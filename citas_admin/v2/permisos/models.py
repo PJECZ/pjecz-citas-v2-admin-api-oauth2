@@ -29,10 +29,10 @@ class Permiso(Base, UniversalMixin):
     id = Column(Integer, primary_key=True)
 
     # Claves foráneas
-    rol_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=False)
-    rol = relationship("Rol", back_populates="permisos")
     modulo_id = Column(Integer, ForeignKey("modulos.id"), index=True, nullable=False)
     modulo = relationship("Modulo", back_populates="permisos")
+    rol_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=False)
+    rol = relationship("Rol", back_populates="permisos")
 
     # Columnas
     nombre = Column(String(256), nullable=False, unique=True)
