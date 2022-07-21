@@ -39,6 +39,21 @@ class Oficina(Base, UniversalMixin):
     cit_horas_bloqueadas = relationship("CitHoraBloqueada", back_populates="oficina")
     cit_oficinas_servicios = relationship("CitOficinaServicio", back_populates="oficina")
 
+    @property
+    def distrito_nombre(self):
+        """Nombre del distrito"""
+        return self.distrito.nombre
+
+    @property
+    def distrito_nombre_corto(self):
+        """Nombre corto del distrito"""
+        return self.distrito.nombre_corto
+
+    @property
+    def domicilio_completo(self):
+        """Domicilio completo"""
+        return self.domicilio.completo
+
     def __repr__(self):
         """Representación"""
         return f"<Oficina {self.id}>"

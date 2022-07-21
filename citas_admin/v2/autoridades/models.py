@@ -49,6 +49,21 @@ class Autoridad(Base, UniversalMixin):
     # Hijos
     usuarios = relationship("Usuario", back_populates="autoridad")
 
+    @property
+    def distrito_nombre(self):
+        """Nombre del distrito"""
+        return self.distrito.nombre
+
+    @property
+    def distrito_nombre_corto(self):
+        """Nombre corto del distrito"""
+        return self.distrito.nombre_corto
+
+    @property
+    def materia_nombre(self):
+        """Nombre de la materia"""
+        return self.materia.nombre
+
     def __repr__(self):
         """Representación"""
         return f"<Autoridad {self.clave}>"
