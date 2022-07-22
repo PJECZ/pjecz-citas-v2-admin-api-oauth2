@@ -42,6 +42,16 @@ class Usuario(Base, UniversalMixin):
     permisos_consultados = {}
 
     @property
+    def nombre(self):
+        """Junta nombres, apellido_paterno y apellido materno"""
+        return self.nombres + " " + self.apellido_paterno + " " + self.apellido_materno
+
+    @property
+    def distrito_id(self):
+        """ID del distrito"""
+        return self.autoridad.distrito_id
+
+    @property
     def distrito_nombre(self):
         """Nombre del distrito"""
         return self.autoridad.distrito.nombre

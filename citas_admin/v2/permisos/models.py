@@ -46,7 +46,7 @@ class Permiso(Base, UniversalMixin):
     @property
     def modulo_nombre(self):
         """Nombre del rol"""
-        return self.rol.nombre
+        return self.modulo.nombre
 
     def __repr__(self):
         """Representación"""
