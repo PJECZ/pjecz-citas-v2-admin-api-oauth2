@@ -24,6 +24,7 @@ from .v2.cit_servicios.paths import cit_servicios
 from .v2.distritos.paths import distritos
 from .v2.domicilios.paths import domicilios
 from .v2.materias.paths import materias
+from .v2.modulos.paths import modulos
 from .v2.oficinas.paths import oficinas
 from .v2.permisos.paths import permisos
 from .v2.roles.paths import roles
@@ -51,6 +52,7 @@ app.include_router(cit_servicios)
 app.include_router(distritos)
 app.include_router(domicilios)
 app.include_router(materias)
+app.include_router(modulos)
 app.include_router(oficinas)
 app.include_router(permisos)
 app.include_router(roles)
