@@ -5,7 +5,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class CitCitasOut(BaseModel):
+class CitCitaOut(BaseModel):
     """Esquema para entregar citas"""
 
     id: int

@@ -12,6 +12,15 @@ from config.settings import ACCESS_TOKEN_EXPIRE_MINUTES
 from lib.database import get_db
 
 from .v2.autoridades.paths import autoridades
+from .v2.cit_categorias.paths import cit_categorias
+from .v2.cit_citas.paths import cit_citas
+from .v2.cit_clientes.paths import cit_clientes
+from .v2.cit_clientes_recuperaciones.paths import cit_clientes_recuperaciones
+from .v2.cit_clientes_registros.paths import cit_clientes_registros
+from .v2.cit_dias_inhabiles.paths import cit_dias_inhabiles
+from .v2.cit_horas_bloqueadas.paths import cit_horas_bloqueadas
+from .v2.cit_oficinas_servicios.paths import cit_oficinas_servicios
+from .v2.cit_servicios.paths import cit_servicios
 from .v2.distritos.paths import distritos
 from .v2.domicilios.paths import domicilios
 from .v2.materias.paths import materias
@@ -30,6 +39,15 @@ app = FastAPI(
 )
 
 app.include_router(autoridades)
+app.include_router(cit_categorias)
+app.include_router(cit_citas)
+app.include_router(cit_clientes)
+app.include_router(cit_clientes_recuperaciones)
+app.include_router(cit_clientes_registros)
+app.include_router(cit_dias_inhabiles)
+app.include_router(cit_horas_bloqueadas)
+app.include_router(cit_oficinas_servicios)
+app.include_router(cit_servicios)
 app.include_router(distritos)
 app.include_router(domicilios)
 app.include_router(materias)
