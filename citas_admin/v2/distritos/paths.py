@@ -24,7 +24,7 @@ async def listado_distritos(
     db: Session = Depends(get_db),
 ):
     """Listado de distritos"""
-    if "DISTRITO" not in current_user.permissions or current_user.permissions["DISTRITO"] < Permiso.VER:
+    if "DISTRITOS" not in current_user.permissions or current_user.permissions["DISTRITOS"] < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_distritos(db)
@@ -40,7 +40,7 @@ async def detalle_distrito(
     db: Session = Depends(get_db),
 ):
     """Detalle de una distritos a partir de su id"""
-    if "DISTRITO" not in current_user.permissions or current_user.permissions["DISTRITO"] < Permiso.VER:
+    if "DISTRITOS" not in current_user.permissions or current_user.permissions["DISTRITOS"] < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         distrito = get_distrito(db, distrito_id=distrito_id)

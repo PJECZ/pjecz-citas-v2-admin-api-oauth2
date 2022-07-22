@@ -25,13 +25,13 @@ def get_cit_citas(
     consulta = db.query(CitCita)
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
-        consulta = consulta.filter(cit_cliente=cit_cliente)
+        consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
     if cit_servicio_id is not None:
         cit_servicio = get_cit_servicio(db, cit_servicio_id)
-        consulta = consulta.filter(cit_servicio=cit_servicio)
+        consulta = consulta.filter(CitCita.cit_servicio == cit_servicio)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
-        consulta = consulta.filter(oficina=oficina)
+        consulta = consulta.filter(CitCita.oficina == oficina)
     if inicio_desde is not None:
         consulta = consulta.filter(CitCita.inicio >= inicio_desde)
     if inicio_hasta is not None:

@@ -20,7 +20,7 @@ def get_autoridades(
     consulta = db.query(Autoridad)
     if distrito_id is not None:
         distrito = get_distrito(db, distrito_id)
-        consulta = consulta.filter(distrito=distrito)
+        consulta = consulta.filter(Autoridad.distrito == distrito)
     if es_jurisdiccional is not None:
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
     if es_notaria is not None:

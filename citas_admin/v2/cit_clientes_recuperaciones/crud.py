@@ -22,7 +22,7 @@ def get_cit_clientes_recuperaciones(
     consulta = db.query(CitClienteRecuperacion)
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, get_cit_cliente)
-        consulta = consulta.filter(cit_cliente=cit_cliente)
+        consulta = consulta.filter(CitClienteRecuperacion.cit_cliente == cit_cliente)
     if creado_desde is not None:
         consulta = consulta.filter(CitClienteRecuperacion.creado >= creado_desde)
     if creado_hasta is not None:

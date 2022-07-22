@@ -20,10 +20,10 @@ def get_usuarios_roles(
     consulta = db.query(UsuarioRol)
     if rol_id is not None:
         rol = get_rol(db, rol_id)
-        consulta = consulta.filter(rol=rol)
+        consulta = consulta.filter(UsuarioRol.rol == rol)
     if usuario_id is not None:
         usuario = get_usuario(db, usuario_id)
-        consulta = consulta.filter(usuario=usuario)
+        consulta = consulta.filter(UsuarioRol.usuario == usuario)
     return consulta.filter_by(estatus="A").order_by(UsuarioRol.id)
 
 

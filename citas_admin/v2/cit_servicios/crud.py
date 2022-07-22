@@ -18,7 +18,7 @@ def get_cit_servicios(
     consulta = db.query(CitServicio)
     if cit_categoria_id is not None:
         cit_categoria = get_cit_categoria(db, cit_categoria_id)
-        consulta = consulta.filter(cit_categoria=cit_categoria)
+        consulta = consulta.filter(CitServicio.cit_categoria == cit_categoria)
     return consulta.filter_by(estatus="A").order_by(CitServicio.id)
 
 

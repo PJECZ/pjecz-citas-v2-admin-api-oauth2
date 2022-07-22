@@ -20,7 +20,7 @@ def get_cit_horas_bloqueadas(
     consulta = db.query(CitHoraBloqueada)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
-        consulta = consulta.filter(oficina=oficina)
+        consulta = consulta.filter(CitHoraBloqueada.oficina == oficina)
     if fecha is not None:
         consulta = consulta.filter_by(fecha=fecha)
     return consulta.filter_by(estatus="A").filter(CitHoraBloqueada.fecha >= date.today()).order_by(CitHoraBloqueada.fecha, CitHoraBloqueada.inicio)

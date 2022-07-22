@@ -20,10 +20,10 @@ def get_permisos(
     consulta = db.query(Permiso)
     if modulo_id is not None:
         modulo = get_modulo(db, modulo_id)
-        consulta = consulta.filter(modulo=modulo)
+        consulta = consulta.filter(Permiso.modulo == modulo)
     if rol_id is not None:
         rol = get_rol(db, rol_id)
-        consulta = consulta.filter(rol=rol)
+        consulta = consulta.filter(Permiso.rol == rol)
     return consulta.filter_by(estatus="A").order_by(Permiso.id)
 
 

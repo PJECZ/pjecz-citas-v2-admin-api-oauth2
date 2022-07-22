@@ -30,6 +30,7 @@ class CitCliente(Base, UniversalMixin):
 
     # Hijos
     cit_citas = relationship("CitCita", back_populates="cit_cliente")
+    cit_clientes_recuperaciones = relationship("CitClienteRecuperacion", back_populates="cit_cliente")
 
     @property
     def nombre(self):

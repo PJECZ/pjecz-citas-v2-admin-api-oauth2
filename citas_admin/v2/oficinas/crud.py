@@ -22,10 +22,10 @@ def get_oficinas(
     consulta = db.query(Oficina)
     if distrito_id is not None:
         distrito = get_distrito(db, distrito_id)
-        consulta = consulta.filter(distrito=distrito)
+        consulta = consulta.filter(Oficina.distrito == distrito)
     if domicilio_id is not None:
         domicilio = get_domicilio(db, domicilio_id)
-        consulta = consulta.filter(domicilio=domicilio)
+        consulta = consulta.filter(Oficina.domicilio == domicilio)
     if es_jurisdiccional is not None:
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
     if puede_agendar_citas is not None:

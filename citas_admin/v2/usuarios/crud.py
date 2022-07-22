@@ -20,10 +20,10 @@ def get_usuarios(
     consulta = db.query(Usuario)
     if autoridad_id is not None:
         autoridad = get_autoridad(db, autoridad_id)
-        consulta = consulta.filter_by(autoridad=autoridad)
+        consulta = consulta.filter(Usuario.autoridad == autoridad)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
-        consulta = consulta.filter_by(oficina=oficina)
+        consulta = consulta.filter(Usuario.oficina == oficina)
     return consulta.filter_by(estatus="A").order_by(Usuario.id)
 
 

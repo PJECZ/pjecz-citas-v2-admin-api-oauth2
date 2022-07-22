@@ -20,10 +20,10 @@ def get_cit_oficinas_servicios(
     consulta = db.query(CitOficinaServicio)
     if cit_servicio_id is not None:
         cit_servicio = get_cit_servicio(db, cit_servicio_id)
-        consulta = consulta.filter(cit_servicio=cit_servicio)
+        consulta = consulta.filter(CitOficinaServicio.cit_servicio == cit_servicio)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
-        consulta = consulta.filter(oficina=oficina)
+        consulta = consulta.filter(CitOficinaServicio.oficina == oficina)
     return consulta.filter_by(estatus="A").order_by(CitOficinaServicio.id)
 
 
