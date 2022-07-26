@@ -34,11 +34,13 @@ from .v2.usuarios_roles.paths import usuarios_roles
 from .v2.usuarios.authentications import authenticate_user, create_access_token, get_current_active_user
 from .v2.usuarios.schemas import Token, UsuarioInDB
 
+# FastAPI
 app = FastAPI(
     title="Citas V2 Admin API OAuth2",
     description="API OAuth2 del sistema de citas para brindar informacion a otros sistemas.",
 )
 
+# Paths
 app.include_router(autoridades)
 app.include_router(cit_categorias)
 app.include_router(cit_citas)
@@ -59,6 +61,7 @@ app.include_router(roles)
 app.include_router(usuarios)
 app.include_router(usuarios_roles)
 
+# Pagination
 add_pagination(app)
 
 
