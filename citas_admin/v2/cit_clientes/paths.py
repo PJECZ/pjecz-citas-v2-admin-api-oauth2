@@ -24,7 +24,7 @@ async def listado_cit_clientes(
     db: Session = Depends(get_db),
 ):
     """Listado de clientes"""
-    if "CIT CLIENTES" not in current_user.permissions or current_user.permissions["CIT CLIENTES"] < Permiso.VER:
+    if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_clientes(db)
@@ -40,10 +40,13 @@ async def detalle_cit_cliente(
     db: Session = Depends(get_db),
 ):
     """Detalle de una clientes a partir de su id"""
-    if "CIT CLIENTES" not in current_user.permissions or current_user.permissions["CIT CLIENTES"] < Permiso.VER:
+    if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        cit_cliente = get_cit_cliente(db, cit_cliente_id=cit_cliente_id)
+        cit_cliente = get_cit_cliente(
+            db,
+            cit_cliente_id=cit_cliente_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitClienteOut.from_orm(cit_cliente)

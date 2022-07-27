@@ -24,7 +24,7 @@ async def listado_cit_categorias(
     db: Session = Depends(get_db),
 ):
     """Listado de categorias"""
-    if "CIT CATEGORIAS" not in current_user.permissions or current_user.permissions["CIT CATEGORIAS"] < Permiso.VER:
+    if current_user.permissions.get("CIT CATEGORIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_categorias(db)
@@ -40,10 +40,13 @@ async def detalle_cit_categoria(
     db: Session = Depends(get_db),
 ):
     """Detalle de una categorias a partir de su id"""
-    if "CIT CATEGORIAS" not in current_user.permissions or current_user.permissions["CIT CATEGORIAS"] < Permiso.VER:
+    if current_user.permissions.get("CIT CATEGORIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        cit_categoria = get_cit_categoria(db, cit_categoria_id=cit_categoria_id)
+        cit_categoria = get_cit_categoria(
+            db,
+            cit_categoria_id=cit_categoria_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitCategoriaOut.from_orm(cit_categoria)
