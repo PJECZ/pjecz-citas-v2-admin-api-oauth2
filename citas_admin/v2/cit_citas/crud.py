@@ -60,7 +60,7 @@ def get_cit_citas_cantidades_creados_por_dia(
     creado_hasta: date = None,
 ) -> Any:
     """Calcular las cantidades de clientes creados por dia"""
-    # Observe que para la columna creado se usa la función func.date()
+    # Observe que para la columna `creado` se usa la función func.date()
     consulta = db.query(
         func.date(CitCita.creado).label("creado"),
         func.count(CitCita.id).label("cantidad"),
