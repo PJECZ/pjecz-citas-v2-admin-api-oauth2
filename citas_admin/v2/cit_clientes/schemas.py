@@ -1,7 +1,7 @@
 """
 Cit Clientes v2, esquemas de pydantic
 """
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel
 
 
@@ -19,8 +19,16 @@ class CitClienteOut(BaseModel):
     contrasena_sha256: str
     renovacion: date
     nombre: str
+    creado: datetime
 
     class Config:
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitClienteCantidadesCreadosPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de clientes creados por día"""
+
+    creado: date
+    cantidad: int

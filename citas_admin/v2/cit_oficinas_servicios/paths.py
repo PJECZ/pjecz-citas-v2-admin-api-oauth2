@@ -26,7 +26,7 @@ async def listado_cit_oficinas_servicios(
     db: Session = Depends(get_db),
 ):
     """Listado de oficinas-servicios"""
-    if "CIT OFICINAS SERVICIOS" not in current_user.permissions or current_user.permissions["CIT OFICINAS SERVICIOS"] < Permiso.VER:
+    if current_user.permissions.get("CIT OFICINAS SERVICIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_oficinas_servicios(
@@ -46,10 +46,13 @@ async def detalle_cit_oficina_servicio(
     db: Session = Depends(get_db),
 ):
     """Detalle de una oficinas-servicios a partir de su id"""
-    if "CIT OFICINAS SERVICIOS" not in current_user.permissions or current_user.permissions["CIT OFICINAS SERVICIOS"] < Permiso.VER:
+    if current_user.permissions.get("CIT OFICINAS SERVICIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        cit_oficina_servicio = get_cit_oficina_servicio(db, cit_oficina_servicio_id=cit_oficina_servicio_id)
+        cit_oficina_servicio = get_cit_oficina_servicio(
+            db,
+            cit_oficina_servicio_id=cit_oficina_servicio_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitOficinaServicioOut.from_orm(cit_oficina_servicio)

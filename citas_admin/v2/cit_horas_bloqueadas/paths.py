@@ -27,7 +27,7 @@ async def listado_cit_horas_bloqueadas(
     db: Session = Depends(get_db),
 ):
     """Listado de horas bloqueadas"""
-    if "CIT HORAS BLOQUEADAS" not in current_user.permissions or current_user.permissions["CIT HORAS BLOQUEADAS"] < Permiso.VER:
+    if current_user.permissions.get("CIT HORAS BLOQUEADAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_horas_bloqueadas(
@@ -47,10 +47,13 @@ async def detalle_cit_hora_bloqueada(
     db: Session = Depends(get_db),
 ):
     """Detalle de una horas bloqueadas a partir de su id"""
-    if "CIT HORAS BLOQUEADAS" not in current_user.permissions or current_user.permissions["CIT HORAS BLOQUEADAS"] < Permiso.VER:
+    if current_user.permissions.get("CIT HORAS BLOQUEADAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        cit_hora_bloqueada = get_cit_hora_bloqueada(db, cit_hora_bloqueada_id=cit_hora_bloqueada_id)
+        cit_hora_bloqueada = get_cit_hora_bloqueada(
+            db,
+            cit_hora_bloqueada_id=cit_hora_bloqueada_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitHoraBloqueadaOut.from_orm(cit_hora_bloqueada)

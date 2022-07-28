@@ -1,7 +1,7 @@
 """
 Cit Citas v2, esquemas de pydantic
 """
-from datetime import datetime
+from datetime import date, datetime
 from pydantic import BaseModel
 
 
@@ -30,3 +30,10 @@ class CitCitaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitCitaCantidadesCreadasPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de citas creadas por día"""
+
+    creado: date
+    cantidad: int

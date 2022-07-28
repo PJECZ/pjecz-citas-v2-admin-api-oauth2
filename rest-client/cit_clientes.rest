@@ -1,0 +1,33 @@
+@root = http://{{$dotenv HOST}}:{{$dotenv PORT}}
+@baseUrl = {{root}}/v2
+@username = {{$dotenv USERNAME}}
+@password = {{$dotenv PASSWORD}}
+
+### Bienvenida
+GET {{root}}
+
+### Autorizacion
+# @name auth
+POST {{root}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{username}}&password={{password}}
+
+### Clientes
+GET {{baseUrl}}/cit_clientes
+Authorization: Bearer {{auth.response.body.access_token}}
+
+### Cantidad de clientes creados en los ultimos 30 dias
+GET {{baseUrl}}/cit_clientes/creados_por_dia
+Authorization: Bearer {{auth.response.body.access_token}}
+
+### Cantidad de clientes creados el 2022-07-23
+GET {{baseUrl}}/cit_clientes/creados_por_dia
+    ?creado=2022-07-23
+Authorization: Bearer {{auth.response.body.access_token}}
+
+### Cantidad de clientes creados desde el 2020-07-23 hasta el 2020-07-26
+GET {{baseUrl}}/cit_clientes/creados_por_dia
+    ?creado_desde=2022-07-23
+    &creado_hasta=2022-07-26
+Authorization: Bearer {{auth.response.body.access_token}}

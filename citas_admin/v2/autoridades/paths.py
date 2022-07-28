@@ -27,7 +27,7 @@ async def listado_autoridades(
     db: Session = Depends(get_db),
 ):
     """Listado de autoridades"""
-    if "AUTORIDADES" not in current_user.permissions or current_user.permissions["AUTORIDADES"] < Permiso.VER:
+    if current_user.permissions.get("AUTORIDADES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_autoridades(
@@ -48,10 +48,13 @@ async def detalle_autoridad(
     db: Session = Depends(get_db),
 ):
     """Detalle de una autoridades a partir de su id"""
-    if "AUTORIDADES" not in current_user.permissions or current_user.permissions["AUTORIDADES"] < Permiso.VER:
+    if current_user.permissions.get("AUTORIDADES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        autoridad = get_autoridad(db, autoridad_id=autoridad_id)
+        autoridad = get_autoridad(
+            db,
+            autoridad_id=autoridad_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return AutoridadOut.from_orm(autoridad)

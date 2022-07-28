@@ -24,7 +24,7 @@ async def listado_cit_dias_inhabiles(
     db: Session = Depends(get_db),
 ):
     """Listado de dias inhabiles"""
-    if "CIT DIAS INHABILES" not in current_user.permissions or current_user.permissions["CIT DIAS INHABILES"] < Permiso.VER:
+    if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_dias_inhabiles(db)
@@ -40,10 +40,13 @@ async def detalle_dia_inhabil(
     db: Session = Depends(get_db),
 ):
     """Detalle de una dias inhabiles a partir de su id"""
-    if "CIT DIAS INHABILES" not in current_user.permissions or current_user.permissions["CIT DIAS INHABILES"] < Permiso.VER:
+    if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        dia_inhabil = get_cit_dia_inhabil(db, cit_dia_inhabil_id=cit_dia_inhabil_id)
+        dia_inhabil = get_cit_dia_inhabil(
+            db,
+            cit_dia_inhabil_id=cit_dia_inhabil_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitDiaInhabilOut.from_orm(dia_inhabil)

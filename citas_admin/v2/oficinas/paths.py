@@ -28,7 +28,7 @@ async def listado_oficinas(
     db: Session = Depends(get_db),
 ):
     """Listado de oficinas"""
-    if "OFICINAS" not in current_user.permissions or current_user.permissions["OFICINAS"] < Permiso.VER:
+    if current_user.permissions.get("OFICINAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_oficinas(
@@ -50,10 +50,13 @@ async def detalle_oficina(
     db: Session = Depends(get_db),
 ):
     """Detalle de una oficinas a partir de su id"""
-    if "OFICINAS" not in current_user.permissions or current_user.permissions["OFICINAS"] < Permiso.VER:
+    if current_user.permissions.get("OFICINAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        oficina = get_oficina(db, oficina_id=oficina_id)
+        oficina = get_oficina(
+            db,
+            oficina_id=oficina_id,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return OficinaOut.from_orm(oficina)
