@@ -1,7 +1,7 @@
 """
 Cit Clientes v2, rutas (paths)
 """
-from datetime import date, datetime
+from datetime import date
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status

@@ -1,17 +1,19 @@
 """
 Cit Citas v2, rutas (paths)
 """
-from datetime import datetime
+from datetime import date, datetime
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_citas, get_cit_cita
-from .schemas import CitCitaOut
+from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia
+from .schemas import CitCitaOut, CitCitaCantidadesCreadasPorDiaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -44,6 +46,29 @@ async def listado_cit_citas(
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
+
+
+@cit_citas.get("/creados_por_dia", response_model=List[CitCitaCantidadesCreadasPorDiaOut])
+async def listado_cit_clientes_creados_por_dia(
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Listado de clientes creados"""
+    if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        consulta = get_cit_citas_cantidades_creados_por_dia(
+            db,
+            creado=creado,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except OutOfRangeException as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    return consulta.all()
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)

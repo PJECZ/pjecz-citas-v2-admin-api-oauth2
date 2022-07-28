@@ -32,11 +32,8 @@ class CitCitaOut(BaseModel):
         orm_mode = True
 
 
-class CitCitaReportOut(BaseModel):
-    """Esquema para entregar cantidades de clientes creados por día"""
+class CitCitaCantidadesCreadasPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de citas creadas por día"""
 
-    tiempo_desde: datetime
-    tiempo_hasta: datetime
-    cit_servicio_clave: str
-    oficina_clave: str
+    creado: date
     cantidad: int
