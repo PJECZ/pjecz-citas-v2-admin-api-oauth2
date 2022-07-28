@@ -44,7 +44,7 @@ async def listado_cit_clientes_creados_por_dia(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    """Listado de clientes creados"""
+    """Listado de cantidades de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:

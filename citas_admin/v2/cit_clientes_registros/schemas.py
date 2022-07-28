@@ -1,7 +1,7 @@
 """
 Cit Clientes Registros v2, esquemas de pydantic
 """
-from datetime import datetime
+from datetime import date, datetime
 from pydantic import BaseModel
 
 
@@ -24,3 +24,10 @@ class CitClienteRegistroOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitClienteRegistroCantidadesCreadasPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de citas creadas por día"""
+
+    creado: date
+    cantidad: int
