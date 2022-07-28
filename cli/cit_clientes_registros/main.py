@@ -7,9 +7,15 @@ app = typer.Typer()
 
 
 @app.command()
-def consultar():
-    """Consultar"""
-    print("Consultar regsitros de clientes")
+def exportar():
+    """Exportar"""
+    print("Exportar")
+
+
+@app.command()
+def ver():
+    """Ver"""
+    print("Ver")
 
 
 if __name__ == "__main__":
