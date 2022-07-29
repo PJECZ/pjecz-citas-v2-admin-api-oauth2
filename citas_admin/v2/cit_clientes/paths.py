@@ -23,6 +23,11 @@ cit_clientes = APIRouter(prefix="/v2/cit_clientes", tags=["citas"])
 
 @cit_clientes.get("", response_model=LimitOffsetPage[CitClienteOut])
 async def listado_cit_clientes(
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -30,7 +35,14 @@ async def listado_cit_clientes(
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_clientes(db)
+        listado = get_cit_clientes(
+            db,
+            nombres=nombres,
+            apellido_primero=apellido_primero,
+            apellido_segundo=apellido_segundo,
+            curp=curp,
+            email=email,
+        )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)

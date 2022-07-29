@@ -1,18 +1,41 @@
 """
 CLI Cit Clientes
 """
+from datetime import datetime
+
 import requests
 import typer
-import rich
+from rich.console import Console
+from rich.table import Table
 
-import autentificar
+import api
+import exceptions
+
 
 app = typer.Typer()
 
 
-def get_cit_clientes(base_url: str, authorization_header: dict) -> dict:
+def get_cit_clientes(
+    base_url: str,
+    authorization_header: dict,
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
+) -> dict:
     """Consultar citas"""
     parametros = {"limit": 10}
+    if nombres:
+        parametros["nombres"] = nombres
+    if apellido_primero:
+        parametros["apellido_primero"] = apellido_primero
+    if apellido_segundo:
+        parametros["apellido_segundo"] = apellido_segundo
+    if curp:
+        parametros["curp"] = curp
+    if email:
+        parametros["email"] = email
     try:
         response = requests.get(
             f"{base_url}/cit_clientes",
@@ -37,15 +60,35 @@ def exportar():
 
 
 @app.command()
-def ver():
-    """Ver"""
-    print("Ver")
-    rich.print(
-        get_cit_clientes(
-            base_url=autentificar.base_url(),
-            authorization_header=autentificar.autentificar(),
+def consultar(nombres: str = None, apellido_primero: str = None, apellido_segundo: str = None, curp: str = None, email: str = None):
+    """Consultar"""
+    print("Consultar los clientes")
+    try:
+        respuesta = get_cit_clientes(
+            base_url=api.base_url(),
+            authorization_header=api.authorization(),
+            nombres=nombres,
+            apellido_primero=apellido_primero,
+            apellido_segundo=apellido_segundo,
+            curp=curp,
+            email=email,
         )
-    )
+    except (exceptions.AuthenticationException, exceptions.ConfigurationException) as error:
+        raise typer.Exit(code=1) from error
+    console = Console()
+    table = Table("id", "creado", "nombres", "apellido_primero", "apellido_segundo", "curp", "email")
+    for registro in respuesta["items"]:
+        creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
+        table.add_row(
+            str(registro["id"]),
+            creado.strftime("%Y-%m-%d %H:%M:%S"),
+            registro["nombres"],
+            registro["apellido_primero"],
+            registro["apellido_segundo"],
+            registro["curp"],
+            registro["email"],
+        )
+    console.print(table)
 
 
 if __name__ == "__main__":

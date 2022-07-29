@@ -3,9 +3,11 @@ CLI Cit Citas
 """
 import requests
 import typer
-import rich
+from rich.console import Console
+from rich.table import Table
 
-import autentificar
+import api
+import exceptions
 
 app = typer.Typer()
 
@@ -37,15 +39,28 @@ def exportar():
 
 
 @app.command()
-def ver():
-    """Ver"""
-    print("Ver")
-    rich.print(
-        get_cit_citas(
-            base_url=autentificar.base_url(),
-            authorization_header=autentificar.autentificar(),
+def consultar():
+    """Consultar"""
+    print("Consultar las citas")
+    try:
+        respuesta = get_cit_citas(
+            base_url=api.base_url(),
+            authorization_header=api.authorization(),
         )
-    )
+    except (exceptions.AuthenticationException, exceptions.ConfigurationException) as error:
+        raise typer.Exit(code=1) from error
+    console = Console()
+    table = Table("id", "oficina", "inicio", "nombre", "servicio", "estado")
+    for registro in respuesta["items"]:
+        table.add_row(
+            str(registro["id"]),
+            registro["oficina_clave"],
+            registro["inicio"],
+            registro["cit_cliente_nombre"],
+            registro["cit_servicio_clave"],
+            registro["estado"],
+        )
+    console.print(table)
 
 
 if __name__ == "__main__":

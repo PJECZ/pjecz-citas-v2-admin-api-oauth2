@@ -1,5 +1,5 @@
 """
-CLI Typer
+CLI Typer main application
 """
 import typer
 
