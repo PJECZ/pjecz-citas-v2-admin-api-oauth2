@@ -14,4 +14,4 @@ python-multipart
 SQLAlchemy
 SQLAlchemy-Utils
 Unidecode
-uvicorn[gunicorn]
+uvicorn

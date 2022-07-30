@@ -17,6 +17,7 @@ class CitClienteRecuperacionOut(BaseModel):
     cadena_validar: str
     mensajes_cantidad: int
     ya_recuperado: bool
+    creado: datetime
 
     class Config:
         """SQLAlchemy config"""

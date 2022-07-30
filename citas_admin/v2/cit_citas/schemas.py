@@ -25,6 +25,7 @@ class CitCitaOut(BaseModel):
     notas: str
     estado: str
     asistencia: bool
+    creado: datetime
 
     class Config:
         """SQLAlchemy config"""

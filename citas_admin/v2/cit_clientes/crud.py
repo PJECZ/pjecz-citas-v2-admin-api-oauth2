@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitCliente
 
@@ -14,9 +15,32 @@ HOY = date.today()
 ANTIGUA_FECHA = date(year=2022, month=1, day=1)
 
 
-def get_cit_clientes(db: Session) -> Any:
+def get_cit_clientes(
+    db: Session,
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
+) -> Any:
     """Consultar los clientes activos"""
-    return db.query(CitCliente).filter_by(estatus="A").order_by(CitCliente.id.desc())
+    consulta = db.query(CitCliente)
+    nombres = safe_string(nombres)
+    if nombres is not None:
+        consulta = consulta.filter(CitCliente.nombres.contains(nombres))
+    apellido_primero = safe_string(apellido_primero)
+    if apellido_primero is not None:
+        consulta = consulta.filter(CitCliente.apellido_primero.contains(apellido_primero))
+    apellido_segundo = safe_string(apellido_segundo)
+    if apellido_segundo is not None:
+        consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
+    curp = safe_curp(curp)
+    if curp is not None:
+        consulta = consulta.filter(CitCliente.curp.contains(curp))
+    email = safe_email(email, search_fragment=True)
+    if email is not None:
+        consulta = consulta.filter(CitCliente.email.contains(email))
+    return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
 
 
 def get_cit_cliente(db: Session, cit_cliente_id: int) -> CitCliente:
