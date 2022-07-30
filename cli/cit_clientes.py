@@ -11,7 +11,6 @@ from rich.table import Table
 import api
 import exceptions
 
-
 app = typer.Typer()
 
 
@@ -24,7 +23,7 @@ def get_cit_clientes(
     curp: str = None,
     email: str = None,
 ) -> dict:
-    """Consultar citas"""
+    """Solicitar a la API el listado de clientes"""
     parametros = {"limit": 10}
     if nombres:
         parametros["nombres"] = nombres
@@ -44,24 +43,18 @@ def get_cit_clientes(
             timeout=12,
         )
     except requests.exceptions.RequestException as error:
-        raise error
+        raise exceptions.CLIConnectionError("No hay respuesta al obtener los clientes") from error
     if response.status_code != 200:
-        raise requests.HTTPError(response.status_code)
+        raise exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}")
     data_json = response.json()
     if "items" not in data_json or "total" not in data_json:
-        raise ValueError("Error porque la respuesta de la API no es correcta")
+        raise exceptions.CLIResponseError("No se recibio items o total en la respuesta")
     return data_json
 
 
 @app.command()
-def exportar():
-    """Exportar"""
-    print("Exportar")
-
-
-@app.command()
 def consultar(nombres: str = None, apellido_primero: str = None, apellido_segundo: str = None, curp: str = None, email: str = None):
-    """Consultar"""
+    """Consultar clientes"""
     print("Consultar los clientes")
     try:
         respuesta = get_cit_clientes(
@@ -73,8 +66,9 @@ def consultar(nombres: str = None, apellido_primero: str = None, apellido_segund
             curp=curp,
             email=email,
         )
-    except (exceptions.AuthenticationException, exceptions.ConfigurationException) as error:
-        raise typer.Exit(code=1) from error
+    except exceptions.CLIError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
     console = Console()
     table = Table("id", "creado", "nombres", "apellido_primero", "apellido_segundo", "curp", "email")
     for registro in respuesta["items"]:
