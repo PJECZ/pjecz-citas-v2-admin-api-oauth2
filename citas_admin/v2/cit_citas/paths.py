@@ -24,10 +24,14 @@ cit_citas = APIRouter(prefix="/v2/cit_citas", tags=["citas"])
 @cit_citas.get("", response_model=LimitOffsetPage[CitCitaOut])
 async def listado_cit_citas(
     cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
     cit_servicio_id: int = None,
     oficina_id: int = None,
+    oficina_clave: str = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -38,10 +42,14 @@ async def listado_cit_citas(
         listado = get_cit_citas(
             db,
             cit_cliente_id=cit_cliente_id,
+            cit_cliente_email=cit_cliente_email,
             cit_servicio_id=cit_servicio_id,
             oficina_id=oficina_id,
+            oficina_clave=oficina_clave,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
         )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

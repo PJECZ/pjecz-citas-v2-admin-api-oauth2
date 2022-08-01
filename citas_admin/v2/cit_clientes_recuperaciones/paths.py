@@ -22,9 +22,10 @@ cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones"
 @cit_clientes_recuperaciones.get("", response_model=LimitOffsetPage[CitClienteRecuperacionOut])
 async def listado_cit_clientes_recuperaciones(
     cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    ya_recuperado: bool = None,
     creado_desde: date = None,
     creado_hasta: date = None,
-    ya_recuperado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -35,9 +36,10 @@ async def listado_cit_clientes_recuperaciones(
         listado = get_cit_clientes_recuperaciones(
             db,
             cit_cliente_id=cit_cliente_id,
+            cit_cliente_email=cit_cliente_email,
+            ya_recuperado=ya_recuperado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
-            ya_recuperado=ya_recuperado,
         )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

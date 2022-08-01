@@ -19,6 +19,7 @@ class CitClienteRegistroOut(BaseModel):
     cadena_validar: str
     mensajes_cantidad: int
     ya_registrado: bool
+    creado: datetime
 
     class Config:
         """SQLAlchemy config"""

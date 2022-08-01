@@ -22,6 +22,8 @@ def get_cit_clientes(
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
 ) -> Any:
     """Consultar los clientes activos"""
     consulta = db.query(CitCliente)
@@ -40,6 +42,14 @@ def get_cit_clientes(
     email = safe_email(email, search_fragment=True)
     if email is not None:
         consulta = consulta.filter(CitCliente.email.contains(email))
+    if creado_desde is not None:
+        if not ANTIGUA_FECHA <= creado_desde <= HOY:
+            raise OutOfRangeException("Creado desde fuera de rango")
+        consulta = consulta.filter(func.date(CitCliente.creado) >= creado_desde)
+    if creado_hasta is not None:
+        if not ANTIGUA_FECHA <= creado_hasta <= HOY:
+            raise OutOfRangeException("Creado hasta fuera de rango")
+        consulta = consulta.filter(func.date(CitCliente.creado) <= creado_hasta)
     return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
 
 
@@ -82,11 +92,11 @@ def get_cit_clientes_cantidades_creados_por_dia(
         # Si solo se recibe creado_desde, entonces creado_hasta es HOY
         if creado_desde and creado_hasta is None:
             creado_hasta = HOY
-        if creado_desde:
+        if creado_desde is not None:
             if not ANTIGUA_FECHA <= creado_desde <= HOY:
                 raise OutOfRangeException("Creado desde fuera de rango")
             consulta = consulta.filter(func.date(CitCliente.creado) >= creado_desde)
-        if creado_hasta:
+        if creado_hasta is not None:
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
                 raise OutOfRangeException("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCliente.creado) <= creado_hasta)

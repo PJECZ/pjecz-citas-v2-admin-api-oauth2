@@ -2,10 +2,9 @@
 
 Debe tener un archivo `.env` con las variables de entorno.
 
-    HOST=127.0.0.1
-    PORT=8006
-    USERNAME=guillermo.valdes@pjecz.gob.mx
-    PASSWORD=Gato62Negro
+    HOST=http://127.0.0.1:8006
+    USERNAME=nombre.apellido@pjecz.gob.mx
+    PASSWORD=C0nTr45en4
 
 E instalar manualmente estos paquetes python porque no se incluyen en `requirements.txt`
 

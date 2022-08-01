@@ -1,4 +1,4 @@
-@root = http://{{$dotenv HOST}}:{{$dotenv PORT}}
+@root = {{$dotenv HOST}}
 @baseUrl = {{root}}/v2
 @username = {{$dotenv USERNAME}}
 @password = {{$dotenv PASSWORD}}
