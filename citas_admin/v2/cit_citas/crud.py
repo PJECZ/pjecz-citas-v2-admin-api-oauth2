@@ -7,11 +7,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.safe_string import safe_clave, safe_email
 
 from .models import CitCita
 from ..cit_clientes.crud import get_cit_cliente
+from ..cit_clientes.models import CitCliente
 from ..cit_servicios.crud import get_cit_servicio
 from ..oficinas.crud import get_oficina
+from ..oficinas.models import Oficina
 
 HOY = date.today()
 ANTIGUA_FECHA = date(year=2022, month=1, day=1)
@@ -20,26 +23,46 @@ ANTIGUA_FECHA = date(year=2022, month=1, day=1)
 def get_cit_citas(
     db: Session,
     cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
     cit_servicio_id: int = None,
     oficina_id: int = None,
+    oficina_clave: str = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
 ) -> Any:
     """Consultar los citas activos"""
     consulta = db.query(CitCita)
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
+    elif cit_cliente_email is not None:
+        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.email == cit_cliente_email)
     if cit_servicio_id is not None:
         cit_servicio = get_cit_servicio(db, cit_servicio_id)
         consulta = consulta.filter(CitCita.cit_servicio == cit_servicio)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
         consulta = consulta.filter(CitCita.oficina == oficina)
+    elif oficina_clave is not None:
+        oficina_clave = safe_clave(oficina_clave)
+        consulta = consulta.join(Oficina)
+        consulta = consulta.filter(Oficina.clave == oficina_clave)
     if inicio_desde is not None:
         consulta = consulta.filter(CitCita.inicio >= inicio_desde)
     if inicio_hasta is not None:
         consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
+    if creado_desde is not None:
+        if not ANTIGUA_FECHA <= creado_desde <= HOY:
+            raise OutOfRangeException("Creado desde fuera de rango")
+        consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
+    if creado_hasta is not None:
+        if not ANTIGUA_FECHA <= creado_hasta <= HOY:
+            raise OutOfRangeException("Creado hasta fuera de rango")
+        consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
     return consulta.filter_by(estatus="A").order_by(CitCita.id.desc())
 
 
@@ -82,11 +105,11 @@ def get_cit_citas_cantidades_creados_por_dia(
         # Si solo se recibe creado_desde, entonces creado_hasta es HOY
         if creado_desde and creado_hasta is None:
             creado_hasta = HOY
-        if creado_desde:
+        if creado_desde is not None:
             if not ANTIGUA_FECHA <= creado_desde <= HOY:
                 raise OutOfRangeException("Creado desde fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
-        if creado_hasta:
+        if creado_hasta is not None:
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
                 raise OutOfRangeException("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)

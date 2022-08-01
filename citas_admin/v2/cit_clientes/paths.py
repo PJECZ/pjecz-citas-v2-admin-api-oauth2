@@ -28,6 +28,8 @@ async def listado_cit_clientes(
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -42,6 +44,8 @@ async def listado_cit_clientes(
             apellido_segundo=apellido_segundo,
             curp=curp,
             email=email,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
         )
     except (IsDeletedException, NotExistsException) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

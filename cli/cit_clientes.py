@@ -25,15 +25,15 @@ def get_cit_clientes(
 ) -> dict:
     """Solicitar a la API el listado de clientes"""
     parametros = {"limit": 10}
-    if nombres:
+    if nombres is not None:
         parametros["nombres"] = nombres
-    if apellido_primero:
+    if apellido_primero is not None:
         parametros["apellido_primero"] = apellido_primero
-    if apellido_segundo:
+    if apellido_segundo is not None:
         parametros["apellido_segundo"] = apellido_segundo
-    if curp:
+    if curp is not None:
         parametros["curp"] = curp
-    if email:
+    if email is not None:
         parametros["email"] = email
     try:
         response = requests.get(

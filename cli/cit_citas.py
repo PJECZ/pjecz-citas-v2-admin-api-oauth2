@@ -12,9 +12,18 @@ import exceptions
 app = typer.Typer()
 
 
-def get_cit_citas(base_url: str, authorization_header: dict) -> dict:
+def get_cit_citas(
+    base_url: str,
+    authorization_header: dict,
+    cit_cliente_email: str = None,
+    oficina_clave: str = None,
+) -> dict:
     """Solicitar a la API el listado de citas"""
     parametros = {"limit": 10}
+    if cit_cliente_email is not None:
+        parametros["cit_cliente_email"] = cit_cliente_email
+    if oficina_clave is not None:
+        parametros["oficina_clave"] = oficina_clave
     try:
         response = requests.get(
             f"{base_url}/cit_citas",
