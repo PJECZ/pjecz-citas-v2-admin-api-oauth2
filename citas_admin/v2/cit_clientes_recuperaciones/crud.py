@@ -31,7 +31,7 @@ def get_cit_clientes_recuperaciones(
         cit_cliente = get_cit_cliente(db, get_cit_cliente)
         consulta = consulta.filter(CitClienteRecuperacion.cit_cliente == cit_cliente)
     elif cit_cliente_email is not None:
-        cit_cliente_email = safe_email(cit_cliente_email)
+        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
     if ya_recuperado is not None:

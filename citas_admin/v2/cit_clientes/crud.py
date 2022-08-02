@@ -36,7 +36,7 @@ def get_cit_clientes(
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
-    curp = safe_curp(curp)
+    curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitCliente.curp.contains(curp))
     email = safe_email(email, search_fragment=True)
