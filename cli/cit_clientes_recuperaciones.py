@@ -8,8 +8,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-import api
-import exceptions
+import lib.connections
+import lib.exceptions
 
 app = typer.Typer()
 
@@ -20,7 +20,7 @@ def get_cit_clientes_recuperaciones(
     cit_cliente_email: str = None,
     ya_recuperado: bool = None,
 ) -> dict:
-    """Solicitar a la API el listado de recuperaciones de los clientes"""
+    """Solicitar el listado de recuperaciones de los clientes"""
     parametros = {"limit": 10}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
@@ -34,12 +34,12 @@ def get_cit_clientes_recuperaciones(
             timeout=12,
         )
     except requests.exceptions.RequestException as error:
-        raise exceptions.CLIConnectionError("No hay respuesta al obtener las recuperaciones de los clientes") from error
+        raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las recuperaciones de los clientes") from error
     if response.status_code != 200:
-        raise exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}")
+        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}")
     data_json = response.json()
     if "items" not in data_json or "total" not in data_json:
-        raise exceptions.CLIResponseError("No se recibio items o total en la respuesta")
+        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
     return data_json
 
 
@@ -51,11 +51,11 @@ def consultar(
     print("Consultar recuperaciones de los clientes")
     try:
         respuesta = get_cit_clientes_recuperaciones(
-            base_url=api.base_url(),
-            authorization_header=api.authorization(),
+            base_url=lib.connections.base_url(),
+            authorization_header=lib.connections.authorization(),
             cit_cliente_email=email,
         )
-    except exceptions.CLIAnyError as error:
+    except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = Console()
