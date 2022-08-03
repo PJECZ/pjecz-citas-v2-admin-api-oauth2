@@ -4,7 +4,7 @@ Modulos v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Modulo
 
@@ -24,7 +24,7 @@ def get_modulo(db: Session, modulo_id: int) -> Modulo:
     """Consultar un modulo por su id"""
     modulo = db.query(Modulo).get(modulo_id)
     if modulo is None:
-        raise NotExistsException("No existe ese modulo")
+        raise CitasNotExistsError("No existe ese modulo")
     if modulo.estatus != "A":
-        raise IsDeletedException("No es activo ese modulo, está eliminado")
+        raise CitasIsDeletedError("No es activo ese modulo, está eliminado")
     return modulo

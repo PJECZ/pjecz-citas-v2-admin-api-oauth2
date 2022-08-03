@@ -17,6 +17,7 @@ def get_cit_citas(
     authorization_header: dict,
     cit_cliente_email: str = None,
     oficina_clave: str = None,
+    estado: str = None,
 ) -> dict:
     """Solicitar a la API el listado de citas"""
     parametros = {"limit": 10}
@@ -24,6 +25,8 @@ def get_cit_citas(
         parametros["cit_cliente_email"] = cit_cliente_email
     if oficina_clave is not None:
         parametros["oficina_clave"] = oficina_clave
+    if estado is not None:
+        parametros["estado"] = estado
     try:
         response = requests.get(
             f"{base_url}/cit_citas",
@@ -42,15 +45,22 @@ def get_cit_citas(
 
 
 @app.command()
-def consultar():
+def consultar(
+    email: str = None,
+    oficina: str = None,
+    estado: str = None,
+):
     """Consultar citas"""
     print("Consultar las citas")
     try:
         respuesta = get_cit_citas(
             base_url=api.base_url(),
             authorization_header=api.authorization(),
+            cit_cliente_email=email,
+            oficina_clave=oficina,
+            estado=estado,
         )
-    except exceptions.CLIError as error:
+    except exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = Console()

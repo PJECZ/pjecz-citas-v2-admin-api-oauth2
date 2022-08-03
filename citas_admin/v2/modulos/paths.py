@@ -6,7 +6,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_modulos, get_modulo
@@ -32,7 +32,7 @@ async def listado_modulos(
             db,
             en_navegacion=en_navegacion,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
@@ -51,6 +51,6 @@ async def detalle_modulo(
             db,
             modulo_id=modulo_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return ModuloOut.from_orm(modulo)

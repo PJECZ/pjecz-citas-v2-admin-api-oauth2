@@ -4,7 +4,7 @@ Cit Oficinas-Servicios v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import CitOficinaServicio
 from ..cit_servicios.crud import get_cit_servicio
@@ -31,7 +31,7 @@ def get_cit_oficina_servicio(db: Session, cit_oficina_servicio_id: int) -> CitOf
     """Consultar una oficina-servicio por su id"""
     cit_oficina_servicio = db.query(CitOficinaServicio).get(cit_oficina_servicio_id)
     if cit_oficina_servicio is None:
-        raise NotExistsException("No existe esa oficina-servicio")
+        raise CitasNotExistsError("No existe esa oficina-servicio")
     if cit_oficina_servicio.estatus != "A":
-        raise IsDeletedException("No es activa ese oficina-servicio, está eliminada")
+        raise CitasIsDeletedError("No es activa ese oficina-servicio, está eliminada")
     return cit_oficina_servicio

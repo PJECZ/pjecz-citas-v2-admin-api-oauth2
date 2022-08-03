@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasOutOfRangeParamError
 from lib.safe_string import safe_email
 
 from .models import CitClienteRecuperacion
@@ -38,11 +38,11 @@ def get_cit_clientes_recuperaciones(
         consulta = consulta.filter_by(ya_recuperado=ya_recuperado)
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
-            raise OutOfRangeException("Creado desde fuera de rango")
+            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
         consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) >= creado_desde)
     if creado_hasta is not None:
         if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-            raise OutOfRangeException("Creado hasta fuera de rango")
+            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
         consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) <= creado_hasta)
     return consulta.filter_by(estatus="A").order_by(CitClienteRecuperacion.id)
 
@@ -51,7 +51,7 @@ def get_cit_cliente_recuperacion(db: Session, cit_cliente_recuperacion_id: int) 
     """Consultar un recuperacion por su id"""
     cit_cliente_recuperacion = db.query(CitClienteRecuperacion).get(cit_cliente_recuperacion_id)
     if cit_cliente_recuperacion is None:
-        raise NotExistsException("No existe ese recuperacion")
+        raise CitasNotExistsError("No existe ese recuperacion")
     if cit_cliente_recuperacion.estatus != "A":
-        raise IsDeletedException("No es activo ese recuperacion, está eliminado")
+        raise CitasIsDeletedError("No es activo ese recuperacion, está eliminado")
     return cit_cliente_recuperacion

@@ -4,7 +4,7 @@ Domicilios v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Domicilio
 
@@ -18,7 +18,7 @@ def get_domicilio(db: Session, domicilio_id: int) -> Domicilio:
     """Consultar un domicilio por su id"""
     domicilio = db.query(Domicilio).get(domicilio_id)
     if domicilio is None:
-        raise NotExistsException("No existe ese domicilio")
+        raise CitasNotExistsError("No existe ese domicilio")
     if domicilio.estatus != "A":
-        raise IsDeletedException("No es activo ese domicilio, está eliminado")
+        raise CitasIsDeletedError("No es activo ese domicilio, está eliminado")
     return domicilio

@@ -44,7 +44,9 @@ def get_cit_clientes_recuperaciones(
 
 
 @app.command()
-def consultar(email: str = None):
+def consultar(
+    email: str = None,
+):
     """Consultar recuperaciones de los clientes"""
     print("Consultar recuperaciones de los clientes")
     try:
@@ -53,7 +55,7 @@ def consultar(email: str = None):
             authorization_header=api.authorization(),
             cit_cliente_email=email,
         )
-    except exceptions.CLIError as error:
+    except exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = Console()

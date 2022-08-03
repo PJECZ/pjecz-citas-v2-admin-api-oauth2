@@ -9,7 +9,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_cantidades_creados_por_dia
@@ -49,7 +49,7 @@ async def listado_cit_clientes_registros(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
@@ -72,7 +72,7 @@ async def listado_cit_clientes_creados_por_dia(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
         )
-    except OutOfRangeException as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return consulta.all()
 
@@ -91,6 +91,6 @@ async def detalle_cit_cliente_registro(
             db,
             cit_cliente_registro_id=cit_cliente_registro_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitClienteRegistroOut.from_orm(cit_cliente_registro)

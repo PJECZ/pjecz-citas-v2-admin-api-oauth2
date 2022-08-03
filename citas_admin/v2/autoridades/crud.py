@@ -4,7 +4,7 @@ Autoridades v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Autoridad
 from ..distritos.crud import get_distrito
@@ -32,7 +32,7 @@ def get_autoridad(db: Session, autoridad_id: int) -> Autoridad:
     """Consultar una autoridad por su id"""
     autoridad = db.query(Autoridad).get(autoridad_id)
     if autoridad is None:
-        raise NotExistsException("No existe esa autoridad")
+        raise CitasNotExistsError("No existe esa autoridad")
     if autoridad.estatus != "A":
-        raise IsDeletedException("No es activa esa autoridad, está eliminada")
+        raise CitasIsDeletedError("No es activa esa autoridad, está eliminada")
     return autoridad

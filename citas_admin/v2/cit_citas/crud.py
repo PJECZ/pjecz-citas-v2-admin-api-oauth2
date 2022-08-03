@@ -6,8 +6,8 @@ from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
-from lib.safe_string import safe_clave, safe_email
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError, CitasOutOfRangeParamError
+from lib.safe_string import safe_clave, safe_email, safe_string
 
 from .models import CitCita
 from ..cit_clientes.crud import get_cit_cliente
@@ -29,6 +29,7 @@ def get_cit_citas(
     oficina_clave: str = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
+    estado: str = None,
     creado_desde: date = None,
     creado_hasta: date = None,
 ) -> Any:
@@ -55,13 +56,18 @@ def get_cit_citas(
         consulta = consulta.filter(CitCita.inicio >= inicio_desde)
     if inicio_hasta is not None:
         consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
+    if estado is not None:
+        estado = safe_string(estado)
+        if estado not in CitCita.ESTADOS:
+            raise CitasNotValidParamError("El estado no es válido")
+        consulta = consulta.filter(CitCita.estado == estado)
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
-            raise OutOfRangeException("Creado desde fuera de rango")
+            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
         consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
     if creado_hasta is not None:
         if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-            raise OutOfRangeException("Creado hasta fuera de rango")
+            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
         consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
     return consulta.filter_by(estatus="A").order_by(CitCita.id.desc())
 
@@ -70,9 +76,9 @@ def get_cit_cita(db: Session, cit_cita_id: int) -> CitCita:
     """Consultar un cita por su id"""
     cit_cita = db.query(CitCita).get(cit_cita_id)
     if cit_cita is None:
-        raise NotExistsException("No existe ese cita")
+        raise CitasNotExistsError("No existe ese cita")
     if cit_cita.estatus != "A":
-        raise IsDeletedException("No es activo ese cita, está eliminado")
+        raise CitasIsDeletedError("No es activo ese cita, está eliminado")
     return cit_cita
 
 
@@ -91,13 +97,13 @@ def get_cit_citas_cantidades_creados_por_dia(
     # Si se recibe creado, se limita a esa fecha
     if creado:
         if not ANTIGUA_FECHA <= creado <= HOY:
-            raise OutOfRangeException("Creado fuera de rango")
+            raise CitasOutOfRangeParamError("Creado fuera de rango")
         consulta = consulta.filter(func.date(CitCita.creado) == creado)
     else:
         # Si se reciben creado_desde y creado_hasta, validar que sean correctos
         if creado_desde and creado_hasta:
             if creado_desde > creado_hasta:
-                raise OutOfRangeException("El rango de fechas no es correcto")
+                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
         # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
         if creado_desde is None and creado_hasta is None:
             creado_desde = HOY - timedelta(days=30)
@@ -107,10 +113,10 @@ def get_cit_citas_cantidades_creados_por_dia(
             creado_hasta = HOY
         if creado_desde is not None:
             if not ANTIGUA_FECHA <= creado_desde <= HOY:
-                raise OutOfRangeException("Creado desde fuera de rango")
+                raise CitasOutOfRangeParamError("Creado desde fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
         if creado_hasta is not None:
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-                raise OutOfRangeException("Creado hasta fuera de rango")
+                raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
     return consulta.group_by(func.date(CitCita.creado))

@@ -4,7 +4,7 @@ Materias v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Materia
 
@@ -18,7 +18,7 @@ def get_materia(db: Session, materia_id: int) -> Materia:
     """Consultar un materia por su id"""
     materia = db.query(Materia).get(materia_id)
     if materia is None:
-        raise NotExistsException("No existe esa materia")
+        raise CitasNotExistsError("No existe esa materia")
     if materia.estatus != "A":
-        raise IsDeletedException("No es activa esa materia, está eliminada")
+        raise CitasIsDeletedError("No es activa esa materia, está eliminada")
     return materia

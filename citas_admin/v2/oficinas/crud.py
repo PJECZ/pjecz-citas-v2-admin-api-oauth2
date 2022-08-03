@@ -4,7 +4,7 @@ Oficinas v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Oficina
 from ..distritos.crud import get_distrito
@@ -37,7 +37,7 @@ def get_oficina(db: Session, oficina_id: int) -> Oficina:
     """Consultar un oficina por su id"""
     oficina = db.query(Oficina).get(oficina_id)
     if oficina is None:
-        raise NotExistsException("No existe ese oficina")
+        raise CitasNotExistsError("No existe ese oficina")
     if oficina.estatus != "A":
-        raise IsDeletedException("No es activo ese oficina, está eliminado")
+        raise CitasIsDeletedError("No es activo ese oficina, está eliminado")
     return oficina

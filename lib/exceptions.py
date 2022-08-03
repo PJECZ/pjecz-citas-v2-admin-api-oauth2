@@ -3,21 +3,25 @@ Exceptions
 """
 
 
-class AlredyExistsException(Exception):
+class CitasAnyError(Exception):
+    """Base exception class"""
+
+
+class CitasAlreadyExistsError(CitasAnyError):
     """Excepción ya existe"""
 
 
-class IsDeletedException(Exception):
+class CitasIsDeletedError(CitasAnyError):
     """Excepción esta eliminado"""
 
 
-class NotExistsException(Exception):
+class CitasNotExistsError(CitasAnyError):
     """Excepción no existe"""
 
 
-class NotValidException(Exception):
+class CitasNotValidParamError(CitasAnyError):
     """Excepción porque un parámetro es inválido"""
 
 
-class OutOfRangeException(Exception):
+class CitasOutOfRangeParamError(CitasAnyError):
     """Excepción porque un parámetro esta fuera de rango"""

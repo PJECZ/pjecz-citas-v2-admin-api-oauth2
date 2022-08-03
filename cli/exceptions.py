@@ -3,25 +3,25 @@ CLI Exceptions
 """
 
 
-class CLIError(Exception):
+class CLIAnyError(Exception):
     """Base class for CLI exceptions"""
 
 
-class CLIConfigurationError(CLIError):
+class CLIConfigurationError(CLIAnyError):
     """Excepcion porque falta o falla la configuracion"""
 
 
-class CLIAuthenticationError(CLIError):
+class CLIAuthenticationError(CLIAnyError):
     """Excepcion porque falla la autenticacion"""
 
 
-class CLIConnectionError(CLIError):
+class CLIConnectionError(CLIAnyError):
     """Excepcion porque falla la comunicacion"""
 
 
-class CLIStatusCodeError(CLIError):
+class CLIStatusCodeError(CLIAnyError):
     """Excepcion porque falla el status code"""
 
 
-class CLIResponseError(CLIError):
+class CLIResponseError(CLIAnyError):
     """Excepcion porque falla la operacion"""

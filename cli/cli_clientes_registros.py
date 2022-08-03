@@ -56,7 +56,9 @@ def get_cit_clientes_registros(
 
 
 @app.command()
-def consultar(email: str = None):
+def consultar(
+    email: str = None,
+):
     """Consultar registros de los clientes"""
     try:
         respuesta = get_cit_clientes_registros(
@@ -64,7 +66,7 @@ def consultar(email: str = None):
             authorization_header=api.authorization(),
             email=email,
         )
-    except exceptions.CLIError as error:
+    except exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = Console()

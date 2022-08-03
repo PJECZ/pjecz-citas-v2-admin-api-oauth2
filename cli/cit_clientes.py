@@ -53,7 +53,13 @@ def get_cit_clientes(
 
 
 @app.command()
-def consultar(nombres: str = None, apellido_primero: str = None, apellido_segundo: str = None, curp: str = None, email: str = None):
+def consultar(
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
+):
     """Consultar clientes"""
     print("Consultar los clientes")
     try:
@@ -66,11 +72,11 @@ def consultar(nombres: str = None, apellido_primero: str = None, apellido_segund
             curp=curp,
             email=email,
         )
-    except exceptions.CLIError as error:
+    except exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = Console()
-    table = Table("id", "creado", "nombres", "apellido_primero", "apellido_segundo", "curp", "email")
+    table = Table("id", "creado", "nombres", "apellido pri", "apellido seg", "curp", "email", "md5", "sha256")
     for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
         table.add_row(
@@ -81,6 +87,8 @@ def consultar(nombres: str = None, apellido_primero: str = None, apellido_segund
             registro["apellido_segundo"],
             registro["curp"],
             registro["email"],
+            "" if registro["contrasena_md5"] == "" else "****",
+            "" if registro["contrasena_sha256"] == "" else "****",
         )
     console.print(table)
 
