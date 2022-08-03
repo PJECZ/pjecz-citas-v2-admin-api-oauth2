@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasOutOfRangeParamError
 from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitClienteRegistro
@@ -37,7 +37,7 @@ def get_cit_clientes_registros(
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitClienteRegistro.apellido_segundo.contains(apellido_segundo))
-    curp = safe_curp(curp)
+    curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitClienteRegistro.curp.contains(curp))
     email = safe_email(email, search_fragment=True)
@@ -47,11 +47,11 @@ def get_cit_clientes_registros(
         consulta = consulta.filter_by(ya_registrado=ya_registrado)
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
-            raise OutOfRangeException("Creado desde fuera de rango")
+            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
         consulta = consulta.filter(func.date(CitClienteRegistro.creado) >= creado_desde)
     if creado_hasta is not None:
         if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-            raise OutOfRangeException("Creado hasta fuera de rango")
+            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
         consulta = consulta.filter(func.date(CitClienteRegistro.creado) <= creado_hasta)
     return consulta.filter_by(estatus="A").order_by(CitClienteRegistro.id.desc())
 
@@ -60,9 +60,9 @@ def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int) -> CitCl
     """Consultar un registro de cliente por su id"""
     cit_cliente_registro = db.query(CitClienteRegistro).get(cit_cliente_registro_id)
     if cit_cliente_registro is None:
-        raise NotExistsException("No existe ese registro de cliente")
+        raise CitasNotExistsError("No existe ese registro de cliente")
     if cit_cliente_registro.estatus != "A":
-        raise IsDeletedException("No es activo ese registro de cliente, está eliminado")
+        raise CitasIsDeletedError("No es activo ese registro de cliente, está eliminado")
     return cit_cliente_registro
 
 
@@ -81,13 +81,13 @@ def get_cit_clientes_registros_cantidades_creados_por_dia(
     # Si se recibe creado, se limita a esa fecha
     if creado:
         if not ANTIGUA_FECHA <= creado <= HOY:
-            raise OutOfRangeException("Creado fuera de rango")
+            raise CitasOutOfRangeParamError("Creado fuera de rango")
         consulta = consulta.filter(func.date(CitClienteRegistro.creado) == creado)
     else:
         # Si se reciben creado_desde y creado_hasta, validar que sean correctos
         if creado_desde and creado_hasta:
             if creado_desde > creado_hasta:
-                raise OutOfRangeException("El rango de fechas no es correcto")
+                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
         # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
         if creado_desde is None and creado_hasta is None:
             creado_desde = HOY - timedelta(days=30)
@@ -97,10 +97,10 @@ def get_cit_clientes_registros_cantidades_creados_por_dia(
             creado_hasta = HOY
         if creado_desde is not None:
             if not ANTIGUA_FECHA <= creado_desde <= HOY:
-                raise OutOfRangeException("Creado desde fuera de rango")
+                raise CitasOutOfRangeParamError("Creado desde fuera de rango")
             consulta = consulta.filter(func.date(CitClienteRegistro.creado) >= creado_desde)
         if creado_hasta is not None:
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-                raise OutOfRangeException("Creado hasta fuera de rango")
+                raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitClienteRegistro.creado) <= creado_hasta)
     return consulta.group_by(func.date(CitClienteRegistro.creado))

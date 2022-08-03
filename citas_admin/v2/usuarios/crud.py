@@ -4,7 +4,7 @@ Usuarios v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import Usuario
 from ..autoridades.crud import get_autoridad
@@ -31,7 +31,7 @@ def get_usuario(db: Session, usuario_id: int) -> Usuario:
     """Consultar un usuario por su id"""
     usuario = db.query(Usuario).get(usuario_id)
     if usuario is None:
-        raise NotExistsException("No existe ese usuario")
+        raise CitasNotExistsError("No existe ese usuario")
     if usuario.estatus != "A":
-        raise IsDeletedException("No es activo ese usuario, está eliminado")
+        raise CitasIsDeletedError("No es activo ese usuario, está eliminado")
     return usuario

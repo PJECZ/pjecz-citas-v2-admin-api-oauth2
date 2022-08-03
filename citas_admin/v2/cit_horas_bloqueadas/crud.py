@@ -5,7 +5,7 @@ from datetime import date
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import CitHoraBloqueada
 from ..oficinas.crud import get_oficina
@@ -30,7 +30,7 @@ def get_cit_hora_bloqueada(db: Session, cit_hora_bloqueada_id: int) -> CitHoraBl
     """Consultar un hora bloqueada por su id"""
     cit_hora_bloqueada = db.query(CitHoraBloqueada).get(cit_hora_bloqueada_id)
     if cit_hora_bloqueada is None:
-        raise NotExistsException("No existe esa hora bloqueada")
+        raise CitasNotExistsError("No existe esa hora bloqueada")
     if cit_hora_bloqueada.estatus != "A":
-        raise IsDeletedException("No es activa esa hora bloqueada, está eliminada")
+        raise CitasIsDeletedError("No es activa esa hora bloqueada, está eliminada")
     return cit_hora_bloqueada

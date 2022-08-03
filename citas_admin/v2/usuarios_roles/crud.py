@@ -4,7 +4,7 @@ Usuarios-Roles v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 
 from .models import UsuarioRol
 from ..roles.crud import get_rol
@@ -31,7 +31,7 @@ def get_usuario_rol(db: Session, usuario_rol_id: int) -> UsuarioRol:
     """Consultar un usuario-rol por su id"""
     usuario_rol = db.query(UsuarioRol).get(usuario_rol_id)
     if usuario_rol is None:
-        raise NotExistsException("No existe ese usuario-rol")
+        raise CitasNotExistsError("No existe ese usuario-rol")
     if usuario_rol.estatus != "A":
-        raise IsDeletedException("No es activo ese usuario-rol, está eliminado")
+        raise CitasIsDeletedError("No es activo ese usuario-rol, está eliminado")
     return usuario_rol

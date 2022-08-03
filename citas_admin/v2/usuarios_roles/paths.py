@@ -6,7 +6,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_usuarios_roles, get_usuario_rol
@@ -34,7 +34,7 @@ async def listado_usuarios_roles(
             rol_id=rol_id,
             usuario_id=usuario_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
@@ -53,6 +53,6 @@ async def detalle_usuario_rol(
             db,
             usuario_rol_id=usuario_rol_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return UsuarioRolOut.from_orm(usuario_rol)

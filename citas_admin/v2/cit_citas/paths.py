@@ -9,7 +9,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException, OutOfRangeException
+from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia
@@ -30,6 +30,7 @@ async def listado_cit_citas(
     oficina_clave: str = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
+    estado: str = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,10 +49,11 @@ async def listado_cit_citas(
             oficina_clave=oficina_clave,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
+            estado=estado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
@@ -74,7 +76,7 @@ async def listado_cit_clientes_creados_por_dia(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
         )
-    except OutOfRangeException as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return consulta.all()
 
@@ -93,6 +95,6 @@ async def detalle_cit_cita(
             db,
             cit_cita_id=cit_cita_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitCitaOut.from_orm(cit_cita)

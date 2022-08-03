@@ -7,7 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import IsDeletedException, NotExistsException
+from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_horas_bloqueadas, get_cit_hora_bloqueada
@@ -35,7 +35,7 @@ async def listado_cit_horas_bloqueadas(
             oficina_id=oficina_id,
             fecha=fecha,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
@@ -54,6 +54,6 @@ async def detalle_cit_hora_bloqueada(
             db,
             cit_hora_bloqueada_id=cit_hora_bloqueada_id,
         )
-    except (IsDeletedException, NotExistsException) as error:
+    except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return CitHoraBloqueadaOut.from_orm(cit_hora_bloqueada)
