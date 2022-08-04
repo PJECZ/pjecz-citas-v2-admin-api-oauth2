@@ -53,7 +53,10 @@ def get_cit_clientes(
     return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
 
 
-def get_cit_cliente(db: Session, cit_cliente_id: int) -> CitCliente:
+def get_cit_cliente(
+    db: Session,
+    cit_cliente_id: int,
+) -> CitCliente:
     """Consultar un cliente por su id"""
     cit_cliente = db.query(CitCliente).get(cit_cliente_id)
     if cit_cliente is None:

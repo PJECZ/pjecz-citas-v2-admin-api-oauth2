@@ -2,6 +2,8 @@
 Cit Clientes Recuperaciones v2, rutas (paths)
 """
 from datetime import date
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
@@ -10,7 +12,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion
+from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_reenviar
 from .schemas import CitClienteRecuperacionOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -20,7 +22,7 @@ cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones"
 
 
 @cit_clientes_recuperaciones.get("", response_model=LimitOffsetPage[CitClienteRecuperacionOut])
-async def listado_cit_clientes_recuperaciones(
+async def listar_recuperaciones(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     ya_recuperado: bool = None,
@@ -46,8 +48,33 @@ async def listado_cit_clientes_recuperaciones(
     return paginate(listado)
 
 
+@cit_clientes_recuperaciones.get("/reenviar", response_model=List[CitClienteRecuperacionOut])
+async def reenviar_recuperaciones(
+    cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Reenviar mensajes de las recuperaciones pendientes"""
+    if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.MODIFICAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        listado = get_cit_clientes_recuperaciones_reenviar(
+            db,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_email=cit_cliente_email,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except CitasAnyError as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    return listado
+
+
 @cit_clientes_recuperaciones.get("/{cit_cliente_recuperacion_id}", response_model=CitClienteRecuperacionOut)
-async def detalle_cit_cliente_recuperacion(
+async def detalle_recuperacion(
     cit_cliente_recuperacion_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
