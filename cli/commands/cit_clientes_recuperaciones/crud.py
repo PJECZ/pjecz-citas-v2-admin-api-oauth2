@@ -9,11 +9,12 @@ import lib.exceptions
 def get_cit_clientes_recuperaciones(
     base_url: str,
     authorization_header: dict,
+    limit: int = 40,
     cit_cliente_email: str = None,
     ya_recuperado: bool = None,
 ) -> dict:
     """Solicitar el listado de recuperaciones de los clientes"""
-    parametros = {"limit": 10}
+    parametros = {"limit": limit}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
     if ya_recuperado is not None:

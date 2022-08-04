@@ -9,6 +9,7 @@ import lib.exceptions
 def get_cit_clientes(
     base_url: str,
     authorization_header: dict,
+    limit: int = 40,
     nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
@@ -16,7 +17,7 @@ def get_cit_clientes(
     email: str = None,
 ) -> dict:
     """Solicitar el listado de clientes"""
-    parametros = {"limit": 10}
+    parametros = {"limit": limit}
     if nombres is not None:
         parametros["nombres"] = nombres
     if apellido_primero is not None:

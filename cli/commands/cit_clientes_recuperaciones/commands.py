@@ -17,7 +17,9 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
+    limit: int = 40,
     email: str = None,
+    recuperado: bool = None,
 ):
     """Consultar recuperaciones de los clientes"""
     print("Consultar recuperaciones de los clientes")
@@ -25,7 +27,9 @@ def consultar(
         respuesta = get_cit_clientes_recuperaciones(
             base_url=lib.connections.base_url(),
             authorization_header=lib.connections.authorization(),
+            limit=limit,
             cit_cliente_email=email,
+            ya_recuperado=recuperado,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -34,15 +38,14 @@ def consultar(
     table = Table("id", "creado", "nombre", "email", "expiracion", "mensajes", "ya recuperado")
     for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
-        expiracion = datetime.strptime(registro["expiracion"], "%Y-%m-%d").date()
+        expiracion = datetime.strptime(registro["expiracion"], "%Y-%m-%dT%H:%M:%S.%f").date()
         table.add_row(
             str(registro["id"]),
             creado.strftime("%Y-%m-%d %H:%M:%S"),
             registro["cit_cliente_nombre"],
             registro["cit_cliente_email"],
-            expiracion.strftime("%Y-%m-%d"),
+            expiracion.strftime("%Y-%m-%d %H:%M:%S"),
             str(registro["mensajes_cantidad"]),
-            int(registro["ya_recuperado"]),
-            registro["email"],
+            "YA" if bool(registro["ya_recuperado"]) else "",
         )
     console.print(table)

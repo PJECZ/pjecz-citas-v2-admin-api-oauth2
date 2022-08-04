@@ -9,12 +9,13 @@ import lib.exceptions
 def get_cit_citas(
     base_url: str,
     authorization_header: dict,
+    limit: int = 40,
     cit_cliente_email: str = None,
     oficina_clave: str = None,
     estado: str = None,
 ) -> dict:
     """Solicitar el listado de citas"""
-    parametros = {"limit": 10}
+    parametros = {"limit": limit}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
     if oficina_clave is not None:

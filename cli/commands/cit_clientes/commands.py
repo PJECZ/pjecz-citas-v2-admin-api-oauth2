@@ -17,6 +17,7 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
+    limit: int = 40,
     nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
@@ -29,6 +30,7 @@ def consultar(
         respuesta = get_cit_clientes(
             base_url=lib.connections.base_url(),
             authorization_header=lib.connections.authorization(),
+            limit=limit,
             nombres=nombres,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
