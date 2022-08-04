@@ -9,8 +9,8 @@ DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
 DB_NAME = os.environ.get("DB_NAME", "pjecz_citas_v2")
 DB_PASS = os.environ.get("DB_PASS", "wrongpassword")
 DB_USER = os.environ.get("DB_USER", "nouser")
-DB_SOCKET_DIR = os.environ.get("DB_SOCKET_DIR", "/cloudsql")
-CLOUD_SQL_CONNECTION_NAME = os.environ.get("CLOUD_SQL_CONNECTION_NAME", "none")
+# DB_SOCKET_DIR = os.environ.get("DB_SOCKET_DIR", "/cloudsql")
+# CLOUD_SQL_CONNECTION_NAME = os.environ.get("CLOUD_SQL_CONNECTION_NAME", "none")
 
 # Google Cloud SQL a Minerva con PostgreSQL
 SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
@@ -22,3 +22,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.environ.get("SECRET_KEY")  # openssl rand -hex 32
 ALGORITHM = os.environ.get("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+# Redis
+REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1")
+TASK_QUEUE = os.environ.get("TASK_QUEUE", "pjecz_citas_v2")

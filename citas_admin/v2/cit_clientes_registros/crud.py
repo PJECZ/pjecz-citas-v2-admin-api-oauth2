@@ -56,7 +56,7 @@ def get_cit_clientes_registros(
     return consulta.filter_by(estatus="A").order_by(CitClienteRegistro.id.desc())
 
 
-def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int) -> CitClienteRegistro:
+def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int,) -> CitClienteRegistro:
     """Consultar un registro de cliente por su id"""
     cit_cliente_registro = db.query(CitClienteRegistro).get(cit_cliente_registro_id)
     if cit_cliente_registro is None:
