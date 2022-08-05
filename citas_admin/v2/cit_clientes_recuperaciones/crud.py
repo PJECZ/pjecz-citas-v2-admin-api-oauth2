@@ -2,7 +2,8 @@
 Cit Clientes Recuperaciones v2, CRUD (create, read, update, and delete)
 """
 from datetime import date, datetime
-from typing import Any, List
+from typing import Any, Dict
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -67,7 +68,7 @@ def get_cit_clientes_recuperaciones_reenviar(
     cit_cliente_email: str = None,
     creado_desde: date = None,
     creado_hasta: date = None,
-) -> List:
+) -> Dict:
     """Reenviar mensajes de las recuperaciones pendientes"""
 
     # Consultar las recuperaciones pendientes
@@ -109,5 +110,5 @@ def get_cit_clientes_recuperaciones_reenviar(
         )
         enviados.append(cit_cliente_recuperacion)
 
-    # Entregar listado de recuperaciones enviadas
-    return enviados
+    # Entregar
+    return {"items": enviados, "total": len(enviados)}

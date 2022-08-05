@@ -2,11 +2,13 @@
 Cit Clientes Registros v2, CRUD (create, read, update, and delete)
 """
 from datetime import date, timedelta
-from typing import Any
+from typing import Any, Dict
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasOutOfRangeParamError
+from lib.redis import task_queue
 from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitClienteRegistro
@@ -56,7 +58,10 @@ def get_cit_clientes_registros(
     return consulta.filter_by(estatus="A").order_by(CitClienteRegistro.id.desc())
 
 
-def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int,) -> CitClienteRegistro:
+def get_cit_cliente_registro(
+    db: Session,
+    cit_cliente_registro_id: int,
+) -> CitClienteRegistro:
     """Consultar un registro de cliente por su id"""
     cit_cliente_registro = db.query(CitClienteRegistro).get(cit_cliente_registro_id)
     if cit_cliente_registro is None:
@@ -64,6 +69,70 @@ def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int,) -> CitC
     if cit_cliente_registro.estatus != "A":
         raise CitasIsDeletedError("No es activo ese registro de cliente, está eliminado")
     return cit_cliente_registro
+
+
+def get_cit_clientes_registros_reenviar(
+    db: Session,
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+) -> Dict:
+    """Reenviar mensajes de los registros pendientes"""
+
+    # Consultar los registros pendientes
+    consulta = db.query(CitClienteRegistro).filter_by(ya_registrado=False).filter_by(estatus="A")
+
+    # Filtrar por cliente
+    nombres = safe_string(nombres)
+    if nombres is not None:
+        consulta = consulta.filter(CitClienteRegistro.nombres.contains(nombres))
+    apellido_primero = safe_string(apellido_primero)
+    if apellido_primero is not None:
+        consulta = consulta.filter(CitClienteRegistro.apellido_primero.contains(apellido_primero))
+    apellido_segundo = safe_string(apellido_segundo)
+    if apellido_segundo is not None:
+        consulta = consulta.filter(CitClienteRegistro.apellido_segundo.contains(apellido_segundo))
+    curp = safe_curp(curp, search_fragment=True)
+    if curp is not None:
+        consulta = consulta.filter(CitClienteRegistro.curp.contains(curp))
+    email = safe_email(email, search_fragment=True)
+    if email is not None:
+        consulta = consulta.filter(CitClienteRegistro.email.contains(email))
+
+    # Filtrar por fecha de creación
+    if creado_desde is not None:
+        if not ANTIGUA_FECHA <= creado_desde <= HOY:
+            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
+        consulta = consulta.filter(func.date(CitClienteRegistro.creado) >= creado_desde)
+    if creado_hasta is not None:
+        if not ANTIGUA_FECHA <= creado_hasta <= HOY:
+            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
+        consulta = consulta.filter(func.date(CitClienteRegistro.creado) <= creado_hasta)
+
+    # Bucle para enviar los mensajes, colocando en la cola de tareas
+    enviados = []
+    for cit_cliente_registro in consulta.order_by(CitClienteRegistro.id.desc()):
+
+        # Si ya expiró, no se envía y de da de baja
+        if cit_cliente_registro.expiracion <= datetime.now():
+            cit_cliente_registro.estatus = "B"
+            db.add(cit_cliente_registro)
+            db.commit()
+            continue
+
+        # Enviar el mensaje
+        task_queue.enqueue(
+            "citas_admin.blueprints.cit_clientes_registros.tasks.enviar",
+            cit_cliente_registro_id=cit_cliente_registro.id,
+        )
+        enviados.append(cit_cliente_registro)
+
+    # Entregar
+    return {"items": enviados, "total": len(enviados)}
 
 
 def get_cit_clientes_registros_cantidades_creados_por_dia(

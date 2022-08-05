@@ -57,4 +57,6 @@ def resend_cit_clientes_recuperaciones(
     if response.status_code != 200:
         raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
     data_json = response.json()
+    if "items" not in data_json or "total" not in data_json:
+        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
     return data_json
