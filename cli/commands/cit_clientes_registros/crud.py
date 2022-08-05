@@ -1,6 +1,7 @@
 """
 Cit Clientes Registros CRUD
 """
+from typing import Any
 import requests
 
 import lib.exceptions
@@ -16,7 +17,7 @@ def get_cit_clientes_registros(
     curp: str = None,
     email: str = None,
     ya_registrado: bool = None,
-) -> dict:
+) -> Any:
     """Solicitar el listado de registros de los clientes"""
     parametros = {"limit": limit}
     if nombres is not None:
@@ -52,14 +53,14 @@ def resend_cit_clientes_registros(
     base_url: str,
     authorization_header: dict,
     cit_cliente_email: str = None,
-) -> dict:
+) -> Any:
     """Reenviar mensajes de las registros de los clientes"""
     parametros = {}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes_registros/reenviar",
+            f"{base_url}/cit_clientes_registros/reenviar_mensajes",
             headers=authorization_header,
             params=parametros,
             timeout=12,

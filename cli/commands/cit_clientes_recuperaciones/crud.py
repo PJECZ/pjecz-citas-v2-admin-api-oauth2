@@ -1,6 +1,7 @@
 """
 Cit Clientes Recuperaciones CRUD
 """
+from typing import Any
 import requests
 
 import lib.exceptions
@@ -12,7 +13,7 @@ def get_cit_clientes_recuperaciones(
     limit: int = 40,
     cit_cliente_email: str = None,
     ya_recuperado: bool = None,
-) -> dict:
+) -> Any:
     """Solicitar el listado de recuperaciones de los clientes"""
     parametros = {"limit": limit}
     if cit_cliente_email is not None:
@@ -40,14 +41,14 @@ def resend_cit_clientes_recuperaciones(
     base_url: str,
     authorization_header: dict,
     cit_cliente_email: str = None,
-) -> dict:
+) -> Any:
     """Reenviar mensajes de las recuperaciones de los clientes"""
     parametros = {}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes_recuperaciones/reenviar",
+            f"{base_url}/cit_clientes_recuperaciones/reenviar_mensajes",
             headers=authorization_header,
             params=parametros,
             timeout=12,

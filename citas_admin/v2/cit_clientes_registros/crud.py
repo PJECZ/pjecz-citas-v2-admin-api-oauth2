@@ -1,7 +1,7 @@
 """
 Cit Clientes Registros v2, CRUD (create, read, update, and delete)
 """
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Dict
 
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from lib.redis import task_queue
 from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitClienteRegistro
+from .schemas import CitClienteRegistroOut
 
 HOY = date.today()
 ANTIGUA_FECHA = date(year=2022, month=1, day=1)
@@ -71,7 +72,7 @@ def get_cit_cliente_registro(
     return cit_cliente_registro
 
 
-def get_cit_clientes_registros_reenviar(
+def resend_cit_clientes_registros(
     db: Session,
     nombres: str = None,
     apellido_primero: str = None,
@@ -129,10 +130,12 @@ def get_cit_clientes_registros_reenviar(
             "citas_admin.blueprints.cit_clientes_registros.tasks.enviar",
             cit_cliente_registro_id=cit_cliente_registro.id,
         )
-        enviados.append(cit_cliente_registro)
+
+        # Acumular
+        enviados.append(CitClienteRegistroOut.from_orm(cit_cliente_registro))
 
     # Entregar
-    return {"items": enviados, "total": len(enviados)}
+    return enviados
 
 
 def get_cit_clientes_registros_cantidades_creados_por_dia(

@@ -2,7 +2,7 @@
 Cit Clientes Recuperaciones v2, rutas (paths)
 """
 from datetime import date
-from typing import List
+from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -12,7 +12,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_reenviar
+from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, resend_cit_clientes_recuperaciones
 from .schemas import CitClienteRecuperacionOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -35,7 +35,7 @@ async def listar_recuperaciones(
     if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_clientes_recuperaciones(
+        resultado = get_cit_clientes_recuperaciones(
             db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
@@ -45,11 +45,11 @@ async def listar_recuperaciones(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    return paginate(resultado)
 
 
-@cit_clientes_recuperaciones.get("/reenviar", response_model=List[CitClienteRecuperacionOut])
-async def reenviar_recuperaciones(
+@cit_clientes_recuperaciones.get("/reenviar_mensajes", response_model=Dict)
+async def reenviar_mensajes(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     creado_desde: date = None,
@@ -61,7 +61,7 @@ async def reenviar_recuperaciones(
     if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.MODIFICAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_clientes_recuperaciones_reenviar(
+        enviados = resend_cit_clientes_recuperaciones(
             db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
@@ -70,7 +70,7 @@ async def reenviar_recuperaciones(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return listado
+    return {"items": enviados, "total": len(enviados)}
 
 
 @cit_clientes_recuperaciones.get("/{cit_cliente_recuperacion_id}", response_model=CitClienteRecuperacionOut)
