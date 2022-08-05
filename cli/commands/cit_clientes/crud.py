@@ -1,6 +1,7 @@
 """
 Cit Clientes CRUD
 """
+from typing import Any
 import requests
 
 import lib.exceptions
@@ -15,7 +16,7 @@ def get_cit_clientes(
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
-) -> dict:
+) -> Any:
     """Solicitar el listado de clientes"""
     parametros = {"limit": limit}
     if nombres is not None:

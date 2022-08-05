@@ -37,7 +37,7 @@ async def listado_cit_clientes(
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_clientes(
+        resultado = get_cit_clientes(
             db,
             nombres=nombres,
             apellido_primero=apellido_primero,
@@ -49,7 +49,7 @@ async def listado_cit_clientes(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    return paginate(resultado)
 
 
 @cit_clientes.get("/creados_por_dia", response_model=List[CitClienteCantidadesCreadosPorDiaOut])

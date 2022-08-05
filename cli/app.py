@@ -7,11 +7,13 @@ import typer
 from commands.cit_citas.commands import app as cit_citas_app
 from commands.cit_clientes.commands import app as cit_clientes_app
 from commands.cit_clientes_recuperaciones.commands import app as cit_clientes_recuperaciones_app
+from commands.cit_clientes_registros.commands import app as cit_clientes_registros_app
 
 app = typer.Typer()
 app.add_typer(cit_citas_app, name="cit_citas")
 app.add_typer(cit_clientes_app, name="cit_clientes")
 app.add_typer(cit_clientes_recuperaciones_app, name="cit_clientes_recuperaciones")
+app.add_typer(cit_clientes_registros_app, name="cit_clientes_registros")
 
 if __name__ == "__main__":
     app()

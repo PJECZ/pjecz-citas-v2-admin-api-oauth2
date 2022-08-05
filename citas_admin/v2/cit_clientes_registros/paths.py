@@ -2,7 +2,7 @@
 Cit Clientes Registros v2, rutas (paths)
 """
 from datetime import date
-from typing import List
+from typing import Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -12,7 +12,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_cantidades_creados_por_dia
+from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_cantidades_creados_por_dia, resend_cit_clientes_registros
 from .schemas import CitClienteRegistroOut, CitClienteRegistroCantidadesCreadasPorDiaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -38,7 +38,7 @@ async def listado_cit_clientes_registros(
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_clientes_registros(
+        resultado = get_cit_clientes_registros(
             db,
             nombres=nombres,
             apellido_primero=apellido_primero,
@@ -51,11 +51,42 @@ async def listado_cit_clientes_registros(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    return paginate(resultado)
 
 
-@cit_clientes_registros.get("/creados_por_dia", response_model=List[CitClienteRegistroCantidadesCreadasPorDiaOut])
-async def listado_cit_clientes_creados_por_dia(
+@cit_clientes_registros.get("/reenviar_mensajes", response_model=Dict)
+async def reenviar_mensajes(
+    nombres: str = None,
+    apellido_primero: str = None,
+    apellido_segundo: str = None,
+    curp: str = None,
+    email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Reenviar mensajes de las recuperaciones pendientes"""
+    if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.MODIFICAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        enviados = resend_cit_clientes_registros(
+            db,
+            nombres=nombres,
+            apellido_primero=apellido_primero,
+            apellido_segundo=apellido_segundo,
+            curp=curp,
+            email=email,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except CitasAnyError as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    return {"items": enviados, "total": len(enviados)}
+
+
+@cit_clientes_registros.get("/elaborar_estadistica_diaria", response_model=List[CitClienteRegistroCantidadesCreadasPorDiaOut])
+async def elaborar_estadistica_diaria(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,

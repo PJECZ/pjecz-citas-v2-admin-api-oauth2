@@ -40,7 +40,7 @@ async def listado_cit_citas(
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_citas(
+        resultado = get_cit_citas(
             db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
@@ -55,11 +55,11 @@ async def listado_cit_citas(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    return paginate(resultado)
 
 
-@cit_citas.get("/creados_por_dia", response_model=List[CitCitaCantidadesCreadasPorDiaOut])
-async def listado_cit_clientes_creados_por_dia(
+@cit_citas.get("/elaborar_estadistica_diaria", response_model=List[CitCitaCantidadesCreadasPorDiaOut])
+async def elaborar_estadistica_diaria(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,

@@ -4,8 +4,7 @@ Cit Clientes Recuperaciones Commands
 from datetime import datetime
 
 import typer
-from rich.console import Console
-from rich.table import Table
+import rich
 
 import lib.connections
 import lib.exceptions
@@ -34,8 +33,8 @@ def consultar(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    console = Console()
-    table = Table("id", "creado", "nombre", "email", "expiracion", "mensajes", "recuperado")
+    console = rich.console.Console()
+    table = rich.table.Table("id", "creado", "nombre", "email", "expiracion", "mensajes", "recuperado")
     for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
         expiracion = datetime.strptime(registro["expiracion"], "%Y-%m-%dT%H:%M:%S.%f")
@@ -49,6 +48,7 @@ def consultar(
             "YA" if bool(registro["ya_recuperado"]) else "",
         )
     console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] recuperaciones")
 
 
 @app.command()
@@ -56,7 +56,6 @@ def reenviar(
     email: str = None,
 ):
     """Reenviar mensajes de las recuperaciones de los clientes"""
-    print("Reenviar mensajes de las recuperaciones de los clientes")
     try:
         respuesta = resend_cit_clientes_recuperaciones(
             base_url=lib.connections.base_url(),
@@ -66,9 +65,9 @@ def reenviar(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    console = Console()
-    table = Table("id", "creado", "nombre", "email", "expiracion", "mensajes")
-    for registro in respuesta:
+    console = rich.console.Console()
+    table = rich.table.Table("id", "creado", "nombre", "email", "expiracion", "mensajes")
+    for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
         expiracion = datetime.strptime(registro["expiracion"], "%Y-%m-%dT%H:%M:%S.%f")
         table.add_row(
@@ -80,3 +79,4 @@ def reenviar(
             str(registro["mensajes_cantidad"]),
         )
     console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] mensajes en cola")
