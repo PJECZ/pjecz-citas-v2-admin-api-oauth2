@@ -4,8 +4,7 @@ Cit Citas Commands
 from datetime import datetime
 
 import typer
-from rich.console import Console
-from rich.table import Table
+import rich
 
 import lib.connections
 import lib.exceptions
@@ -36,8 +35,8 @@ def consultar(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    console = Console()
-    table = Table("id", "creado", "oficina", "inicio", "nombre", "servicio", "estado")
+    console = rich.console.Console()
+    table = rich.table.Table("id", "creado", "oficina", "inicio", "nombre", "servicio", "estado")
     for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
         inicio = datetime.strptime(registro["inicio"], "%Y-%m-%dT%H:%M:%S")
@@ -51,3 +50,4 @@ def consultar(
             registro["estado"],
         )
     console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
