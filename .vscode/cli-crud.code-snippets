@@ -1,5 +1,5 @@
 {
-    "CLI CRUD": {
+    "CLI crud.py": {
         "scope": "python",
         "prefix": "clicrud",
         "description": "Contenido de CLI CRUD",
