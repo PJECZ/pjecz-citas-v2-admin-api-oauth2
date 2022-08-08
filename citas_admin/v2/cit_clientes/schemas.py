@@ -25,10 +25,3 @@ class CitClienteOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
-
-
-class CitClienteCantidadesCreadosPorDiaOut(BaseModel):
-    """Esquema para entregar cantidades de clientes creados por día"""
-
-    creado: date
-    cantidad: int

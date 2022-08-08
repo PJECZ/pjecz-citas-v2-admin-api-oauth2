@@ -3,6 +3,7 @@ Cit Citas v2, CRUD (create, read, update, and delete)
 """
 from datetime import date, datetime, timedelta
 from typing import Any
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -134,4 +135,4 @@ def get_cit_citas_cantidades_creados_por_dia(
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
                 raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
-    return consulta.group_by(func.date(CitCita.creado))
+    return consulta.group_by(func.date(CitCita.creado)).all()

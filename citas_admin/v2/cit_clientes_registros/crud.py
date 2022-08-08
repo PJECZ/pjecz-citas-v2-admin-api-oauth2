@@ -175,4 +175,4 @@ def get_cit_clientes_registros_cantidades_creados_por_dia(
             if not ANTIGUA_FECHA <= creado_hasta <= HOY:
                 raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitClienteRegistro.creado) <= creado_hasta)
-    return consulta.group_by(func.date(CitClienteRegistro.creado))
+    return consulta.group_by(func.date(CitClienteRegistro.creado)).all()
