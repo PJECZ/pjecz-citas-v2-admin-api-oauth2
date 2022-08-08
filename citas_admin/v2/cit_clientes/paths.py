@@ -2,7 +2,7 @@
 Cit Clientes v2, rutas (paths)
 """
 from datetime import date
-from typing import List
+from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_clientes, get_cit_cliente, get_cit_clientes_cantidades_creados_por_dia
-from .schemas import CitClienteOut, CitClienteCantidadesCreadosPorDiaOut
+from .schemas import CitClienteOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -52,19 +52,19 @@ async def listado_cit_clientes(
     return paginate(resultado)
 
 
-@cit_clientes.get("/creados_por_dia", response_model=List[CitClienteCantidadesCreadosPorDiaOut])
-async def listado_cit_clientes_creados_por_dia(
+@cit_clientes.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
+async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    """Listado de cantidades de clientes creados por dia"""
+    """Calcular cantidades de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        consulta = get_cit_clientes_cantidades_creados_por_dia(
+        fechas_cantidades = get_cit_clientes_cantidades_creados_por_dia(
             db,
             creado=creado,
             creado_desde=creado_desde,
@@ -72,7 +72,10 @@ async def listado_cit_clientes_creados_por_dia(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return consulta.all()
+    total = 0
+    for fecha_cantidad in fechas_cantidades:
+        total += fecha_cantidad["cantidad"]
+    return {"items": fechas_cantidades, "total": total}
 
 
 @cit_clientes.get("/{cit_cliente_id}", response_model=CitClienteOut)

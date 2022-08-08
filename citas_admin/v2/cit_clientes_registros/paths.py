@@ -2,7 +2,7 @@
 Cit Clientes Registros v2, rutas (paths)
 """
 from datetime import date
-from typing import Dict, List
+from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_cantidades_creados_por_dia, resend_cit_clientes_registros
-from .schemas import CitClienteRegistroOut, CitClienteRegistroCantidadesCreadasPorDiaOut
+from .schemas import CitClienteRegistroOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -85,19 +85,19 @@ async def reenviar_mensajes(
     return {"items": enviados, "total": len(enviados)}
 
 
-@cit_clientes_registros.get("/elaborar_estadistica_diaria", response_model=List[CitClienteRegistroCantidadesCreadasPorDiaOut])
-async def elaborar_estadistica_diaria(
+@cit_clientes_registros.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
+async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    """Listado de cantidades de registros de clientes creados por dia"""
+    """Calcular las cantidades de registros de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        consulta = get_cit_clientes_registros_cantidades_creados_por_dia(
+        fechas_cantidades = get_cit_clientes_registros_cantidades_creados_por_dia(
             db,
             creado=creado,
             creado_desde=creado_desde,
@@ -105,7 +105,10 @@ async def elaborar_estadistica_diaria(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return consulta.all()
+    total = 0
+    for fecha_cantidad in fechas_cantidades:
+        total += fecha_cantidad["cantidad"]
+    return {"items": fechas_cantidades, "total": total}
 
 
 @cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=CitClienteRegistroOut)

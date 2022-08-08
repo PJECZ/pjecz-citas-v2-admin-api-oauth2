@@ -1,5 +1,8 @@
 {
     "editor.formatOnSave": true,
+    "git.branchProtection": [
+        "main"
+    ],
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
         "--max-line-length",

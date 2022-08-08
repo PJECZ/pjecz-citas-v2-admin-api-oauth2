@@ -21,7 +21,9 @@ usuarios = APIRouter(prefix="/v2/usuarios", tags=["usuarios"])
 @usuarios.get("", response_model=LimitOffsetPage[UsuarioOut])
 async def listado_usuarios(
     autoridad_id: int = None,
+    autoridad_clave: str = None,
     oficina_id: int = None,
+    oficina_clave: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -32,7 +34,9 @@ async def listado_usuarios(
         listado = get_usuarios(
             db,
             autoridad_id=autoridad_id,
+            autoridad_clave=autoridad_clave,
             oficina_id=oficina_id,
+            oficina_clave=oficina_clave,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

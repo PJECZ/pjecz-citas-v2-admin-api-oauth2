@@ -2,7 +2,7 @@
 Cit Citas v2, rutas (paths)
 """
 from datetime import date, datetime
-from typing import List
+from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
 from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia
-from .schemas import CitCitaOut, CitCitaCantidadesCreadasPorDiaOut
+from .schemas import CitCitaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -28,6 +28,7 @@ async def listado_cit_citas(
     cit_servicio_id: int = None,
     oficina_id: int = None,
     oficina_clave: str = None,
+    fecha: date = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
     estado: str = None,
@@ -47,6 +48,7 @@ async def listado_cit_citas(
             cit_servicio_id=cit_servicio_id,
             oficina_id=oficina_id,
             oficina_clave=oficina_clave,
+            fecha=fecha,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
             estado=estado,
@@ -58,19 +60,19 @@ async def listado_cit_citas(
     return paginate(resultado)
 
 
-@cit_citas.get("/elaborar_estadistica_diaria", response_model=List[CitCitaCantidadesCreadasPorDiaOut])
-async def elaborar_estadistica_diaria(
+@cit_citas.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
+async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    """Listado de cantidades de citas creadas por dia"""
+    """Calcular las cantidades de citas creadas por dia"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        consulta = get_cit_citas_cantidades_creados_por_dia(
+        fechas_cantidades = get_cit_citas_cantidades_creados_por_dia(
             db,
             creado=creado,
             creado_desde=creado_desde,
@@ -78,7 +80,10 @@ async def elaborar_estadistica_diaria(
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return consulta.all()
+    total = 0
+    for fecha_cantidad in fechas_cantidades:
+        total += fecha_cantidad["cantidad"]
+    return {"items": fechas_cantidades, "total": total}
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)

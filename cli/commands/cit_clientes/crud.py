@@ -1,7 +1,9 @@
 """
 Cit Clientes CRUD
 """
+from datetime import date
 from typing import Any
+
 import requests
 
 import lib.exceptions
@@ -38,6 +40,38 @@ def get_cit_clientes(
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener los clientes") from error
+    if response.status_code != 200:
+        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
+    data_json = response.json()
+    if "items" not in data_json or "total" not in data_json:
+        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
+    return data_json
+
+
+def get_cit_clientes_cantidades_creados_por_dia(
+    base_url: str,
+    authorization_header: dict,
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+) -> Any:
+    """Solicitar cantidades de clientes creadas por dia"""
+    parametros = {}
+    if creado is not None:
+        parametros["creado"] = creado
+    if creado_desde is not None:
+        parametros["creado_desde"] = creado_desde
+    if creado_hasta is not None:
+        parametros["creado_hasta"] = creado_hasta
+    try:
+        response = requests.get(
+            f"{base_url}/cit_clientes/calcular_cantidades_creados_por_dia",
+            headers=authorization_header,
+            params=parametros,
+            timeout=12,
+        )
+    except requests.exceptions.RequestException as error:
+        raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
     if response.status_code != 200:
         raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
     data_json = response.json()

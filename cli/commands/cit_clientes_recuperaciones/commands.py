@@ -9,7 +9,7 @@ import rich
 import lib.connections
 import lib.exceptions
 
-from .crud import get_cit_clientes_recuperaciones, resend_cit_clientes_recuperaciones
+from .crud import get_cit_clientes_recuperaciones, get_cit_clientes_recuperaciones_cantidades_creados_por_dia, resend_cit_clientes_recuperaciones
 
 app = typer.Typer()
 
@@ -80,3 +80,33 @@ def reenviar(
         )
     console.print(table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] mensajes en cola")
+
+
+@app.command()
+def mostrar_cantidades_creados_por_dia(
+    creado: str = None,
+    creado_desde: str = None,
+    creado_hasta: str = None,
+):
+    """Mostrar cantidades de recuperaciones creadas por dia"""
+    print("Mostrar cantidades de recuperaciones creadas por dia")
+    try:
+        respuesta = get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
+            base_url=lib.connections.base_url(),
+            authorization_header=lib.connections.authorization(),
+            creado=creado,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    console = rich.console.Console()
+    table = rich.table.Table("creado", "cantidad")
+    for registro in respuesta["items"]:
+        table.add_row(
+            registro["creado"],
+            str(registro["cantidad"]),
+        )
+    console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] recuperaciones")

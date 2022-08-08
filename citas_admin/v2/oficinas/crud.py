@@ -4,7 +4,8 @@ Oficinas v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
+from lib.safe_string import safe_clave
 
 from .models import Oficina
 from ..distritos.crud import get_distrito
@@ -30,12 +31,25 @@ def get_oficinas(
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
     if puede_agendar_citas is not None:
         consulta = consulta.filter_by(puede_agendar_citas=puede_agendar_citas)
-    return consulta.filter_by(estatus="A").order_by(Oficina.id)
+    return consulta.filter_by(estatus="A").order_by(Oficina.clave)
 
 
 def get_oficina(db: Session, oficina_id: int) -> Oficina:
     """Consultar un oficina por su id"""
     oficina = db.query(Oficina).get(oficina_id)
+    if oficina is None:
+        raise CitasNotExistsError("No existe ese oficina")
+    if oficina.estatus != "A":
+        raise CitasIsDeletedError("No es activo ese oficina, está eliminado")
+    return oficina
+
+
+def get_oficina_with_clave(db: Session, clave: str) -> Oficina:
+    """Consultar un oficina por su id"""
+    clave = safe_clave(clave)
+    if clave is None:
+        raise CitasNotValidParamError("La clave no es válida")
+    oficina = db.query(Oficina).filter_by(clave=clave).first()
     if oficina is None:
         raise CitasNotExistsError("No existe ese oficina")
     if oficina.estatus != "A":

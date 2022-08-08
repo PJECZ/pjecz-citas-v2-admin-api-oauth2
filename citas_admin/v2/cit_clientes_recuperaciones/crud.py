@@ -1,7 +1,7 @@
 """
 Cit Clientes Recuperaciones v2, CRUD (create, read, update, and delete)
 """
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, Dict
 
 from sqlalchemy.orm import Session
@@ -115,3 +115,43 @@ def resend_cit_clientes_recuperaciones(
 
     # Entregar
     return enviados
+
+
+def get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
+    db: Session,
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+) -> Any:
+    """Calcular las cantidades de recuperaciones de clientes creados por dia"""
+    # Observe que para la columna `creado` se usa la función func.date()
+    consulta = db.query(
+        func.date(CitClienteRecuperacion.creado).label("creado"),
+        func.count(CitClienteRecuperacion.id).label("cantidad"),
+    )
+    # Si se recibe creado, se limita a esa fecha
+    if creado:
+        if not ANTIGUA_FECHA <= creado <= HOY:
+            raise CitasOutOfRangeParamError("Creado fuera de rango")
+        consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) == creado)
+    else:
+        # Si se reciben creado_desde y creado_hasta, validar que sean correctos
+        if creado_desde and creado_hasta:
+            if creado_desde > creado_hasta:
+                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
+        # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
+        if creado_desde is None and creado_hasta is None:
+            creado_desde = HOY - timedelta(days=30)
+            creado_hasta = HOY
+        # Si solo se recibe creado_desde, entonces creado_hasta es HOY
+        if creado_desde and creado_hasta is None:
+            creado_hasta = HOY
+        if creado_desde is not None:
+            if not ANTIGUA_FECHA <= creado_desde <= HOY:
+                raise CitasOutOfRangeParamError("Creado desde fuera de rango")
+            consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) >= creado_desde)
+        if creado_hasta is not None:
+            if not ANTIGUA_FECHA <= creado_hasta <= HOY:
+                raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
+            consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) <= creado_hasta)
+    return consulta.group_by(func.date(CitClienteRecuperacion.creado)).all()
