@@ -1,6 +1,8 @@
 """
 Cit Citas CRUD
 """
+from datetime import date
+
 from typing import Any
 import requests
 
@@ -11,12 +13,15 @@ def get_cit_citas(
     base_url: str,
     authorization_header: dict,
     limit: int = 40,
+    fecha: date = None,
     cit_cliente_email: str = None,
     oficina_clave: str = None,
     estado: str = None,
 ) -> Any:
     """Solicitar el listado de citas"""
     parametros = {"limit": limit}
+    if fecha is not None:
+        parametros["fecha"] = fecha
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
     if oficina_clave is not None:

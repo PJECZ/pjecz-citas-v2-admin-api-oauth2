@@ -17,6 +17,7 @@ app = typer.Typer()
 @app.command()
 def consultar(
     limit: int = 40,
+    fecha: str = None,
     email: str = None,
     oficina_clave: str = None,
     estado: str = None,
@@ -28,6 +29,7 @@ def consultar(
             base_url=lib.connections.base_url(),
             authorization_header=lib.connections.authorization(),
             limit=limit,
+            fecha=fecha,
             cit_cliente_email=email,
             oficina_clave=oficina_clave,
             estado=estado,

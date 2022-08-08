@@ -27,6 +27,7 @@ def get_cit_citas(
     cit_servicio_id: int = None,
     oficina_id: int = None,
     oficina_clave: str = None,
+    fecha: date = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
     estado: str = None,
@@ -52,10 +53,16 @@ def get_cit_citas(
         oficina_clave = safe_clave(oficina_clave)
         consulta = consulta.join(Oficina)
         consulta = consulta.filter(Oficina.clave == oficina_clave)
-    if inicio_desde is not None:
+    if fecha is not None:
+        inicio_desde = datetime(fecha.year, fecha.month, fecha.day, 0, 0, 0)
+        inicio_hasta = datetime(fecha.year, fecha.month, fecha.day, 23, 59, 59)
         consulta = consulta.filter(CitCita.inicio >= inicio_desde)
-    if inicio_hasta is not None:
         consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
+    else:
+        if inicio_desde is not None:
+            consulta = consulta.filter(CitCita.inicio >= inicio_desde)
+        if inicio_hasta is not None:
+            consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
     if estado is not None:
         estado = safe_string(estado)
         if estado not in CitCita.ESTADOS:
@@ -69,7 +76,12 @@ def get_cit_citas(
         if not ANTIGUA_FECHA <= creado_hasta <= HOY:
             raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
         consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
-    return consulta.filter_by(estatus="A").order_by(CitCita.id.desc())
+    consulta = consulta.filter_by(estatus="A")
+    if fecha is not None:
+        consulta = consulta.order_by(CitCita.inicio)
+    else:
+        consulta = consulta.order_by(CitCita.id.desc())
+    return consulta
 
 
 def get_cit_cita(
