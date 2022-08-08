@@ -24,7 +24,7 @@ def get_usuarios(
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
         consulta = consulta.filter(Usuario.oficina == oficina)
-    return consulta.filter_by(estatus="A").order_by(Usuario.id)
+    return consulta.filter_by(estatus="A").order_by(Usuario.id.desc())
 
 
 def get_usuario(db: Session, usuario_id: int) -> Usuario:

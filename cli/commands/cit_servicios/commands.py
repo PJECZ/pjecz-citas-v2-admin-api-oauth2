@@ -37,4 +37,4 @@ def consultar(
             registro["duracion"],
         )
     console.print(table)
-    rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
+    rich.print(f"Total: [green]{respuesta['total']}[/green] servicios")

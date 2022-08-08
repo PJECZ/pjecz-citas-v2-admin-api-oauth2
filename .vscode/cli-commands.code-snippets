@@ -53,7 +53,7 @@
             "\t\t\t\"YA\" if bool(registro[\"col_bool\"]) else \"\",",
             "\t\t)",
             "\tconsole.print(table)",
-            "\trich.print(f\"Total: [green]{respuesta['total']}[/green] citas\")",
+            "\trich.print(f\"Total: [green]{respuesta['total']}[/green] ${3:descripciones}\")",
             "",
             ""
         ]

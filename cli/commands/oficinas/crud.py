@@ -19,13 +19,13 @@ def get_oficinas(
     """Solicitar oficinas"""
     parametros = {"limit": limit}
     if distrito_id is not None:
-        parametros["param_str"] = distrito_id
+        parametros["distrito_id"] = distrito_id
     if domicilio_id is not None:
-        parametros["param_str"] = domicilio_id
+        parametros["domicilio_id"] = domicilio_id
     if es_jurisdiccional is not None:
-        parametros["param_str"] = es_jurisdiccional
+        parametros["es_jurisdiccional"] = es_jurisdiccional
     if puede_agendar_citas is not None:
-        parametros["param_str"] = puede_agendar_citas
+        parametros["puede_agendar_citas"] = puede_agendar_citas
     try:
         response = requests.get(
             f"{base_url}/oficinas",

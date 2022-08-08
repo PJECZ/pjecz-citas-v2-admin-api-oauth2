@@ -26,7 +26,7 @@ app.add_typer(cit_servicios_app, name="cit_servicios")
 app.add_typer(distritos_app, name="distritos")
 app.add_typer(materias_app, name="materias")
 app.add_typer(oficinas_app, name="oficinas")
-app.add_typer(roles_app, name="oficinas")
+app.add_typer(roles_app, name="roles")
 app.add_typer(usuarios_app, name="usuarios")
 
 if __name__ == "__main__":

@@ -17,9 +17,9 @@ def get_usuarios(
     """Solicitar usuarios"""
     parametros = {"limit": limit}
     if autoridad_id is not None:
-        parametros["param_str"] = autoridad_id
+        parametros["autoridad_id"] = autoridad_id
     if oficina_id is not None:
-        parametros["param_str"] = oficina_id
+        parametros["oficina_id"] = oficina_id
     try:
         response = requests.get(
             f"{base_url}/usuarios",
