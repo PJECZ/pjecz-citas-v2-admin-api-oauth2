@@ -4,7 +4,8 @@ Autoridades v2, CRUD (create, read, update, and delete)
 from typing import Any
 from sqlalchemy.orm import Session
 
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
+from lib.safe_string import safe_clave
 
 from .models import Autoridad
 from ..distritos.crud import get_distrito
@@ -31,6 +32,19 @@ def get_autoridades(
 def get_autoridad(db: Session, autoridad_id: int) -> Autoridad:
     """Consultar una autoridad por su id"""
     autoridad = db.query(Autoridad).get(autoridad_id)
+    if autoridad is None:
+        raise CitasNotExistsError("No existe esa autoridad")
+    if autoridad.estatus != "A":
+        raise CitasIsDeletedError("No es activa esa autoridad, está eliminada")
+    return autoridad
+
+
+def get_autoridad_with_clave(db: Session, clave: str) -> Autoridad:
+    """Consultar una autoridad por su clave"""
+    clave = safe_clave(clave)
+    if clave is None:
+        raise CitasNotValidParamError("La clave no es válida")
+    autoridad = db.query(Autoridad).filter_by(clave=clave).first()
     if autoridad is None:
         raise CitasNotExistsError("No existe esa autoridad")
     if autoridad.estatus != "A":

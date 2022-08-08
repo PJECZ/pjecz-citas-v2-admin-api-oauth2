@@ -18,7 +18,7 @@ app = typer.Typer()
 def consultar(
     limit: int = 40,
     email: str = None,
-    oficina: str = None,
+    oficina_clave: str = None,
     estado: str = None,
 ):
     """Consultar citas"""
@@ -29,7 +29,7 @@ def consultar(
             authorization_header=lib.connections.authorization(),
             limit=limit,
             cit_cliente_email=email,
-            oficina_clave=oficina,
+            oficina_clave=oficina_clave,
             estado=estado,
         )
     except lib.exceptions.CLIAnyError as error:

@@ -12,14 +12,20 @@ def get_usuarios(
     authorization_header: dict,
     limit: int = 40,
     autoridad_id: int = None,
+    autoridad_clave: str = None,
     oficina_id: int = None,
+    oficina_clave: str = None,
 ) -> Any:
     """Solicitar usuarios"""
     parametros = {"limit": limit}
     if autoridad_id is not None:
         parametros["autoridad_id"] = autoridad_id
+    if autoridad_clave is not None:
+        parametros["autoridad_clave"] = autoridad_clave
     if oficina_id is not None:
         parametros["oficina_id"] = oficina_id
+    if oficina_clave is not None:
+        parametros["oficina_clave"] = oficina_clave
     try:
         response = requests.get(
             f"{base_url}/usuarios",

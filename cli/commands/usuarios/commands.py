@@ -16,7 +16,9 @@ app = typer.Typer()
 def consultar(
     limit: int = 40,
     autoridad_id: int = None,
+    autoridad_clave: str = None,
     oficina_id: int = None,
+    oficina_clave: str = None,
 ):
     """Consultar usuarios"""
     rich.print("Consultar usuarios...")
@@ -26,7 +28,9 @@ def consultar(
             authorization_header=lib.connections.authorization(),
             limit=limit,
             autoridad_id=autoridad_id,
+            autoridad_clave=autoridad_clave,
             oficina_id=oficina_id,
+            oficina_clave=oficina_clave,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
