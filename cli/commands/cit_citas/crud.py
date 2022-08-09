@@ -2,8 +2,8 @@
 Cit Citas CRUD
 """
 from datetime import date
-
 from typing import Any
+
 import requests
 
 import lib.exceptions
@@ -85,3 +85,25 @@ def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
     inicio_hasta: date = None,
 ) -> Any:
     """Solicitar cantidades de citas agendadas por oficina y servicio"""
+    parametros = {}
+    if inicio is not None:
+        parametros["inicio"] = inicio
+    if inicio_desde is not None:
+        parametros["inicio_desde"] = inicio_desde
+    if inicio_hasta is not None:
+        parametros["inicio_hasta"] = inicio_hasta
+    try:
+        response = requests.get(
+            f"{base_url}/cit_citas/calcular_cantidades_agendadas_por_servicio_oficina",
+            headers=authorization_header,
+            params=parametros,
+            timeout=12,
+        )
+    except requests.exceptions.RequestException as error:
+        raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
+    if response.status_code != 200:
+        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
+    data_json = response.json()
+    if "items" not in data_json or "total" not in data_json:
+        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
+    return data_json

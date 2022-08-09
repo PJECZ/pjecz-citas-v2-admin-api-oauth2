@@ -156,16 +156,15 @@ def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
     )
     # Juntar las tablas de oficina y servicio
     consulta = consulta.select_from(CitCita).join(CitServicio, Oficina)
-    # Filtrar habilitados
-    consulta = consulta.filter(CitCita.estatus == "A")
-    # Filtrar estados
-    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     # Filtrar estatus
+    consulta = consulta.filter(CitCita.estatus == "A")
     consulta = consulta.filter(CitServicio.estatus == "A")
     consulta = consulta.filter(Oficina.estatus == "A")
+    # Filtrar estados
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     # Si se recibe inicio, se limita a esa fecha
     if inicio:
-        if not ANTIGUA_FECHA <= inicio <= HOY:
+        if not ANTIGUA_FECHA <= inicio:
             raise CitasOutOfRangeParamError("Inicio fuera de rango")
         consulta = consulta.filter(func.date(CitCita.inicio) == inicio)
     else:
@@ -181,11 +180,11 @@ def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
         if inicio_desde and inicio_hasta is None:
             inicio_hasta = HOY
         if inicio_desde is not None:
-            if not ANTIGUA_FECHA <= inicio_desde <= HOY:
+            if not ANTIGUA_FECHA <= inicio_desde:
                 raise CitasOutOfRangeParamError("Inicio desde fuera de rango")
             consulta = consulta.filter(func.date(CitCita.inicio) >= inicio_desde)
         if inicio_hasta is not None:
-            if not ANTIGUA_FECHA <= inicio_hasta <= HOY:
+            if not ANTIGUA_FECHA <= inicio_hasta:
                 raise CitasOutOfRangeParamError("Inicio hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.inicio) <= inicio_hasta)
     # Agrupar por oficina y servicio y ejecutar la consulta
