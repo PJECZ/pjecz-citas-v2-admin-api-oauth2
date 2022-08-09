@@ -24,6 +24,7 @@ def consultar(
     email: str = None,
 ):
     """Consultar clientes"""
+    rich.print("Consultar clientes...")
     try:
         respuesta = get_cit_clientes(
             base_url=lib.connections.base_url(),
@@ -64,7 +65,7 @@ def mostrar_cantidades_creados_por_dia(
     creado_hasta: str = None,
 ):
     """Mostrar cantidades de clientes creados por dia"""
-    print("Mostrar cantidades de clientes creados por dia")
+    rich.print("Mostrar cantidades de clientes creados por dia...")
     try:
         respuesta = get_cit_clientes_cantidades_creados_por_dia(
             base_url=lib.connections.base_url(),
