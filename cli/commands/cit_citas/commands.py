@@ -83,3 +83,12 @@ def mostrar_cantidades_creados_por_dia(
         )
     console.print(table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
+
+
+@app.command()
+def mostrar_cantidades_agendadas_por_oficina_servicio(
+    inicio: str = None,
+    inicio_desde: str = None,
+    inicio_hasta: str = None,
+):
+    """Mostrar cantidades de citas agendadas por oficina y servicio"""

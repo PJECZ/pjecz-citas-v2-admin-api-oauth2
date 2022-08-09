@@ -75,3 +75,13 @@ def get_cit_citas_cantidades_creados_por_dia(
     if "items" not in data_json or "total" not in data_json:
         raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
     return data_json
+
+
+def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+    base_url: str,
+    authorization_header: dict,
+    inicio: date = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
+) -> Any:
+    """Solicitar cantidades de citas agendadas por oficina y servicio"""

@@ -86,6 +86,17 @@ async def calcular_cantidades_creados_por_dia(
     return {"items": fechas_cantidades, "total": total}
 
 
+@cit_citas.get("/calcular_cantidades_agendadas_por_servicio_oficina", response_model=Dict)
+async def calcular_cantidades_agendadas_por_servicio_oficina(
+    inicio: date = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Calcular las cantidades de citas agendadas por oficina y servicio"""
+
+
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)
 async def detalle_cit_cita(
     cit_cita_id: int,
