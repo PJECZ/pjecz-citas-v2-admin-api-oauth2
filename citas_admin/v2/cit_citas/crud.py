@@ -136,3 +136,12 @@ def get_cit_citas_cantidades_creados_por_dia(
                 raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
     return consulta.group_by(func.date(CitCita.creado)).all()
+
+
+def get_cit_citas_cantidades_agendados_por_servicio_oficina(
+    db: Session,
+    inicio: date = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
+) -> Any:
+    """Calcular las cantidades de citas agendadas por servicio y oficina"""
