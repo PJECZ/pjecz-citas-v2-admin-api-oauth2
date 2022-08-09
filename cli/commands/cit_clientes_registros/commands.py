@@ -25,6 +25,7 @@ def consultar(
     registrado: bool = None,
 ):
     """Consultar registros de los clientes"""
+    rich.print("Consultar registros de los clientes...")
     try:
         respuesta = get_cit_clientes_registros(
             base_url=lib.connections.base_url(),
@@ -66,6 +67,7 @@ def reenviar(
     email: str = None,
 ):
     """Reenviar mensajes de las registros de los clientes"""
+    rich.print("Reenviar mensajes de las registros de los clientes...")
     try:
         respuesta = resend_cit_clientes_registros(
             base_url=lib.connections.base_url(),
@@ -102,7 +104,7 @@ def mostrar_cantidades_creados_por_dia(
     creado_hasta: str = None,
 ):
     """Mostrar cantidades de registros creados por dia"""
-    print("Mostrar cantidades de registros creados por dia")
+    rich.print("Mostrar cantidades de registros creados por dia...")
     try:
         respuesta = get_cit_clientes_registros_cantidades_creados_por_dia(
             base_url=lib.connections.base_url(),

@@ -21,7 +21,7 @@ def consultar(
     recuperado: bool = None,
 ):
     """Consultar recuperaciones de los clientes"""
-    print("Consultar recuperaciones de los clientes")
+    rich.print("Consultar recuperaciones de los clientes...")
     try:
         respuesta = get_cit_clientes_recuperaciones(
             base_url=lib.connections.base_url(),
@@ -56,6 +56,7 @@ def reenviar(
     email: str = None,
 ):
     """Reenviar mensajes de las recuperaciones de los clientes"""
+    rich.print("Reenviar mensajes de las recuperaciones de los clientes...")
     try:
         respuesta = resend_cit_clientes_recuperaciones(
             base_url=lib.connections.base_url(),
@@ -89,7 +90,7 @@ def mostrar_cantidades_creados_por_dia(
     creado_hasta: str = None,
 ):
     """Mostrar cantidades de recuperaciones creadas por dia"""
-    print("Mostrar cantidades de recuperaciones creadas por dia")
+    rich.print("Mostrar cantidades de recuperaciones creadas por dia...")
     try:
         respuesta = get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
             base_url=lib.connections.base_url(),

@@ -29,7 +29,7 @@ def consultar(
     estado: str = None,
 ):
     """Consultar citas"""
-    print("Consultar las citas")
+    rich.print("Consultar citas...")
     try:
         respuesta = get_cit_citas(
             base_url=lib.connections.base_url(),
@@ -62,13 +62,24 @@ def consultar(
 
 
 @app.command()
+def enviar(
+    limit: int = 40,
+    fecha: str = None,
+    email: str = None,
+    oficina_clave: str = None,
+):
+    """Enviar mensaje con citas"""
+    rich.print("Enviar mensaje con citas...")
+
+
+@app.command()
 def mostrar_cantidades_creados_por_dia(
     creado: str = None,
     creado_desde: str = None,
     creado_hasta: str = None,
 ):
     """Mostrar cantidades de citas creadas por dia"""
-    print("Mostrar cantidades de citas creadas por dia")
+    rich.print("Mostrar cantidades de citas creadas por dia...")
     try:
         respuesta = get_cit_citas_cantidades_creados_por_dia(
             base_url=lib.connections.base_url(),
@@ -98,7 +109,7 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
     inicio_hasta: str = None,
 ):
     """Mostrar cantidades de citas agendadas por oficina y servicio"""
-    print("Mostrar cantidades de citas agendadas por oficina y servicio")
+    rich.print("Mostrar cantidades de citas agendadas por oficina y servicio...")
     try:
         respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
             base_url=lib.connections.base_url(),
