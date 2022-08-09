@@ -2,6 +2,42 @@
 
 API OAuth2 del Sistema de Citas V2 para brindar informacion a otros sistemas.
 
+## Mejores practicas
+
+Se va a mejorar con los consejos en [I've been abusing HTTP Status Codes in my APIs for years](https://blog.slimjim.xyz/posts/stop-using-http-codes/)
+
+### Escenario exitoso
+
+Status code: **200**
+
+Body
+
+    {
+        "result": true,
+        "payload": {
+            "id": 1,
+            "name": "slim",
+            "surname": "jim",
+            "email:" "james@slimjim.xyz",
+            "role": "chief doughnut"
+        }
+    }
+
+### Escenario fallido: registro no encontrado
+
+Status code: **200**
+
+Body
+
+    {
+        "result": false,
+        "errorMessage": "No employee found for ID 100"
+    }
+
+### Escenario fallido: ruta incorrecta
+
+Status code: **404**
+
 ## Configure Poetry
 
 Por defecto, el entorno se guarda en un directorio unico en `~/.cache/pypoetry/virtualenvs`
@@ -17,7 +53,11 @@ Verifique que este en True
 
 ## Configuracion
 
-Cree el archivo `.env` con este contenido
+Genere el `SECRET_KEY`
+
+    openssl rand -hex 32
+
+Cree un archivo para las variables de entorno `.env`
 
     # Base de datos
     DB_HOST=127.0.0.1
@@ -33,7 +73,7 @@ Cree el archivo `.env` con este contenido
     # Salt sirve para cifrar el ID con HashID, debe ser igual que en la app Flask
     SALT=************************
 
-Cree el archivo `instance/settings.py` con este contenido
+Cree el archivo `instance/settings.py`
 
     """
     Configuración para desarrollo
@@ -49,9 +89,30 @@ Cree el archivo `instance/settings.py` con este contenido
     # PostgreSQL
     SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
-Cree un archivo `.bashrc` que le cargue las variables de entorno al abrir un perfil en Konsole
+    # CORS or "Cross-Origin Resource Sharing" refers to the situations when a frontend
+    # running in a browser has JavaScript code that communicates with a backend,
+    # and the backend is in a different "origin" than the frontend.
+    # https://fastapi.tiangolo.com/tutorial/cors/
+    ORIGINS = [
+        "http://localhost:8002",
+        "http://localhost:3000",
+        "http://127.0.0.1:8002",
+        "http://127.0.0.1:3000",
+    ]
 
-    #!/bin/bash
+Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Konsole
+
+    if [ -f ~/.bashrc ]; then
+        source ~/.bashrc
+    fi
+
+    source .venv/bin/activate
+    if [ -f .env ]; then
+        export $(grep -v '^#' .env | xargs)
+    fi
+
+    figlet Citas V2 API OAuth2
+    echo
 
     echo "== Variables de entorno"
     export $(grep -v '^#' .env | xargs)
@@ -70,7 +131,12 @@ Cree un archivo `.bashrc` que le cargue las variables de entorno al abrir un per
     export PGUSER=$DB_USER
     export PGPASSWORD=$DB_PASS
 
-## Instalacion para desarrollo
+    alias arrancar="uvicorn --port 8006 --reload citas_admin.app:app"
+    echo "-- FastAPI"
+    echo "   arrancar"
+    echo
+
+## Instalacion
 
 Clone el repositorio `pjecz-citas-v2-admin-api-oauth2`
 
@@ -82,11 +148,7 @@ Instale el entorno virtual y los paquetes necesarios
 
     poetry install
 
-Ingrese al entorno virtual con
-
-    poetry shell
-
-## Arrancar el servicio de la API en http://127.0.0.1:8006
+## FastAPI
 
 Ejecute el script `arrancar.py` que contiene el comando y parametros para arrancar el servicio
 
@@ -104,6 +166,6 @@ O use el comando para arrancar con gunicorn
 
 Lea `cli/README.md` para saber como configurar el CLI
 
-Ejecute el script `cli/app.py` para probar la API
+Ejecute el script `cli/app.py`
 
     cli/app.py --help

@@ -3,15 +3,21 @@ Cit Citas Commands
 """
 from datetime import datetime
 
+import pandas as pd
 import typer
 import rich
 
 import lib.connections
 import lib.exceptions
 
-from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia
+from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_oficina_servicio
 
 app = typer.Typer()
+
+# Pandas options on how to display dataframes
+pd.set_option("display.max_rows", 500)
+pd.set_option("display.max_columns", 500)
+pd.set_option("display.width", 150)
 
 
 @app.command()
@@ -82,4 +88,41 @@ def mostrar_cantidades_creados_por_dia(
             str(registro["cantidad"]),
         )
     console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
+
+
+@app.command()
+def mostrar_cantidades_agendadas_por_oficina_servicio(
+    inicio: str = None,
+    inicio_desde: str = None,
+    inicio_hasta: str = None,
+):
+    """Mostrar cantidades de citas agendadas por oficina y servicio"""
+    print("Mostrar cantidades de citas agendadas por oficina y servicio")
+    try:
+        respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+            base_url=lib.connections.base_url(),
+            authorization_header=lib.connections.authorization(),
+            inicio=inicio,
+            inicio_desde=inicio_desde,
+            inicio_hasta=inicio_hasta,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Convert items to pandas dataframe
+    df = pd.DataFrame(respuesta["items"])
+    # Change type of columns oficina and servicio to category
+    df.oficina = df.oficina.astype("category")
+    df.servicio = df.servicio.astype("category")
+    # Create a pivot table
+    pivot_table = df.pivot_table(
+        index="oficina",
+        columns="servicio",
+        values="cantidad",
+        aggfunc="sum",
+    )
+    # Print the pivot table
+    console = rich.console.Console()
+    console.print(pivot_table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] citas")

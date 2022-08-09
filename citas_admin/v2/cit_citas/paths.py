@@ -12,7 +12,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia
+from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_servicio_oficina
 from .schemas import CitCitaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -84,6 +84,32 @@ async def calcular_cantidades_creados_por_dia(
     for fecha_cantidad in fechas_cantidades:
         total += fecha_cantidad["cantidad"]
     return {"items": fechas_cantidades, "total": total}
+
+
+@cit_citas.get("/calcular_cantidades_agendadas_por_servicio_oficina", response_model=Dict)
+async def calcular_cantidades_agendadas_por_servicio_oficina(
+    inicio: date = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Calcular las cantidades de citas agendadas por oficina y servicio"""
+    if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        oficinas_servicios_cantidades = get_cit_citas_cantidades_agendadas_por_servicio_oficina(
+            db,
+            inicio=inicio,
+            inicio_desde=inicio_desde,
+            inicio_hasta=inicio_hasta,
+        )
+    except CitasAnyError as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    total = 0
+    for oficina_servicio_cantidad in oficinas_servicios_cantidades:
+        total += oficina_servicio_cantidad["cantidad"]
+    return {"items": oficinas_servicios_cantidades, "total": total}
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)
