@@ -187,6 +187,42 @@ def mostrar_cantidades_creados_por_dia(
 
 
 @app.command()
+def enviar_cantidades_creados_por_dia(
+    email: str,
+    creado: str = None,
+    creado_desde: str = None,
+    creado_hasta: str = None,
+):
+    """Enviar cantidades de citas creadas por dia"""
+    rich.print("Enviar cantidades de citas creadas por dia...")
+    # Validate sendgrid environment variables
+    try:
+        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Get data
+    try:
+        respuesta = get_cit_citas_cantidades_creados_por_dia(
+            base_url=lib.connections.base_url(),
+            authorization_header=lib.connections.authorization(),
+            creado=creado,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Terminate if no data
+    if respuesta["total"] == 0:
+        typer.secho("No hay datos con las fechas dadas", fg=typer.colors.YELLOW)
+        raise typer.Exit()
+
+
+@app.command()
 def mostrar_cantidades_agendadas_por_oficina_servicio(
     inicio: str = None,
     inicio_desde: str = None,
@@ -221,3 +257,39 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
     console = rich.console.Console()
     console.print(pivot_table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
+
+
+@app.command()
+def enviar_cantidades_agendadas_por_oficina_servicio(
+    email: str,
+    inicio: str = None,
+    inicio_desde: str = None,
+    inicio_hasta: str = None,
+):
+    """Enviar cantidades de citas agendadas por oficina y servicio"""
+    rich.print("Enviar cantidades de citas agendadas por oficina y servicio...")
+    # Validate sendgrid environment variables
+    try:
+        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Get data
+    try:
+        respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+            base_url=lib.connections.base_url(),
+            authorization_header=lib.connections.authorization(),
+            inicio=inicio,
+            inicio_desde=inicio_desde,
+            inicio_hasta=inicio_hasta,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Terminate if no data
+    if respuesta["total"] == 0:
+        typer.secho("No hay datos con las fechas dadas", fg=typer.colors.YELLOW)
+        raise typer.Exit()
