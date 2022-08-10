@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import rich
 import sendgrid
-from sendgrid.helpers.mail import Attachment, ContentId, Disposition, Email, FileContent, FileName, FileType, To, Content, Mail
+from sendgrid.helpers.mail import Email, To, Content, Mail
 from tabulate import tabulate
 import typer
 
@@ -111,7 +111,7 @@ def enviar(
         typer.secho("No hay citas para enviar", fg=typer.colors.YELLOW)
         raise typer.Exit()
     # Convert data to HTML table
-    headers = ["id", "inicio", "nombre", "servicio", "notas"]
+    headers = ["ID", "Hora", "Nombre", "Servicio", "Notas"]
     rows = []
     for item in respuesta["items"]:
         inicio = datetime.strptime(item["inicio"], "%Y-%m-%dT%H:%M:%S")
@@ -125,10 +125,16 @@ def enviar(
             ]
         )
     table_html = tabulate(rows, headers=headers, tablefmt="html")
+    # Apply style to table
+    table_html = table_html.replace("<table>", '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">')
+    # Add padding to table
+    table_html = table_html.replace('<td style="', '<td style="padding: 4px;')
+    table_html = table_html.replace("<td>", '<td style="padding: 4px;">')
     # Create message
     subject = f"Citas de la oficina {oficina_clave} para la fecha {fecha}"
     elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
     contenidos = []
+    contenidos.append("<style> td {border:2px black solid !important} </style>")
     contenidos.append("<h1>PJECZ Citas V2</h1>")
     contenidos.append(f"<h2>{subject}</h2>")
     contenidos.append(table_html)
@@ -139,7 +145,12 @@ def enviar(
     from_email = Email(SENDGRID_FROM_EMAIL)
     to_email = To(email)
     content = Content("text/html", "<br>".join(contenidos))
-    mail = Mail(from_email, to_email, subject, content)
+    mail = Mail(
+        from_email=from_email,
+        to_emails=to_email,
+        subject=subject,
+        html_content=content,
+    )
     sendgrid_client.client.mail.send.post(request_body=mail.get())
     # Print message
     rich.print(f"Mensaje enviado a [blue]{email}[/blue] con [green]{respuesta['total']}[/green] citas")
