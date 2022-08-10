@@ -187,42 +187,6 @@ def mostrar_cantidades_creados_por_dia(
 
 
 @app.command()
-def enviar_cantidades_creados_por_dia(
-    email: str,
-    creado: str = None,
-    creado_desde: str = None,
-    creado_hasta: str = None,
-):
-    """Enviar cantidades de citas creadas por dia"""
-    rich.print("Enviar cantidades de citas creadas por dia...")
-    # Validate sendgrid environment variables
-    try:
-        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
-        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-    # Get data
-    try:
-        respuesta = get_cit_citas_cantidades_creados_por_dia(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
-            creado=creado,
-            creado_desde=creado_desde,
-            creado_hasta=creado_hasta,
-        )
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-    # Terminate if no data
-    if respuesta["total"] == 0:
-        typer.secho("No hay datos con las fechas dadas", fg=typer.colors.YELLOW)
-        raise typer.Exit()
-
-
-@app.command()
 def mostrar_cantidades_agendadas_por_oficina_servicio(
     inicio: str = None,
     inicio_desde: str = None,
@@ -260,14 +224,11 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
 
 
 @app.command()
-def enviar_cantidades_agendadas_por_oficina_servicio(
+def enviar_informe_diario(
     email: str,
-    inicio: str = None,
-    inicio_desde: str = None,
-    inicio_hasta: str = None,
 ):
-    """Enviar cantidades de citas agendadas por oficina y servicio"""
-    rich.print("Enviar cantidades de citas agendadas por oficina y servicio...")
+    """Enviar informe diario"""
+    rich.print("Enviar informe diario...")
     # Validate sendgrid environment variables
     try:
         if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
@@ -277,14 +238,21 @@ def enviar_cantidades_agendadas_por_oficina_servicio(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Get data
+    # Today's date
+    today = datetime.now().strftime("%Y-%m-%d")
+    # Authenticate with API
+    try:
+        base_url = lib.connections.base_url()
+        authorization_header = lib.connections.authorization()
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    # Get cantidades de citas agendadas por oficina y servicio
     try:
         respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
-            inicio=inicio,
-            inicio_desde=inicio_desde,
-            inicio_hasta=inicio_hasta,
+            base_url=base_url,
+            authorization_header=authorization_header,
+            inicio=today,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -293,3 +261,20 @@ def enviar_cantidades_agendadas_por_oficina_servicio(
     if respuesta["total"] == 0:
         typer.secho("No hay datos con las fechas dadas", fg=typer.colors.YELLOW)
         raise typer.Exit()
+    # Convert items to pandas dataframe
+    df = pd.DataFrame(respuesta["items"])
+    # Change type of columns oficina and servicio to category
+    df.oficina = df.oficina.astype("category")
+    df.servicio = df.servicio.astype("category")
+    # Create a pivot table
+    pivot_table = df.pivot_table(
+        index="oficina",
+        columns="servicio",
+        values="cantidad",
+        aggfunc="sum",
+    )
+    # Convert pivot table to html
+    table_html = tabulate(pivot_table, headers="keys", tablefmt="pretty")
+    # Print the pivot table
+    console = rich.console.Console()
+    console.print(table_html)
