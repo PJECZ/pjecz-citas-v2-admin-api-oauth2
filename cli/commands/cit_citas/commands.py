@@ -1,7 +1,7 @@
 """
 Cit Citas Commands
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 import locale
 import os
 
@@ -239,8 +239,7 @@ def enviar_informe_diario(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Today's date
-    today = datetime.now().strftime("%Y-%m-%d")
+
     # Authenticate with API
     try:
         base_url = lib.connections.base_url()
@@ -248,6 +247,10 @@ def enviar_informe_diario(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
+
+    # Today's and yesterday date
+    today = datetime.now().strftime("%Y-%m-%d")
+    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
     # Get data for cantidades de citas agendadas por oficina y servicio
     try:
@@ -290,6 +293,7 @@ def enviar_informe_diario(
         respuesta = get_cit_citas_cantidades_creados_por_dia(
             base_url=base_url,
             authorization_header=authorization_header,
+            creado_hasta=yesterday,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -306,7 +310,7 @@ def enviar_informe_diario(
     cccd_table_html = cccd_table_html.replace('<td style="', '<td style="padding: 4px;')
     cccd_table_html = cccd_table_html.replace("<td>", '<td style="padding: 4px;">')
     # Title
-    cccd_title = f"{respuesta['total']} citas agendadas en los siguientes dias"
+    cccd_title = f"{respuesta['total']} citas creadas por los clientes en los siguientes dias"
 
     # Create message
     subject = f"Citas Informe del {today}"
