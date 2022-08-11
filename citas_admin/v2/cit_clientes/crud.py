@@ -23,6 +23,7 @@ def get_cit_clientes(
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
+    tiene_contrasena_sha256: bool = None,
     creado_desde: date = None,
     creado_hasta: date = None,
 ) -> Any:
@@ -43,6 +44,13 @@ def get_cit_clientes(
     email = safe_email(email, search_fragment=True)
     if email is not None:
         consulta = consulta.filter(CitCliente.email.contains(email))
+    if tiene_contrasena_sha256 is None:
+        consulta = consulta.filter(CitCliente.contrasena_sha256 != "")  # Si no se especifica, se filtra por los que si tienen
+    else:
+        if tiene_contrasena_sha256:
+            consulta = consulta.filter(CitCliente.contrasena_sha256 != "")
+        else:
+            consulta = consulta.filter(CitCliente.contrasena_sha256 == "")
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
             raise CitasOutOfRangeParamError("Creado desde fuera de rango")

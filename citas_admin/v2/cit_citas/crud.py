@@ -68,7 +68,9 @@ def get_cit_citas(
             consulta = consulta.filter(CitCita.inicio >= inicio_desde)
         if inicio_hasta is not None:
             consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
-    if estado is not None:
+    if estado is None:
+        consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))  # Si no se especifica, se filtra
+    else:
         estado = safe_string(estado)
         if estado not in CitCita.ESTADOS:
             raise CitasNotValidParamError("El estado no es válido")

@@ -37,7 +37,9 @@ def get_cit_clientes_recuperaciones(
         cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
-    if ya_recuperado is not None:
+    if ya_recuperado is None:
+        consulta = consulta.filter_by(ya_recuperado=False)  # Si no se especifica, se filtra por no recuperados
+    else:
         consulta = consulta.filter_by(ya_recuperado=ya_recuperado)
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
