@@ -39,6 +39,7 @@ def get_cit_citas(
 ) -> Any:
     """Consultar los citas activos"""
     consulta = db.query(CitCita)
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
@@ -112,6 +113,8 @@ def get_cit_citas_cantidades_creados_por_dia(
         func.date(CitCita.creado).label("creado"),
         func.count(CitCita.id).label("cantidad"),
     )
+    # Filtrar estados
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     # Si se recibe creado, se limita a esa fecha
     if creado:
         if not ANTIGUA_FECHA <= creado <= HOY:
