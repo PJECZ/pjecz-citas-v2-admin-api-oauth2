@@ -26,6 +26,9 @@ class CitServicio(Base, UniversalMixin):
     descripcion = Column(String(64), nullable=False)
     duracion = Column(Time(), nullable=False)
     documentos_limite = Column(Integer, nullable=False)
+    desde = Column(Time(), nullable=True)
+    hasta = Column(Time(), nullable=True)
+    dias_habilitados = Column(String(7), nullable=False)
 
     # Hijos
     cit_citas = relationship("CitCita", back_populates="cit_servicio")

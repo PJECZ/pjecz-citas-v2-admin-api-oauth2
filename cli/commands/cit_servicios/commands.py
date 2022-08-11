@@ -28,13 +28,16 @@ def consultar(
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = rich.console.Console()
-    table = rich.table.Table("id", "clave", "descripcion", "duracion")
+    table = rich.table.Table("ID", "Clave", "Descripcion", "Duracion", "Desde", "Hasta", "Dias Habilitados")
     for registro in respuesta["items"]:
         table.add_row(
             str(registro["id"]),
             registro["clave"],
             registro["descripcion"],
             registro["duracion"],
+            str(registro["desde"]) if registro["desde"] is not None else "",
+            str(registro["hasta"]) if registro["hasta"] is not None else "",
+            registro["dias_habilitados"],
         )
     console.print(table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] servicios")
