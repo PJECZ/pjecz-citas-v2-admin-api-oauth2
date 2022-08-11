@@ -46,7 +46,9 @@ def get_cit_clientes_registros(
     email = safe_email(email, search_fragment=True)
     if email is not None:
         consulta = consulta.filter(CitClienteRegistro.email.contains(email))
-    if ya_registrado is not None:
+    if ya_registrado is None:
+        consulta = consulta.filter_by(ya_registrado=False)  # Si no se especifica, se filtra por no registrados
+    else:
         consulta = consulta.filter_by(ya_registrado=ya_registrado)
     if creado_desde is not None:
         if not ANTIGUA_FECHA <= creado_desde <= HOY:
