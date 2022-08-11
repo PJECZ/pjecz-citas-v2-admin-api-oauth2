@@ -302,6 +302,8 @@ def enviar_informe_diario(
     df = pd.DataFrame(respuesta["items"])
     # Change type of columns to category
     df.creado = df.creado.astype("category")
+    # Order by creado
+    df = df.sort_values(by="creado")
     # Convert dataframe to HTML table
     cccd_table_html = tabulate(df, headers="keys", tablefmt="html")
     # Apply style to table
