@@ -21,6 +21,7 @@ from ..oficinas.models import Oficina
 
 HOY = date.today()
 ANTIGUA_FECHA = date(year=2022, month=1, day=1)
+DEFAULT_DIAS = 7
 
 
 def get_cit_citas(
@@ -39,6 +40,7 @@ def get_cit_citas(
 ) -> Any:
     """Consultar los citas activos"""
     consulta = db.query(CitCita)
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
@@ -112,6 +114,8 @@ def get_cit_citas_cantidades_creados_por_dia(
         func.date(CitCita.creado).label("creado"),
         func.count(CitCita.id).label("cantidad"),
     )
+    # Filtrar estados
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
     # Si se recibe creado, se limita a esa fecha
     if creado:
         if not ANTIGUA_FECHA <= creado <= HOY:
@@ -124,7 +128,7 @@ def get_cit_citas_cantidades_creados_por_dia(
                 raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
         # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
         if creado_desde is None and creado_hasta is None:
-            creado_desde = HOY - timedelta(days=30)
+            creado_desde = HOY - timedelta(days=DEFAULT_DIAS)
             creado_hasta = HOY
         # Si solo se recibe creado_desde, entonces creado_hasta es HOY
         if creado_desde and creado_hasta is None:
@@ -138,7 +142,7 @@ def get_cit_citas_cantidades_creados_por_dia(
                 raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
     # Agrupar por la fecha de creacion y ejecutar la consulta
-    return consulta.group_by(func.date(CitCita.creado)).all()
+    return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado)).all()
 
 
 def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
@@ -174,18 +178,18 @@ def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
                 raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
         # Si NO se reciben inicio_desde y inicio_hasta, se limitan a los últimos 30 días
         if inicio_desde is None and inicio_hasta is None:
-            inicio_desde = HOY - timedelta(days=30)
+            inicio_desde = HOY - timedelta(days=DEFAULT_DIAS)
             inicio_hasta = HOY
         # Si solo se recibe inicio_desde, entonces inicio_hasta es HOY
         if inicio_desde and inicio_hasta is None:
             inicio_hasta = HOY
         if inicio_desde is not None:
-            if not ANTIGUA_FECHA <= inicio_desde:
+            if inicio_desde < ANTIGUA_FECHA:
                 raise CitasOutOfRangeParamError("Inicio desde fuera de rango")
             consulta = consulta.filter(func.date(CitCita.inicio) >= inicio_desde)
         if inicio_hasta is not None:
-            if not ANTIGUA_FECHA <= inicio_hasta:
+            if inicio_hasta < ANTIGUA_FECHA:
                 raise CitasOutOfRangeParamError("Inicio hasta fuera de rango")
             consulta = consulta.filter(func.date(CitCita.inicio) <= inicio_hasta)
     # Agrupar por oficina y servicio y ejecutar la consulta
-    return consulta.group_by(Oficina.clave, CitServicio.clave).all()
+    return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave).all()
