@@ -7,6 +7,7 @@ import os
 import sys
 
 APP = "citas_admin.app:app"
+PORT = 8006
 
 
 def uvicorn_run():
@@ -15,7 +16,7 @@ def uvicorn_run():
     # Parsear argumentos
     parser = argparse.ArgumentParser(description="Arrancar uvicorn")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host default 127.0.0.1")
-    parser.add_argument("--port", type=int, default="8006", help="Port default 8006")
+    parser.add_argument("--port", type=int, default=PORT, help=f"Port default {PORT}")
     parser.add_argument("--reload", type=bool, default=True, help="Reload default True")
     args = parser.parse_args()
 
@@ -35,7 +36,7 @@ def gunicorn_run():
     parser = argparse.ArgumentParser(description="Arrancar gunicorn")
     parser.add_argument("-r", "--reload", type=bool, default=True)
     parser.add_argument("-w", "--workers", type=int, default=4)
-    parser.add_argument("-b", "--bind", type=str, default="0.0.0.0:8006")
+    parser.add_argument("-b", "--bind", type=str, default=f"0.0.0.0:{PORT}")
     parser.add_argument("-k", "--worker-class", type=str, default="uvicorn.workers.UvicornWorker")
     args = parser.parse_args()
 
