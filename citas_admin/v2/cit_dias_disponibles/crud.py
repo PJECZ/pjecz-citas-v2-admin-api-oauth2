@@ -20,10 +20,10 @@ def get_cit_dias_disponibles(db: Session) -> Any:
     dias_disponibles = []
 
     # Consultar dias inhabiles
+    fechas_inhabiles = []
     cit_dias_inhabiles = get_cit_dias_inhabiles(db).all()
-    dias_inhabiles = []
     if len(cit_dias_inhabiles) > 0:
-        dias_inhabiles = [item.fecha for item in cit_dias_inhabiles]
+        fechas_inhabiles = [item.fecha for item in cit_dias_inhabiles]
 
     # Agregar cada dia hasta el limite a partir de manana
     for fecha in (date.today() + timedelta(n) for n in range(1, LIMITE_DIAS)):
@@ -33,7 +33,7 @@ def get_cit_dias_disponibles(db: Session) -> Any:
             continue
 
         # Quitar los dias inhabiles
-        if fecha in dias_inhabiles:
+        if fecha in fechas_inhabiles:
             continue
 
         # Acumular
@@ -47,7 +47,7 @@ def get_cit_dias_disponibles(db: Session) -> Any:
     hoy = tiempo_local.date()
 
     # Definir si hoy es sabado, domingo o dia inhabil
-    hoy_es_dia_inhabil = hoy.weekday() in (5, 6) or hoy in dias_inhabiles
+    hoy_es_dia_inhabil = hoy.weekday() in (5, 6) or hoy in fechas_inhabiles
 
     # Si hoy es dia inhabil, quitar el primer dia disponible
     if hoy_es_dia_inhabil:
@@ -59,3 +59,23 @@ def get_cit_dias_disponibles(db: Session) -> Any:
 
     # Entregar
     return dias_disponibles
+
+
+def get_cit_dia_disponible_siguiente(db: Session) -> Any:
+    """Obtener el siguiente dia disponible, por ejemplo, si hoy es viernes y el lunes es dia inhabil, entrega el martes"""
+
+    # Consultar dias inhabiles
+    fechas_inhabiles = []
+    cit_dias_inhabiles = get_cit_dias_inhabiles(db).all()
+    if len(cit_dias_inhabiles) > 0:
+        fechas_inhabiles = [item.fecha for item in cit_dias_inhabiles]
+
+    # Determinar la fecha, primero se usa el dia de mañana
+    fecha = date.today() + timedelta(1)
+
+    # Bucle para saltar al siguiente dia si es sabado, domingo o dia inhabil
+    while fecha.weekday() in (5, 6) or fecha in fechas_inhabiles:
+        fecha = fecha + timedelta(1)
+
+    # Entregar
+    return fecha
