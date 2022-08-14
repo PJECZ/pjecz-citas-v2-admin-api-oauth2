@@ -20,7 +20,10 @@ __pycache__/
 /.vscode
 /cli
 /instance/settings.py
+/notebooks
+/poetry.lock
+/pyproject.toml
 /rest-client
-/setup.cfg
+/setup.py
 /tests
 /venv

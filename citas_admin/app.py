@@ -17,6 +17,7 @@ from .v2.cit_citas.paths import cit_citas
 from .v2.cit_clientes.paths import cit_clientes
 from .v2.cit_clientes_recuperaciones.paths import cit_clientes_recuperaciones
 from .v2.cit_clientes_registros.paths import cit_clientes_registros
+from .v2.cit_dias_disponibles.paths import cit_dias_disponibles
 from .v2.cit_dias_inhabiles.paths import cit_dias_inhabiles
 from .v2.cit_horas_bloqueadas.paths import cit_horas_bloqueadas
 from .v2.cit_oficinas_servicios.paths import cit_oficinas_servicios
@@ -47,6 +48,7 @@ app.include_router(cit_citas)
 app.include_router(cit_clientes)
 app.include_router(cit_clientes_recuperaciones)
 app.include_router(cit_clientes_registros)
+app.include_router(cit_dias_disponibles)
 app.include_router(cit_dias_inhabiles)
 app.include_router(cit_horas_bloqueadas)
 app.include_router(cit_oficinas_servicios)
