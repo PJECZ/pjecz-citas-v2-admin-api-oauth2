@@ -15,8 +15,9 @@ username={{username}}&password={{password}}
 
 ### Dias disponibles
 GET {{baseUrl}}/cit_dias_disponibles
+    ?limit=5
 Authorization: Bearer {{auth.response.body.access_token}}
 
 ### Siguiente dia disponible
-GET {{baseUrl}}/cit_dias_disponibles/siguiente
+GET {{baseUrl}}/cit_dias_disponibles/proximo
 Authorization: Bearer {{auth.response.body.access_token}}

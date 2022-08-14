@@ -9,6 +9,7 @@ from commands.cit_citas.commands import app as cit_citas_app
 from commands.cit_clientes.commands import app as cit_clientes_app
 from commands.cit_clientes_recuperaciones.commands import app as cit_clientes_recuperaciones_app
 from commands.cit_clientes_registros.commands import app as cit_clientes_registros_app
+from commands.cit_dias_disponibles.commands import app as cit_dias_disponibles_app
 from commands.cit_servicios.commands import app as cit_servicios_app
 from commands.distritos.commands import app as distritos_app
 from commands.materias.commands import app as materias_app
@@ -22,6 +23,7 @@ app.add_typer(cit_citas_app, name="cit_citas")
 app.add_typer(cit_clientes_app, name="cit_clientes")
 app.add_typer(cit_clientes_recuperaciones_app, name="cit_clientes_recuperaciones")
 app.add_typer(cit_clientes_registros_app, name="cit_clientes_registros")
+app.add_typer(cit_dias_disponibles_app, name="cit_dias_disponibles")
 app.add_typer(cit_servicios_app, name="cit_servicios")
 app.add_typer(distritos_app, name="distritos")
 app.add_typer(materias_app, name="materias")

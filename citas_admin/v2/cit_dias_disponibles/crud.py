@@ -15,7 +15,10 @@ SERVIDOR_HUSO_HORARIO = pytz.utc
 LOCAL_HUSO_HORARIO = pytz.timezone("America/Mexico_City")
 
 
-def get_cit_dias_disponibles(db: Session) -> Any:
+def get_cit_dias_disponibles(
+    db: Session,
+    limit: int = LIMITE_DIAS,
+) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []
 
@@ -61,13 +64,15 @@ def get_cit_dias_disponibles(db: Session) -> Any:
     respuesta = []
     for fecha in dias_disponibles:
         respuesta.append({"fecha": fecha})
+        if len(respuesta) >= limit:
+            break
 
     # Entregar
     return respuesta
 
 
 def get_cit_dia_disponible(db: Session) -> Any:
-    """Obtener el siguiente dia disponible, por ejemplo, si hoy es viernes y el lunes es dia inhabil, entrega el martes"""
+    """Obtener el proximo dia disponible, por ejemplo, si hoy es viernes y el lunes es dia inhabil, entrega el martes"""
 
     # Consultar dias inhabiles
     fechas_inhabiles = []
