@@ -57,11 +57,16 @@ def get_cit_dias_disponibles(db: Session) -> Any:
     elif tiempo_local.hour >= QUITAR_PRIMER_DIA_DESPUES_HORAS:
         dias_disponibles.pop(0)
 
+    # Elaborar respuesta como listado de dicionarios
+    respuesta = []
+    for fecha in dias_disponibles:
+        respuesta.append({"fecha": fecha})
+
     # Entregar
-    return dias_disponibles
+    return respuesta
 
 
-def get_cit_dia_disponible_siguiente(db: Session) -> Any:
+def get_cit_dia_disponible(db: Session) -> Any:
     """Obtener el siguiente dia disponible, por ejemplo, si hoy es viernes y el lunes es dia inhabil, entrega el martes"""
 
     # Consultar dias inhabiles
@@ -78,4 +83,4 @@ def get_cit_dia_disponible_siguiente(db: Session) -> Any:
         fecha = fecha + timedelta(1)
 
     # Entregar
-    return fecha
+    return {"fecha": fecha}
