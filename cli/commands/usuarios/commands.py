@@ -4,7 +4,8 @@ Usuarios Typer Commands
 import typer
 import rich
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_usuarios
@@ -14,7 +15,7 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
     autoridad_id: int = None,
     autoridad_clave: str = None,
     oficina_id: int = None,
@@ -24,8 +25,7 @@ def consultar(
     rich.print("Consultar usuarios...")
     try:
         respuesta = get_usuarios(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
             autoridad_id=autoridad_id,
             autoridad_clave=autoridad_clave,

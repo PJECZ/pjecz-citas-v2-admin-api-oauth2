@@ -6,13 +6,13 @@ from typing import Any
 
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_clientes_registros(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
     nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
@@ -36,10 +36,10 @@ def get_cit_clientes_registros(
         parametros["ya_registrado"] = ya_registrado
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes_registros",
+            f"{BASE_URL}/cit_clientes_registros",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las recuperaciones de los clientes") from error
@@ -52,7 +52,6 @@ def get_cit_clientes_registros(
 
 
 def resend_cit_clientes_registros(
-    base_url: str,
     authorization_header: dict,
     cit_cliente_email: str = None,
 ) -> Any:
@@ -62,10 +61,10 @@ def resend_cit_clientes_registros(
         parametros["cit_cliente_email"] = cit_cliente_email
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes_registros/reenviar_mensajes",
+            f"{BASE_URL}/cit_clientes_registros/reenviar_mensajes",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las registros de los clientes") from error
@@ -78,7 +77,6 @@ def resend_cit_clientes_registros(
 
 
 def get_cit_clientes_registros_cantidades_creados_por_dia(
-    base_url: str,
     authorization_header: dict,
     creado: date = None,
     creado_desde: date = None,
@@ -94,10 +92,10 @@ def get_cit_clientes_registros_cantidades_creados_por_dia(
         parametros["creado_hasta"] = creado_hasta
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes_registros/calcular_cantidades_creados_por_dia",
+            f"{BASE_URL}/cit_clientes_registros/calcular_cantidades_creados_por_dia",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error

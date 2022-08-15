@@ -4,22 +4,22 @@ Materias CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_materias(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
 ) -> Any:
     """Solicitar materias"""
     parametros = {"limit": limit}
     try:
         response = requests.get(
-            f"{base_url}/materias",
+            f"{BASE_URL}/materias",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar materias") from error

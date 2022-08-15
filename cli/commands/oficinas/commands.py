@@ -4,7 +4,8 @@ Oficinas Typer Commands
 import typer
 import rich
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_oficinas
@@ -14,7 +15,7 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
     distrito_id: int = None,
     domicilio_id: int = None,
     es_jurisdiccional: bool = None,
@@ -24,8 +25,7 @@ def consultar(
     rich.print("Consultar oficinas...")
     try:
         respuesta = get_oficinas(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,

@@ -6,13 +6,13 @@ from typing import Any
 
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_clientes(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
     nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
@@ -33,10 +33,10 @@ def get_cit_clientes(
         parametros["email"] = email
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes",
+            f"{BASE_URL}/cit_clientes",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener los clientes") from error
@@ -49,7 +49,6 @@ def get_cit_clientes(
 
 
 def get_cit_clientes_cantidades_creados_por_dia(
-    base_url: str,
     authorization_header: dict,
     creado: date = None,
     creado_desde: date = None,
@@ -65,10 +64,10 @@ def get_cit_clientes_cantidades_creados_por_dia(
         parametros["creado_hasta"] = creado_hasta
     try:
         response = requests.get(
-            f"{base_url}/cit_clientes/calcular_cantidades_creados_por_dia",
+            f"{BASE_URL}/cit_clientes/calcular_cantidades_creados_por_dia",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
