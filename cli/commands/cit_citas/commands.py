@@ -241,19 +241,27 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
 @app.command()
 def enviar_informe_diario(
     email: str,
+    test: bool = True,
 ):
     """Enviar informe diario"""
     rich.print("Enviar informe diario...")
 
-    # Validar variables de entorno de SendGrid
-    try:
-        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
-        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
+    # Si test es falso, si se va a usar SendGrid
+    sendgrid_client = None
+    from_email = None
+    if test is False:
+        # Validar variables de entorno
+        try:
+            if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+            if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        # Inicializar SendGrid
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+        from_email = Email(SENDGRID_FROM_EMAIL)
 
     # Autentificar
     try:
@@ -347,17 +355,16 @@ def enviar_informe_diario(
     contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
 
     # Enviar mensaje
-    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-    from_email = Email(SENDGRID_FROM_EMAIL)
-    to_email = To(email)
-    content = Content("text/html", "<br>".join(contenidos))
-    mail = Mail(
-        from_email=from_email,
-        to_emails=to_email,
-        subject=subject,
-        html_content=content,
-    )
-    sendgrid_client.client.mail.send.post(request_body=mail.get())
+    if test is False:
+        to_email = To(email)
+        content = Content("text/html", "<br>".join(contenidos))
+        mail = Mail(
+            from_email=from_email,
+            to_emails=to_email,
+            subject=subject,
+            html_content=content,
+        )
+        sendgrid_client.client.mail.send.post(request_body=mail.get())
 
     # Mostrar mensaje final en la terminal
     rich.print(f"Mensaje enviado a [blue]{email}[/blue] con [green]{subject}[/green]")
@@ -371,20 +378,22 @@ def enviar_agenda_a_usuarios(
     """Enviar la agenda de las citas a los usuarios"""
     rich.print("Enviar la agenda de las citas a los usuarios...")
 
-    # Validar variables de entorno de SendGrid
-    try:
-        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
-        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-
-    # Inicializar SendGrid
-    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-    from_email = Email(SENDGRID_FROM_EMAIL)
-    elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
+    # Si test es falso, si se va a usar SendGrid
+    sendgrid_client = None
+    from_email = None
+    if test is False:
+        # Validar variables de entorno
+        try:
+            if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+            if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        # Inicializar SendGrid
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+        from_email = Email(SENDGRID_FROM_EMAIL)
 
     # Autenticar
     try:
@@ -414,6 +423,9 @@ def enviar_agenda_a_usuarios(
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     oficinas = respuesta_oficinas["items"]
+
+    # Definir la fecha y hora de elaboracion que va en el contenido del mensaje
+    elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
 
     # Preparar una tabla para mostrar al final
     console = rich.console.Console()
@@ -500,7 +512,7 @@ def enviar_agenda_a_usuarios(
         # Mostrar una linea en la terminal
         rich.print(f"Enviando mensaje [blue]{fecha}[/blue] [green]{oficina['clave']}[/green] con [yellow]{citas_str}[/yellow] citas a [cian]{destinatarios_str}[/cian]")
 
-        # Enviar el mensaje
+        # Enviar mensaje
         if test is False:
             to_emails = [destinatario["email"] for destinatario in respuesta_usuarios["items"]]
             mail = Mail(

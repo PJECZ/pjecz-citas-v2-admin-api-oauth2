@@ -54,6 +54,7 @@ def consultar(
 @app.command()
 def reenviar(
     email: str = None,
+    test: bool = True,
 ):
     """Reenviar mensajes de las recuperaciones de los clientes"""
     rich.print("Reenviar mensajes de las recuperaciones de los clientes...")
