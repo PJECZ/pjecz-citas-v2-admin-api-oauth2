@@ -17,6 +17,9 @@ import lib.connections
 import lib.exceptions
 
 from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_oficina_servicio
+from ..cit_dias_disponibles.crud import get_cit_dia_disponible
+from ..oficinas.crud import get_oficinas
+from ..usuarios.crud import get_usuarios
 
 app = typer.Typer()
 
@@ -341,3 +344,160 @@ def enviar_informe_diario(
 
     # Print message to console
     rich.print(f"Mensaje enviado a [blue]{email}[/blue] con [green]{subject}[/green]")
+
+
+@app.command()
+def enviar_agenda_a_usuarios(
+    limit: int = 200,
+    test: bool = True,
+):
+    """Enviar la agenda de las citas a los usuarios"""
+    rich.print("Enviar la agenda de las citas a los usuarios...")
+
+    # Validar variables de entorno de SendGrid
+    try:
+        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+
+    # Inicializar SendGrid
+    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+    from_email = Email(SENDGRID_FROM_EMAIL)
+    elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
+
+    # Autenticar
+    try:
+        base_url = lib.connections.base_url()
+        authorization_header = lib.connections.authorization()
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+
+    # Obtener el proximo dia habil
+    try:
+        respuesta_cit_dia_disponible = get_cit_dia_disponible(
+            base_url=base_url,
+            authorization_header=authorization_header,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    fecha = respuesta_cit_dia_disponible["fecha"]
+
+    # Obtener las oficinas que pueden agendar citas
+    try:
+        respuesta_oficinas = get_oficinas(
+            base_url=base_url,
+            authorization_header=authorization_header,
+            limit=limit,
+            puede_agendar_citas=True,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    oficinas = respuesta_oficinas["items"]
+
+    # Preparar una tabla para mostrar al final
+    console = rich.console.Console()
+    table = rich.table.Table("Fecha", "Oficina", "Citas", "Destinatarios")
+
+    # Bucle por las oficinas
+    for oficina in oficinas:
+
+        # Obtener los usuarios de la oficina
+        try:
+            respuesta_usuarios = get_usuarios(
+                base_url=base_url,
+                authorization_header=authorization_header,
+                limit=limit,
+                oficina_clave=oficina["clave"],
+            )
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        if respuesta_usuarios["total"] == 0:
+            rich.print(f"[red]NO HAY DESTINATARIOS[/red] para la oficina [green]{oficina['clave']}[/green]")
+            continue
+        destinatarios_str = ", ".join([usuario["email"] for usuario in respuesta_usuarios["items"]])
+
+        # Obtener la agenda de las citas de la oficina
+        try:
+            respuesta_citas = get_cit_citas(
+                base_url=base_url,
+                authorization_header=authorization_header,
+                limit=limit,
+                fecha=fecha,
+                oficina_clave=oficina["clave"],
+            )
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        if respuesta_citas["total"] == 0:
+            citas_str = "SIN CITAS"
+        else:
+            citas_str = str(respuesta_citas["total"])
+
+        # Agregar un renglon a la tabla
+        table.add_row(
+            fecha,
+            oficina["clave"],
+            citas_str,
+            destinatarios_str,
+        )
+
+        # Comenzar a elaborar el mensaje
+        subject = f"Citas de la oficina {oficina['descripcion_corta']} para la fecha {fecha}"
+        contenidos = []
+        contenidos.append("<style> td {border:2px black solid !important} </style>")
+        contenidos.append("<h1>PJECZ Citas V2</h1>")
+        contenidos.append(f"<h2>{subject}</h2>")
+
+        # Si no hay citas,
+        if respuesta_citas["total"] == 0:
+            # El contenido del mensaje es SIN CITAS
+            contenidos.append("<p>SIN CITAS AGENDADAS</p>")
+        else:
+            # El contenido del mensaje es la tabla de citas
+            headers = ["Hora", "Nombre", "Servicio", "Notas"]
+            rows = []
+            for item in respuesta_citas["items"]:
+                inicio = datetime.strptime(item["inicio"], "%Y-%m-%dT%H:%M:%S")
+                rows.append(
+                    [
+                        inicio.strftime("%H:%M"),
+                        item["cit_cliente_nombre"],
+                        item["cit_servicio_clave"],
+                        item["notas"],
+                    ]
+                )
+            table_html = tabulate(rows, headers=headers, tablefmt="html")
+            table_html = table_html.replace("<table>", '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">')
+            table_html = table_html.replace('<td style="', '<td style="padding: 4px;')
+            table_html = table_html.replace("<td>", '<td style="padding: 4px;">')
+            contenidos.append(table_html)
+
+        # Parte final del mensaje
+        contenidos.append(f"<p>Fecha de elaboración: <b>{elaboracion_fecha_hora_str}.</b></p>")
+        contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
+        content = Content("text/html", "<br>".join(contenidos))
+
+        # Mostrar una linea en la terminal
+        rich.print(f"Enviando mensaje [blue]{fecha}[/blue] [green]{oficina['clave']}[/green] con [yellow]{citas_str}[/yellow] citas a [cian]{destinatarios_str}[/cian]")
+
+        # Enviar el mensaje
+        if test is False:
+            to_emails = [destinatario["email"] for destinatario in respuesta_usuarios["items"]]
+            mail = Mail(
+                from_email=from_email,
+                to_emails=to_emails,
+                subject=subject,
+                html_content=content,
+            )
+            sendgrid_client.client.mail.send.post(request_body=mail.get())
+
+    # Mostrar la tabla
+    console.print(table)
