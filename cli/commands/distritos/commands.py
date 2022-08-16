@@ -4,7 +4,8 @@ Distritos Typer Commands
 import typer
 import rich
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_distritos
@@ -14,14 +15,13 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
 ):
     """Consultar distritos"""
     rich.print("Consultar distritos...")
     try:
         respuesta = get_distritos(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
         )
     except lib.exceptions.CLIAnyError as error:

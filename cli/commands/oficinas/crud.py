@@ -4,13 +4,13 @@ Oficinas CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_oficinas(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
     distrito_id: int = None,
     domicilio_id: int = None,
     es_jurisdiccional: bool = None,
@@ -28,10 +28,10 @@ def get_oficinas(
         parametros["puede_agendar_citas"] = puede_agendar_citas
     try:
         response = requests.get(
-            f"{base_url}/oficinas",
+            f"{BASE_URL}/oficinas",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar oficinas") from error

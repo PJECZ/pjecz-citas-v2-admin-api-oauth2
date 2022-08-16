@@ -4,22 +4,22 @@ Cit Dias Disponibles CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_dias_disponibles(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
 ) -> Any:
     """Solicitar dias disponibles, entrega un listado de fechas"""
     parametros = {"limit": limit}
     try:
         response = requests.get(
-            f"{base_url}/cit_dias_disponibles",
+            f"{BASE_URL}/cit_dias_disponibles",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar dias disponibles") from error
@@ -32,15 +32,14 @@ def get_cit_dias_disponibles(
 
 
 def get_cit_dia_disponible(
-    base_url: str,
     authorization_header: dict,
 ) -> Any:
     """Solicitar el proximo dia disponible, por ejemplo, si hoy es viernes y el lunes es dia inhabil, entrega el martes"""
     try:
         response = requests.get(
-            f"{base_url}/cit_dias_disponibles/proximo",
+            f"{BASE_URL}/cit_dias_disponibles/proximo",
             headers=authorization_header,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar dias disponibles") from error

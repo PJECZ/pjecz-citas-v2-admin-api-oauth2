@@ -4,22 +4,22 @@ Cit Servicios CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_servicios(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
 ) -> Any:
     """Solicitar servicios"""
     parametros = {"limit": limit}
     try:
         response = requests.get(
-            f"{base_url}/cit_servicios",
+            f"{BASE_URL}/cit_servicios",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar servicios") from error

@@ -6,13 +6,13 @@ from typing import Any
 
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_citas(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
     fecha: date = None,
     cit_cliente_email: str = None,
     oficina_clave: str = None,
@@ -30,10 +30,10 @@ def get_cit_citas(
         parametros["estado"] = estado
     try:
         response = requests.get(
-            f"{base_url}/cit_citas",
+            f"{BASE_URL}/cit_citas",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
@@ -46,7 +46,6 @@ def get_cit_citas(
 
 
 def get_cit_citas_cantidades_creados_por_dia(
-    base_url: str,
     authorization_header: dict,
     creado: date = None,
     creado_desde: date = None,
@@ -62,10 +61,10 @@ def get_cit_citas_cantidades_creados_por_dia(
         parametros["creado_hasta"] = creado_hasta
     try:
         response = requests.get(
-            f"{base_url}/cit_citas/calcular_cantidades_creados_por_dia",
+            f"{BASE_URL}/cit_citas/calcular_cantidades_creados_por_dia",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
@@ -78,7 +77,6 @@ def get_cit_citas_cantidades_creados_por_dia(
 
 
 def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
-    base_url: str,
     authorization_header: dict,
     inicio: date = None,
     inicio_desde: date = None,
@@ -94,10 +92,10 @@ def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
         parametros["inicio_hasta"] = inicio_hasta
     try:
         response = requests.get(
-            f"{base_url}/cit_citas/calcular_cantidades_agendadas_por_servicio_oficina",
+            f"{BASE_URL}/cit_citas/calcular_cantidades_agendadas_por_servicio_oficina",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error

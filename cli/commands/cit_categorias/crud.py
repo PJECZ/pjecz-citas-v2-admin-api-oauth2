@@ -4,22 +4,22 @@ Cit Categorias CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_cit_categorias(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
 ) -> Any:
     """Solicitar categorias"""
     parametros = {"limit": limit}
     try:
         response = requests.get(
-            f"{base_url}/cit_categorias",
+            f"{BASE_URL}/cit_categorias",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar categorias") from error

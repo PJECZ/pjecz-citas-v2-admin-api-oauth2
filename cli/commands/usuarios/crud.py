@@ -4,13 +4,13 @@ Usuarios CRUD (create, read, update, and delete)
 from typing import Any
 import requests
 
+from config.settings import BASE_URL, LIMIT, TIMEOUT
 import lib.exceptions
 
 
 def get_usuarios(
-    base_url: str,
     authorization_header: dict,
-    limit: int = 40,
+    limit: int = LIMIT,
     autoridad_id: int = None,
     autoridad_clave: str = None,
     oficina_id: int = None,
@@ -28,10 +28,10 @@ def get_usuarios(
         parametros["oficina_clave"] = oficina_clave
     try:
         response = requests.get(
-            f"{base_url}/usuarios",
+            f"{BASE_URL}/usuarios",
             headers=authorization_header,
             params=parametros,
-            timeout=12,
+            timeout=TIMEOUT,
         )
     except requests.exceptions.RequestException as error:
         raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar usuarios") from error

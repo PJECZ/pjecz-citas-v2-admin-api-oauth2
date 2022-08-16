@@ -4,7 +4,8 @@ Cit Dias Disponibles Typer Commands
 import typer
 import rich
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_cit_dias_disponibles, get_cit_dia_disponible
@@ -14,14 +15,13 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
 ):
     """Consultar dias disponibles"""
     rich.print("Consultar dias disponibles...")
     try:
         respuesta = get_cit_dias_disponibles(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
         )
     except lib.exceptions.CLIAnyError as error:
@@ -38,14 +38,13 @@ def consultar(
 
 @app.command()
 def proximo():
-    """Consultar proximo dia disponible"""
-    rich.print("Consultar proximo dia disponible...")
+    """Consultar proximo dia hábil"""
+    rich.print("Consultar proximo dia hábil...")
     try:
         respuesta = get_cit_dia_disponible(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    rich.print(f"Proxima fecha: [green]{respuesta['fecha']}[/green]")
+    rich.print(f"Proximo dia hábil: [green]{respuesta['fecha']}[/green]")

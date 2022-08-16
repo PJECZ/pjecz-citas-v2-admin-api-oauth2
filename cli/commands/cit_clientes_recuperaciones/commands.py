@@ -6,7 +6,8 @@ from datetime import datetime
 import typer
 import rich
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_cit_clientes_recuperaciones, get_cit_clientes_recuperaciones_cantidades_creados_por_dia, resend_cit_clientes_recuperaciones
@@ -16,7 +17,7 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
     email: str = None,
     recuperado: bool = None,
 ):
@@ -24,8 +25,7 @@ def consultar(
     rich.print("Consultar recuperaciones de los clientes...")
     try:
         respuesta = get_cit_clientes_recuperaciones(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
             cit_cliente_email=email,
             ya_recuperado=recuperado,
@@ -59,8 +59,7 @@ def reenviar(
     rich.print("Reenviar mensajes de las recuperaciones de los clientes...")
     try:
         respuesta = resend_cit_clientes_recuperaciones(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             cit_cliente_email=email,
         )
     except lib.exceptions.CLIAnyError as error:
@@ -93,8 +92,7 @@ def mostrar_cantidades_creados_por_dia(
     rich.print("Mostrar cantidades de recuperaciones creadas por dia...")
     try:
         respuesta = get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,

@@ -13,7 +13,8 @@ from sendgrid.helpers.mail import Email, To, Content, Mail
 from tabulate import tabulate
 import typer
 
-import lib.connections
+from config.settings import LIMIT
+from lib.authentication import authorization_header
 import lib.exceptions
 
 from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_oficina_servicio
@@ -38,7 +39,7 @@ SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL")
 
 @app.command()
 def consultar(
-    limit: int = 40,
+    limit: int = LIMIT,
     fecha: str = None,
     email: str = None,
     oficina_clave: str = None,
@@ -48,8 +49,7 @@ def consultar(
     rich.print("Consultar citas...")
     try:
         respuesta = get_cit_citas(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
             fecha=fecha,
             cit_cliente_email=email,
@@ -83,11 +83,12 @@ def enviar(
     fecha: str,
     oficina_clave: str,
     estado: str = "PENDIENTE",
-    limit: int = 400,
+    limit: int = LIMIT,
 ):
     """Enviar mensaje con citas"""
     rich.print("Enviar mensaje con citas...")
-    # Validate sendgrid environment variables
+
+    # Validar variables de entorno de SendGrid
     try:
         if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
             raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
@@ -96,11 +97,11 @@ def enviar(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Get data
+
+    # Solicitar citas
     try:
         respuesta = get_cit_citas(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             limit=limit,
             fecha=fecha,
             oficina_clave=oficina_clave,
@@ -109,11 +110,13 @@ def enviar(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Terminate if no data
+
+    # Terminar si no hay datos
     if respuesta["total"] == 0:
         typer.secho("No hay citas para enviar", fg=typer.colors.YELLOW)
         raise typer.Exit()
-    # Convert data to HTML table
+
+    # Convertir datos a tabla HTML
     headers = ["ID", "Hora", "Nombre", "Servicio", "Notas"]
     rows = []
     for item in respuesta["items"]:
@@ -128,12 +131,11 @@ def enviar(
             ]
         )
     table_html = tabulate(rows, headers=headers, tablefmt="html")
-    # Apply style to table
     table_html = table_html.replace("<table>", '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">')
-    # Add padding to cells
     table_html = table_html.replace('<td style="', '<td style="padding: 4px;')
     table_html = table_html.replace("<td>", '<td style="padding: 4px;">')
-    # Create message
+
+    # Crear mensaje
     subject = f"Citas de la oficina {oficina_clave} para la fecha {fecha}"
     elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
     contenidos = []
@@ -143,7 +145,8 @@ def enviar(
     contenidos.append(table_html)
     contenidos.append(f"<p>Fecha de elaboración: <b>{elaboracion_fecha_hora_str}.</b></p>")
     contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
-    # Send message
+
+    # Enviar mensaje
     sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
     from_email = Email(SENDGRID_FROM_EMAIL)
     to_email = To(email)
@@ -155,7 +158,8 @@ def enviar(
         html_content=content,
     )
     sendgrid_client.client.mail.send.post(request_body=mail.get())
-    # Print message
+
+    # Mostrar mensaje final en la terminal
     rich.print(f"Mensaje enviado a [blue]{email}[/blue] con [green]{subject}[/green]")
 
 
@@ -167,10 +171,11 @@ def mostrar_cantidades_creados_por_dia(
 ):
     """Mostrar cantidades de citas creadas por dia"""
     rich.print("Mostrar cantidades de citas creadas por dia...")
+
+    # Solicitar datos
     try:
         respuesta = get_cit_citas_cantidades_creados_por_dia(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
@@ -178,6 +183,8 @@ def mostrar_cantidades_creados_por_dia(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
+
+    # Mostrar tabla en la terminal
     console = rich.console.Console()
     table = rich.table.Table("creado", "cantidad")
     for registro in respuesta["items"]:
@@ -197,10 +204,11 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
 ):
     """Mostrar cantidades de citas agendadas por oficina y servicio"""
     rich.print("Mostrar cantidades de citas agendadas por oficina y servicio...")
+
+    # Solicitar datos
     try:
         respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
-            base_url=lib.connections.base_url(),
-            authorization_header=lib.connections.authorization(),
+            authorization_header=authorization_header(),
             inicio=inicio,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
@@ -208,19 +216,23 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Convert items to pandas dataframe
+
+    # Convertir datos a pandas dataframe
     df = pd.DataFrame(respuesta["items"])
-    # Change type of columns to category
+
+    # Cambiar el tipo de columna a categoria
     df.oficina = df.oficina.astype("category")
     df.servicio = df.servicio.astype("category")
-    # Create a pivot table
+
+    # Crear una tabla pivote
     pivot_table = df.pivot_table(
         index="oficina",
         columns="servicio",
         values="cantidad",
         aggfunc="sum",
     )
-    # Print the pivot table
+
+    # Mostrar la tabla pivote
     console = rich.console.Console()
     console.print(pivot_table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
@@ -229,95 +241,107 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
 @app.command()
 def enviar_informe_diario(
     email: str,
+    test: bool = True,
 ):
     """Enviar informe diario"""
     rich.print("Enviar informe diario...")
 
-    # Validate sendgrid environment variables
+    # Si test es falso, si se va a usar SendGrid
+    sendgrid_client = None
+    from_email = None
+    if test is False:
+        # Validar variables de entorno
+        try:
+            if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+            if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        # Inicializar SendGrid
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+        from_email = Email(SENDGRID_FROM_EMAIL)
+
+    # Autentificar
     try:
-        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
-        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+        auth_head = authorization_header()
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
 
-    # Authenticate with API
-    try:
-        base_url = lib.connections.base_url()
-        authorization_header = lib.connections.authorization()
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-
-    # Today's and yesterday date
+    # Definir la fecha de hoy y la de ayer
     today = datetime.now().strftime("%Y-%m-%d")
     yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # Get data for cantidades de citas agendadas por oficina y servicio
+    # Solicitar citas agendadas por oficina y servicio para hoy
     try:
         respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
-            base_url=base_url,
-            authorization_header=authorization_header,
+            authorization_header=auth_head,
             inicio=today,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Terminate if no data
+
+    # Terminar si no hay datos
     if respuesta["total"] == 0:
         typer.secho("No hay datos para hoy", fg=typer.colors.YELLOW)
         raise typer.Exit()
-    # Convert items to pandas dataframe
+
+    # Convertir datos a pandas dataframe
     df = pd.DataFrame(respuesta["items"])
-    # Change type of columns oficina and servicio to category
+
+    # Cambiar el tipo de las columnas a categoria
     df.oficina = df.oficina.astype("category")
     df.servicio = df.servicio.astype("category")
-    # Create a pivot table
+
+    # Crear una tabla pivote
     pivot_table = df.pivot_table(
         index="oficina",
         columns="servicio",
         values="cantidad",
         aggfunc="sum",
     )
-    # Convert pivot table to HTML table
+
+    # Convertir la tabla pivote a una tabla HTML
     ccaos_table_html = tabulate(pivot_table, headers="keys", tablefmt="html")
-    # Apply style to table
     ccaos_table_html = ccaos_table_html.replace("<table>", '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">')
-    # Add padding to cells
     ccaos_table_html = ccaos_table_html.replace('<td style="', '<td style="padding: 4px;')
     ccaos_table_html = ccaos_table_html.replace("<td>", '<td style="padding: 4px;">')
-    # Title
+
+    # Definir el titulo de la tabla
     ccaos_title = f"{respuesta['total']} citas agendadas por oficina y servicio en {today}"
 
-    # Get data for cantidades de citas creadas por dia
+    # Solicitar las cantidades de citas creadas por dia
     try:
         respuesta = get_cit_citas_cantidades_creados_por_dia(
-            base_url=base_url,
-            authorization_header=authorization_header,
+            authorization_header=auth_head,
             creado_hasta=yesterday,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    # Convert items to pandas dataframe
+
+    # Convertir datos a pandas dataframe
     df = pd.DataFrame(respuesta["items"])
-    # Change type of columns to category
+
+    # Cambiar el tipo de las columnas a categoria
     df.creado = df.creado.astype("category")
-    # Order by creado
+
+    # Definir orden por la columna creado
     df = df.sort_values(by="creado")
-    # Convert dataframe to HTML table
+
+    # Convertir el dataframe a una tabla HTML
     cccd_table_html = tabulate(df, headers="keys", tablefmt="html")
-    # Apply style to table
     cccd_table_html = cccd_table_html.replace("<table>", '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">')
-    # Add padding to cells
     cccd_table_html = cccd_table_html.replace('<td style="', '<td style="padding: 4px;')
     cccd_table_html = cccd_table_html.replace("<td>", '<td style="padding: 4px;">')
-    # Title
+
+    # Definir el titulo de la tabla
     cccd_title = f"{respuesta['total']} citas creadas por los clientes en los siguientes dias"
 
-    # Create message
+    # Crear mensaje
     subject = f"Citas Informe del {today}"
     elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
     contenidos = []
@@ -329,20 +353,20 @@ def enviar_informe_diario(
     contenidos.append(cccd_table_html)
     contenidos.append(f"<p>Fecha de elaboración: <b>{elaboracion_fecha_hora_str}.</b></p>")
     contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
-    # Send message
-    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-    from_email = Email(SENDGRID_FROM_EMAIL)
-    to_email = To(email)
-    content = Content("text/html", "<br>".join(contenidos))
-    mail = Mail(
-        from_email=from_email,
-        to_emails=to_email,
-        subject=subject,
-        html_content=content,
-    )
-    sendgrid_client.client.mail.send.post(request_body=mail.get())
 
-    # Print message to console
+    # Enviar mensaje
+    if test is False:
+        to_email = To(email)
+        content = Content("text/html", "<br>".join(contenidos))
+        mail = Mail(
+            from_email=from_email,
+            to_emails=to_email,
+            subject=subject,
+            html_content=content,
+        )
+        sendgrid_client.client.mail.send.post(request_body=mail.get())
+
+    # Mostrar mensaje final en la terminal
     rich.print(f"Mensaje enviado a [blue]{email}[/blue] con [green]{subject}[/green]")
 
 
@@ -354,25 +378,26 @@ def enviar_agenda_a_usuarios(
     """Enviar la agenda de las citas a los usuarios"""
     rich.print("Enviar la agenda de las citas a los usuarios...")
 
-    # Validar variables de entorno de SendGrid
-    try:
-        if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
-        if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
-            raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-
-    # Inicializar SendGrid
-    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-    from_email = Email(SENDGRID_FROM_EMAIL)
-    elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
+    # Si test es falso, si se va a usar SendGrid
+    sendgrid_client = None
+    from_email = None
+    if test is False:
+        # Validar variables de entorno
+        try:
+            if SENDGRID_API_KEY is None or SENDGRID_API_KEY == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_API_KEY")
+            if SENDGRID_FROM_EMAIL is None or SENDGRID_FROM_EMAIL == "":
+                raise lib.exceptions.CLIConfigurationError("Falta SENDGRID_FROM_EMAIL")
+        except lib.exceptions.CLIAnyError as error:
+            typer.secho(str(error), fg=typer.colors.RED)
+            raise typer.Exit()
+        # Inicializar SendGrid
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+        from_email = Email(SENDGRID_FROM_EMAIL)
 
     # Autenticar
     try:
-        base_url = lib.connections.base_url()
-        authorization_header = lib.connections.authorization()
+        auth_head = authorization_header()
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
@@ -380,8 +405,7 @@ def enviar_agenda_a_usuarios(
     # Obtener el proximo dia habil
     try:
         respuesta_cit_dia_disponible = get_cit_dia_disponible(
-            base_url=base_url,
-            authorization_header=authorization_header,
+            authorization_header=auth_head,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -391,8 +415,7 @@ def enviar_agenda_a_usuarios(
     # Obtener las oficinas que pueden agendar citas
     try:
         respuesta_oficinas = get_oficinas(
-            base_url=base_url,
-            authorization_header=authorization_header,
+            authorization_header=auth_head,
             limit=limit,
             puede_agendar_citas=True,
         )
@@ -400,6 +423,9 @@ def enviar_agenda_a_usuarios(
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     oficinas = respuesta_oficinas["items"]
+
+    # Definir la fecha y hora de elaboracion que va en el contenido del mensaje
+    elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
 
     # Preparar una tabla para mostrar al final
     console = rich.console.Console()
@@ -411,8 +437,7 @@ def enviar_agenda_a_usuarios(
         # Obtener los usuarios de la oficina
         try:
             respuesta_usuarios = get_usuarios(
-                base_url=base_url,
-                authorization_header=authorization_header,
+                authorization_header=auth_head,
                 limit=limit,
                 oficina_clave=oficina["clave"],
             )
@@ -427,8 +452,7 @@ def enviar_agenda_a_usuarios(
         # Obtener la agenda de las citas de la oficina
         try:
             respuesta_citas = get_cit_citas(
-                base_url=base_url,
-                authorization_header=authorization_header,
+                authorization_header=auth_head,
                 limit=limit,
                 fecha=fecha,
                 oficina_clave=oficina["clave"],
@@ -488,7 +512,7 @@ def enviar_agenda_a_usuarios(
         # Mostrar una linea en la terminal
         rich.print(f"Enviando mensaje [blue]{fecha}[/blue] [green]{oficina['clave']}[/green] con [yellow]{citas_str}[/yellow] citas a [cian]{destinatarios_str}[/cian]")
 
-        # Enviar el mensaje
+        # Enviar mensaje
         if test is False:
             to_emails = [destinatario["email"] for destinatario in respuesta_usuarios["items"]]
             mail = Mail(
