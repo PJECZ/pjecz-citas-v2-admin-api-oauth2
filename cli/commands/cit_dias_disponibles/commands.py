@@ -38,8 +38,8 @@ def consultar(
 
 @app.command()
 def proximo():
-    """Consultar proximo dia disponible"""
-    rich.print("Consultar proximo dia disponible...")
+    """Consultar proximo dia hábil"""
+    rich.print("Consultar proximo dia hábil...")
     try:
         respuesta = get_cit_dia_disponible(
             authorization_header=authorization_header(),
@@ -47,4 +47,4 @@ def proximo():
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    rich.print(f"Proxima fecha: [green]{respuesta['fecha']}[/green]")
+    rich.print(f"Proximo dia hábil: [green]{respuesta['fecha']}[/green]")
