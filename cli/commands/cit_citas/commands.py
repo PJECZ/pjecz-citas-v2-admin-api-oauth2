@@ -16,6 +16,7 @@ import typer
 from config.settings import LIMIT
 from lib.authentication import authorization_header
 import lib.exceptions
+from lib.formats import df_to_table
 
 from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_oficina_servicio
 from ..cit_dias_disponibles.crud import get_cit_dia_disponible
@@ -186,7 +187,9 @@ def mostrar_cantidades_creados_por_dia(
 
     # Mostrar tabla en la terminal
     console = rich.console.Console()
-    table = rich.table.Table("creado", "cantidad")
+    table = rich.table.Table()
+    table.add_column("Creado")
+    table.add_column("Cantidad", justify="right")
     for registro in respuesta["items"]:
         table.add_row(
             registro["creado"],
@@ -232,9 +235,13 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
         aggfunc="sum",
     )
 
-    # Mostrar la tabla pivote
+    # Mostrar la tabla
+    tabla = rich.table.Table(show_lines=False)
+    tabla = df_to_table(pivot_table, tabla, "Oficinas")
     console = rich.console.Console()
-    console.print(pivot_table)
+    console.print(tabla)
+
+    # Mostrar el total
     rich.print(f"Total: [green]{respuesta['total']}[/green] citas")
 
 

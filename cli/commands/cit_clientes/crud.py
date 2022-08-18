@@ -38,13 +38,16 @@ def get_cit_clientes(
             params=parametros,
             timeout=TIMEOUT,
         )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_clientes") from error
+    except requests.exceptions.HTTPError as error:
+        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_clientes: " + str(error)) from error
     except requests.exceptions.RequestException as error:
-        raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener los clientes") from error
-    if response.status_code != 200:
-        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
+        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_clientes") from error
     data_json = response.json()
     if "items" not in data_json or "total" not in data_json:
-        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
+        raise lib.exceptions.CLIResponseError("No se recibio items o total al solicitar cit_clientes")
     return data_json
 
 
@@ -69,11 +72,14 @@ def get_cit_clientes_cantidades_creados_por_dia(
             params=parametros,
             timeout=TIMEOUT,
         )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_clientes") from error
+    except requests.exceptions.HTTPError as error:
+        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_clientes: " + str(error)) from error
     except requests.exceptions.RequestException as error:
-        raise lib.exceptions.CLIConnectionError("No hay respuesta al obtener las citas") from error
-    if response.status_code != 200:
-        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code}\nmensaje: {response.text}")
+        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_clientes") from error
     data_json = response.json()
     if "items" not in data_json or "total" not in data_json:
-        raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta")
+        raise lib.exceptions.CLIResponseError("No se recibio items o total al solicitar cit_clientes")
     return data_json

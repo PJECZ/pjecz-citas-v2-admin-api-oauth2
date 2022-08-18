@@ -1,7 +1,7 @@
 """
 Cit Clientes v2, modelos
 """
-from sqlalchemy import Column, Date, Integer, String
+from sqlalchemy import Boolean, Column, Date, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -27,6 +27,8 @@ class CitCliente(Base, UniversalMixin):
     contrasena_md5 = Column(String(256), nullable=False)
     contrasena_sha256 = Column(String(256), nullable=False)
     renovacion = Column(Date(), nullable=False)
+    limite_citas_pendientes = Column(Integer(), nullable=True, default=0)
+    enviar_boletin = Column(Boolean(), nullable=True, default=True)
 
     # Hijos
     cit_citas = relationship("CitCita", back_populates="cit_cliente")
