@@ -21,13 +21,14 @@ def get_cit_dias_disponibles(
             params=parametros,
             timeout=TIMEOUT,
         )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_dias_disponibles") from error
+    except requests.exceptions.HTTPError as error:
+        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_dias_disponibles: " + str(error)) from error
     except requests.exceptions.RequestException as error:
-        raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar dias disponibles") from error
-    if response.status_code != 200:
-        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code} al solicitar dias disponibles\nmensaje: {response.text}")
+        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_dias_disponibles") from error
     data_json = response.json()
-    # if "items" not in data_json or "total" not in data_json:
-    #    raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta al solicitar dias disponibles")
     return data_json
 
 
@@ -41,11 +42,14 @@ def get_cit_dia_disponible(
             headers=authorization_header,
             timeout=TIMEOUT,
         )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_dias_disponibles") from error
+    except requests.exceptions.HTTPError as error:
+        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_dias_disponibles: " + str(error)) from error
     except requests.exceptions.RequestException as error:
-        raise lib.exceptions.CLIConnectionError("No hay respuesta al solicitar dias disponibles") from error
-    if response.status_code != 200:
-        raise lib.exceptions.CLIStatusCodeError(f"No es lo esperado el status code: {response.status_code} al solicitar dias disponibles\nmensaje: {response.text}")
+        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_dias_disponibles") from error
     data_json = response.json()
     if "fecha" not in data_json:
-        raise lib.exceptions.CLIResponseError("No se recibio la fecha en la respuesta al solicitar dias disponibles")
+        raise lib.exceptions.CLIResponseError("No se recibio la fecha en la respuesta al solicitar cit_dias_disponibles")
     return data_json
