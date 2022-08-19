@@ -1,6 +1,7 @@
 """
 Cit Clientes v2, esquemas de pydantic
 """
+from typing import Optional
 from datetime import date, datetime
 from pydantic import BaseModel
 
@@ -12,13 +13,15 @@ class CitClienteOut(BaseModel):
     nombres: str
     apellido_primero: str
     apellido_segundo: str
+    nombre: str
     curp: str
     telefono: str
     email: str
     contrasena_md5: str
     contrasena_sha256: str
     renovacion: date
-    nombre: str
+    limite_citas_pendientes: Optional[int]
+    enviar_boletin: bool
     creado: datetime
 
     class Config:

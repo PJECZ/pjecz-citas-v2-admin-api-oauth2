@@ -24,6 +24,7 @@ async def listado_oficinas(
     domicilio_id: int = None,
     es_jurisdiccional: bool = None,
     puede_agendar_citas: bool = None,
+    puede_enviar_qr: bool = False,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -37,6 +38,7 @@ async def listado_oficinas(
             domicilio_id=domicilio_id,
             es_jurisdiccional=es_jurisdiccional,
             puede_agendar_citas=puede_agendar_citas,
+            puede_enviar_qr=puede_enviar_qr,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

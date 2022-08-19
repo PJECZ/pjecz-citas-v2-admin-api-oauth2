@@ -18,6 +18,7 @@ def get_oficinas(
     domicilio_id: int = None,
     es_jurisdiccional: bool = None,
     puede_agendar_citas: bool = None,
+    puede_enviar_qr: bool = None,
 ) -> Any:
     """Consultar los oficinas activos"""
     consulta = db.query(Oficina)
@@ -27,6 +28,8 @@ def get_oficinas(
     if domicilio_id is not None:
         domicilio = get_domicilio(db, domicilio_id)
         consulta = consulta.filter(Oficina.domicilio == domicilio)
+    if puede_enviar_qr is not None:
+        consulta = consulta.filter_by(puede_enviar_qr=puede_enviar_qr)
     if es_jurisdiccional is not None:
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
     if puede_agendar_citas is not None:

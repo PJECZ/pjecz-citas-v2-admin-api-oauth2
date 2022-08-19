@@ -32,6 +32,7 @@ class Oficina(Base, UniversalMixin):
     apertura = Column(Time(), nullable=False)
     cierre = Column(Time(), nullable=False)
     limite_personas = Column(Integer(), nullable=False)
+    puede_enviar_qr = Column(Boolean(), nullable=False, default=False)
 
     # Hijos
     usuarios = relationship("Usuario", back_populates="oficina")
