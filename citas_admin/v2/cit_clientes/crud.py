@@ -18,14 +18,15 @@ ANTIGUA_FECHA = date(year=2022, month=1, day=1)
 
 def get_cit_clientes(
     db: Session,
-    nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
-    curp: str = None,
-    email: str = None,
-    tiene_contrasena_sha256: bool = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    curp: str = None,
+    email: str = None,
+    enviar_boletin: bool = None,
+    nombres: str = None,
+    tiene_contrasena_sha256: bool = None,
 ) -> Any:
     """Consultar los clientes activos"""
     consulta = db.query(CitCliente)
@@ -44,9 +45,7 @@ def get_cit_clientes(
     email = safe_email(email, search_fragment=True)
     if email is not None:
         consulta = consulta.filter(CitCliente.email.contains(email))
-    if tiene_contrasena_sha256 is None:
-        consulta = consulta.filter(CitCliente.contrasena_sha256 != "")  # Si no se especifica, se filtra por los que si tienen
-    else:
+    if tiene_contrasena_sha256 is not None:
         if tiene_contrasena_sha256:
             consulta = consulta.filter(CitCliente.contrasena_sha256 != "")
         else:
@@ -59,6 +58,8 @@ def get_cit_clientes(
         if not ANTIGUA_FECHA <= creado_hasta <= HOY:
             raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
         consulta = consulta.filter(func.date(CitCliente.creado) <= creado_hasta)
+    if enviar_boletin is not None:
+        consulta = consulta.filter(CitCliente.enviar_boletin == enviar_boletin)
     return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
 
 
