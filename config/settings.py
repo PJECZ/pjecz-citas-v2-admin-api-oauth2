@@ -3,6 +3,8 @@ Configuración para producción
 """
 import os
 
+import pytz
+
 
 # Google Cloud SQL
 DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
@@ -22,6 +24,10 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.environ.get("SECRET_KEY")  # openssl rand -hex 32
 ALGORITHM = os.environ.get("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+# Huso horario
+SERVIDOR_HUSO_HORARIO = pytz.utc
+LOCAL_HUSO_HORARIO = pytz.timezone("America/Mexico_City")
 
 # Redis
 REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1")
