@@ -12,16 +12,19 @@ import lib.exceptions
 
 def get_cit_clientes_recuperaciones(
     authorization_header: dict,
+    email: str = None,
     limit: int = LIMIT,
-    cit_cliente_email: str = None,
-    ya_recuperado: bool = None,
+    recuperado: bool = None,
+    offset: int = 0,
 ) -> Any:
     """Solicitar el listado de recuperaciones de los clientes"""
     parametros = {"limit": limit}
-    if cit_cliente_email is not None:
-        parametros["cit_cliente_email"] = cit_cliente_email
-    if ya_recuperado is not None:
-        parametros["ya_recuperado"] = ya_recuperado
+    if email is not None:
+        parametros["cit_cliente_email"] = email
+    if recuperado is not None:
+        parametros["ya_recuperado"] = recuperado
+    if offset > 0:
+        parametros["offset"] = offset
     try:
         response = requests.get(
             f"{BASE_URL}/cit_clientes_recuperaciones",

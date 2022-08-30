@@ -12,17 +12,16 @@ import lib.exceptions
 
 def get_cit_clientes(
     authorization_header: dict,
-    limit: int = LIMIT,
-    nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
+    limit: int = LIMIT,
+    nombres: str = None,
+    offset: int = 0,
 ) -> Any:
     """Solicitar el listado de clientes"""
     parametros = {"limit": limit}
-    if nombres is not None:
-        parametros["nombres"] = nombres
     if apellido_primero is not None:
         parametros["apellido_primero"] = apellido_primero
     if apellido_segundo is not None:
@@ -31,6 +30,10 @@ def get_cit_clientes(
         parametros["curp"] = curp
     if email is not None:
         parametros["email"] = email
+    if nombres is not None:
+        parametros["nombres"] = nombres
+    if offset > 0:
+        parametros["offset"] = offset
     try:
         response = requests.get(
             f"{BASE_URL}/cit_clientes",

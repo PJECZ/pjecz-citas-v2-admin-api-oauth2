@@ -40,22 +40,24 @@ SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL")
 
 @app.command()
 def consultar(
-    limit: int = LIMIT,
-    fecha: str = None,
     email: str = None,
-    oficina_clave: str = None,
     estado: str = None,
+    inicio: str = None,
+    limit: int = LIMIT,
+    oficina_clave: str = None,
+    offset: int = 0,
 ):
     """Consultar citas"""
     rich.print("Consultar citas...")
     try:
         respuesta = get_cit_citas(
             authorization_header=authorization_header(),
-            limit=limit,
-            fecha=fecha,
-            cit_cliente_email=email,
-            oficina_clave=oficina_clave,
+            email=email,
             estado=estado,
+            inicio=inicio,
+            limit=limit,
+            oficina_clave=oficina_clave,
+            offset=offset,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -81,9 +83,8 @@ def consultar(
 @app.command()
 def enviar(
     email: str,
-    fecha: str,
+    inicio: str,
     oficina_clave: str,
-    estado: str = "PENDIENTE",
     limit: int = LIMIT,
 ):
     """Enviar mensaje con citas"""
@@ -103,10 +104,9 @@ def enviar(
     try:
         respuesta = get_cit_citas(
             authorization_header=authorization_header(),
+            inicio=inicio,
             limit=limit,
-            fecha=fecha,
             oficina_clave=oficina_clave,
-            estado=estado,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
@@ -137,7 +137,7 @@ def enviar(
     table_html = table_html.replace("<td>", '<td style="padding: 4px;">')
 
     # Crear mensaje
-    subject = f"Citas de la oficina {oficina_clave} para la fecha {fecha}"
+    subject = f"Citas de la oficina {oficina_clave} para la fecha {inicio}"
     elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
     contenidos = []
     contenidos.append("<style> td {border:2px black solid !important} </style>")
@@ -417,7 +417,7 @@ def enviar_agenda_a_usuarios(
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
-    fecha = respuesta_cit_dia_disponible["fecha"]
+    inicio = respuesta_cit_dia_disponible["fecha"]
 
     # Obtener las oficinas que pueden agendar citas
     try:
@@ -461,7 +461,7 @@ def enviar_agenda_a_usuarios(
             respuesta_citas = get_cit_citas(
                 authorization_header=auth_head,
                 limit=limit,
-                fecha=fecha,
+                inicio=inicio,
                 oficina_clave=oficina["clave"],
             )
         except lib.exceptions.CLIAnyError as error:
@@ -474,14 +474,14 @@ def enviar_agenda_a_usuarios(
 
         # Agregar un renglon a la tabla
         table.add_row(
-            fecha,
+            inicio,
             oficina["clave"],
             citas_str,
             destinatarios_str,
         )
 
         # Comenzar a elaborar el mensaje
-        subject = f"Citas de la oficina {oficina['descripcion_corta']} para la fecha {fecha}"
+        subject = f"Citas de la oficina {oficina['descripcion_corta']} para la fecha {inicio}"
         contenidos = []
         contenidos.append("<style> td {border:2px black solid !important} </style>")
         contenidos.append("<h1>PJECZ Citas V2</h1>")
@@ -517,7 +517,7 @@ def enviar_agenda_a_usuarios(
         content = Content("text/html", "<br>".join(contenidos))
 
         # Mostrar una linea en la terminal
-        rich.print(f"Enviando mensaje [blue]{fecha}[/blue] [green]{oficina['clave']}[/green] con [yellow]{citas_str}[/yellow] citas a [cian]{destinatarios_str}[/cian]")
+        rich.print(f"Enviando mensaje [blue]{inicio}[/blue] [green]{oficina['clave']}[/green] con [yellow]{citas_str}[/yellow] citas a [cian]{destinatarios_str}[/cian]")
 
         # Enviar mensaje
         if test is False:

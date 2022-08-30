@@ -17,26 +17,28 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = LIMIT,
-    nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
     curp: str = None,
     email: str = None,
+    limit: int = LIMIT,
+    nombres: str = None,
     registrado: bool = None,
+    offset: int = 0,
 ):
     """Consultar registros de los clientes"""
     rich.print("Consultar registros de los clientes...")
     try:
         respuesta = get_cit_clientes_registros(
             authorization_header=authorization_header(),
-            limit=limit,
-            nombres=nombres,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
             curp=curp,
             email=email,
-            ya_registrado=registrado,
+            limit=limit,
+            nombres=nombres,
+            offset=offset,
+            registrado=registrado,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)

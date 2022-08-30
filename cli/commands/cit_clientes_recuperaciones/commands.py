@@ -17,18 +17,20 @@ app = typer.Typer()
 
 @app.command()
 def consultar(
-    limit: int = LIMIT,
     email: str = None,
+    limit: int = LIMIT,
     recuperado: bool = None,
+    offset: int = 0,
 ):
     """Consultar recuperaciones de los clientes"""
     rich.print("Consultar recuperaciones de los clientes...")
     try:
         respuesta = get_cit_clientes_recuperaciones(
             authorization_header=authorization_header(),
+            email=email,
             limit=limit,
-            cit_cliente_email=email,
-            ya_recuperado=recuperado,
+            recuperado=recuperado,
+            offset=offset,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
