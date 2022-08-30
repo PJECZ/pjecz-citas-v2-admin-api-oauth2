@@ -43,7 +43,7 @@ async def proximo_cit_dia_disponible(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        dia_disponible = get_cit_dia_disponible(db)
+        dia_disponible = get_cit_dia_disponible(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return dia_disponible

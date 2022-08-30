@@ -11,8 +11,8 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_cantidades_creados_por_dia
-from .schemas import CitClienteRegistroOut
+from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_creados_por_dia
+from .schemas import CitClienteRegistroOut, CitClientesRegistrosCreadosPorDiaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -38,7 +38,7 @@ async def listado_cit_clientes_registros(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         resultado = get_cit_clientes_registros(
-            db,
+            db=db,
             nombres=nombres,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
@@ -53,7 +53,7 @@ async def listado_cit_clientes_registros(
     return paginate(resultado)
 
 
-@cit_clientes_registros.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
+@cit_clientes_registros.get("/calcular_cantidades_creados_por_dia", response_model=CitClientesRegistrosCreadosPorDiaOut)
 async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
@@ -65,8 +65,8 @@ async def calcular_cantidades_creados_por_dia(
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_clientes_registros_cantidades_creados_por_dia(
-            db,
+        fechas_cantidades = get_cit_clientes_registros_creados_por_dia(
+            db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
@@ -76,7 +76,7 @@ async def calcular_cantidades_creados_por_dia(
     total = 0
     for fecha_cantidad in fechas_cantidades:
         total += fecha_cantidad["cantidad"]
-    return {"items": fechas_cantidades, "total": total}
+    return CitClientesRegistrosCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
 @cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=CitClienteRegistroOut)
@@ -90,7 +90,7 @@ async def detalle_cit_cliente_registro(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_cliente_registro = get_cit_cliente_registro(
-            db,
+            db=db,
             cit_cliente_registro_id=cit_cliente_registro_id,
         )
     except CitasAnyError as error:

@@ -2,7 +2,6 @@
 Cit Citas v2, rutas (paths)
 """
 from datetime import date, datetime
-from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -12,8 +11,8 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_citas, get_cit_cita, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_servicio_oficina
-from .schemas import CitCitaOut
+from .crud import get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina
+from .schemas import CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -42,7 +41,7 @@ async def listado_cit_citas(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         resultado = get_cit_citas(
-            db,
+            db=db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
             cit_servicio_id=cit_servicio_id,
@@ -60,7 +59,7 @@ async def listado_cit_citas(
     return paginate(resultado)
 
 
-@cit_citas.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
+@cit_citas.get("/creados_por_dia", response_model=CitCitasCreadosPorDiaOut)
 async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
@@ -72,8 +71,8 @@ async def calcular_cantidades_creados_por_dia(
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_citas_cantidades_creados_por_dia(
-            db,
+        fechas_cantidades = get_cit_citas_creados_por_dia(
+            db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
@@ -83,10 +82,10 @@ async def calcular_cantidades_creados_por_dia(
     total = 0
     for fecha_cantidad in fechas_cantidades:
         total += fecha_cantidad["cantidad"]
-    return {"items": fechas_cantidades, "total": total}
+    return CitCitasCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
-@cit_citas.get("/calcular_cantidades_agendadas_por_servicio_oficina", response_model=Dict)
+@cit_citas.get("/agendadas_por_servicio_oficina", response_model=CitCitasAgendadasPorServicioOficinaOut)
 async def calcular_cantidades_agendadas_por_servicio_oficina(
     inicio: date = None,
     inicio_desde: date = None,
@@ -98,8 +97,8 @@ async def calcular_cantidades_agendadas_por_servicio_oficina(
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        oficinas_servicios_cantidades = get_cit_citas_cantidades_agendadas_por_servicio_oficina(
-            db,
+        oficinas_servicios_cantidades = get_cit_citas_agendadas_por_servicio_oficina(
+            db=db,
             inicio=inicio,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
@@ -109,7 +108,7 @@ async def calcular_cantidades_agendadas_por_servicio_oficina(
     total = 0
     for oficina_servicio_cantidad in oficinas_servicios_cantidades:
         total += oficina_servicio_cantidad["cantidad"]
-    return {"items": oficinas_servicios_cantidades, "total": total}
+    return CitCitasAgendadasPorServicioOficinaOut(items=oficinas_servicios_cantidades, total=total)
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)
@@ -123,7 +122,7 @@ async def detalle_cit_cita(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_cita = get_cit_cita(
-            db,
+            db=db,
             cit_cita_id=cit_cita_id,
         )
     except CitasAnyError as error:

@@ -108,7 +108,7 @@ def get_cit_cita(db: Session, cit_cita_id: int) -> CitCita:
     return cit_cita
 
 
-def get_cit_citas_cantidades_creados_por_dia(
+def get_cit_citas_creados_por_dia(
     db: Session,
     creado: date = None,
     creado_desde: date = None,
@@ -149,7 +149,7 @@ def get_cit_citas_cantidades_creados_por_dia(
     return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado))
 
 
-def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
+def get_cit_citas_agendadas_por_servicio_oficina(
     db: Session,
     inicio: date = None,
     inicio_desde: date = None,

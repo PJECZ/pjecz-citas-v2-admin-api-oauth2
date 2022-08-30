@@ -27,7 +27,7 @@ async def listado_domicilios(
     if current_user.permissions.get("DOMICILIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_domicilios(db)
+        listado = get_domicilios(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
@@ -44,7 +44,7 @@ async def detalle_domicilio(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         domicilio = get_domicilio(
-            db,
+            db=db,
             domicilio_id=domicilio_id,
         )
     except CitasAnyError as error:

@@ -31,7 +31,7 @@ async def listado_roles(
     if current_user.permissions.get("ROLES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_roles(db)
+        listado = get_roles(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
@@ -48,7 +48,7 @@ async def detalle_rol(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         rol = get_rol(
-            db,
+            db=db,
             rol_id=rol_id,
         )
     except CitasAnyError as error:
@@ -67,7 +67,7 @@ async def listado_usuarios_rol(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_usuarios_roles(
-            db,
+            db=db,
             rol_id=rol_id,
         )
     except CitasAnyError as error:
@@ -86,7 +86,7 @@ async def listado_permisos_rol(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_permisos(
-            db,
+            db=db,
             rol_id=rol_id,
         )
     except CitasAnyError as error:

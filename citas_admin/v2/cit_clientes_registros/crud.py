@@ -77,7 +77,7 @@ def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int) -> CitCl
     return cit_cliente_registro
 
 
-def get_cit_clientes_registros_cantidades_creados_por_dia(
+def get_cit_clientes_registros_creados_por_dia(
     db: Session,
     creado: date = None,
     creado_desde: date = None,

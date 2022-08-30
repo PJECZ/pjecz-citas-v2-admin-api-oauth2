@@ -32,7 +32,7 @@ async def listado_usuarios(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_usuarios(
-            db,
+            db=db,
             autoridad_id=autoridad_id,
             autoridad_clave=autoridad_clave,
             oficina_id=oficina_id,
@@ -54,7 +54,7 @@ async def detalle_usuario(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         usuario = get_usuario(
-            db,
+            db=db,
             usuario_id=usuario_id,
         )
     except CitasAnyError as error:

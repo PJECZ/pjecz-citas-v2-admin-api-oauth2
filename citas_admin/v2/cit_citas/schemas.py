@@ -31,3 +31,17 @@ class CitCitaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitCitasCreadosPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de citas creadas por dia"""
+
+    items: dict
+    total: int
+
+
+class CitCitasAgendadasPorServicioOficinaOut(BaseModel):
+    """Esquema para entregar cantidades de citas agendadas por servicio y oficina"""
+
+    items: dict
+    total: int

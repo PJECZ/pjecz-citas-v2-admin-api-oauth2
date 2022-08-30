@@ -31,7 +31,7 @@ async def listado_cit_horas_bloqueadas(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_horas_bloqueadas(
-            db,
+            db=db,
             oficina_id=oficina_id,
             fecha=fecha,
         )
@@ -51,7 +51,7 @@ async def detalle_cit_hora_bloqueada(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_hora_bloqueada = get_cit_hora_bloqueada(
-            db,
+            db=db,
             cit_hora_bloqueada_id=cit_hora_bloqueada_id,
         )
     except CitasAnyError as error:

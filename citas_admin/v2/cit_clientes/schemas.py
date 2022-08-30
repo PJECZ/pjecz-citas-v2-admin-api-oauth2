@@ -30,15 +30,8 @@ class CitClienteOut(BaseModel):
         orm_mode = True
 
 
-class CitClienteCreadoCantidadOut(BaseModel):
-    """Cantidad de clientes creados por dia"""
-
-    creado: date
-    cantidad: int
-
-
-class CitClienteCantidadesCreadosPorDiaOut(BaseModel):
+class CitClienteCreadosPorDiaOut(BaseModel):
     """Esquema para entregar cantidades de clientes creados por dia"""
 
-    items: Dict[CitClienteCreadoCantidadOut]
+    items: dict
     total: int

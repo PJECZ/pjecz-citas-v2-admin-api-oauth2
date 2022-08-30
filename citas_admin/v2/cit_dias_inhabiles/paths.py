@@ -27,7 +27,7 @@ async def listado_cit_dias_inhabiles(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_dias_inhabiles(db)
+        listado = get_cit_dias_inhabiles(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
@@ -44,7 +44,7 @@ async def detalle_dia_inhabil(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         dia_inhabil = get_cit_dia_inhabil(
-            db,
+            db=db,
             cit_dia_inhabil_id=cit_dia_inhabil_id,
         )
     except CitasAnyError as error:

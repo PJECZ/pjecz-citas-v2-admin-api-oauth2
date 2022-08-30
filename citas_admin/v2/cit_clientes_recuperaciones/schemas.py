@@ -23,3 +23,10 @@ class CitClienteRecuperacionOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitClientesRecuperacionesCreadosPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de recuperaciones creadas por dia"""
+
+    items: dict
+    total: int

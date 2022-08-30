@@ -27,9 +27,7 @@ async def listado_modulos(
     if current_user.permissions.get("MODULOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_modulos(
-            db=db,
-        )
+        listado = get_modulos(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)

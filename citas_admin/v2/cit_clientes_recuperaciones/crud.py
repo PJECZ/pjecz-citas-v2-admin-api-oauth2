@@ -68,7 +68,7 @@ def get_cit_cliente_recuperacion(db: Session, cit_cliente_recuperacion_id: int) 
     return cit_cliente_recuperacion
 
 
-def get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
+def get_cit_clientes_recuperaciones_creados_por_dia(
     db: Session,
     creado: date = None,
     creado_desde: date = None,

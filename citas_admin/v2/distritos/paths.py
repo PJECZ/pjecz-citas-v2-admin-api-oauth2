@@ -27,7 +27,7 @@ async def listado_distritos(
     if current_user.permissions.get("DISTRITOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_distritos(db)
+        listado = get_distritos(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
