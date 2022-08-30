@@ -19,7 +19,7 @@ app = typer.Typer()
 def consultar(
     email: str = None,
     limit: int = LIMIT,
-    recuperado: bool = None,
+    recuperado: bool = False,
     offset: int = 0,
 ):
     """Consultar recuperaciones de los clientes"""

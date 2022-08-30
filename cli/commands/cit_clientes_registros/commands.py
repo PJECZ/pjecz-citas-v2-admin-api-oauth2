@@ -23,7 +23,7 @@ def consultar(
     email: str = None,
     limit: int = LIMIT,
     nombres: str = None,
-    registrado: bool = None,
+    registrado: bool = False,
     offset: int = 0,
 ):
     """Consultar registros de los clientes"""

@@ -13,7 +13,6 @@ def get_oficinas(
     limit: int = LIMIT,
     distrito_id: int = None,
     domicilio_id: int = None,
-    es_jurisdiccional: bool = None,
     puede_agendar_citas: bool = None,
 ) -> Any:
     """Solicitar oficinas"""
@@ -22,8 +21,6 @@ def get_oficinas(
         parametros["distrito_id"] = distrito_id
     if domicilio_id is not None:
         parametros["domicilio_id"] = domicilio_id
-    if es_jurisdiccional is not None:
-        parametros["es_jurisdiccional"] = es_jurisdiccional
     if puede_agendar_citas is not None:
         parametros["puede_agendar_citas"] = puede_agendar_citas
     try:

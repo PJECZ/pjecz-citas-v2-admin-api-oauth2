@@ -18,8 +18,7 @@ def consultar(
     limit: int = LIMIT,
     distrito_id: int = None,
     domicilio_id: int = None,
-    es_jurisdiccional: bool = None,
-    puede_agendar_citas: bool = None,
+    puede_agendar_citas: bool = True,
 ):
     """Consultar oficinas"""
     rich.print("Consultar oficinas...")
@@ -29,7 +28,6 @@ def consultar(
             limit=limit,
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,
-            es_jurisdiccional=es_jurisdiccional,
             puede_agendar_citas=puede_agendar_citas,
         )
     except lib.exceptions.CLIAnyError as error:

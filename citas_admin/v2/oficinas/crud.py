@@ -32,7 +32,9 @@ def get_oficinas(
         consulta = consulta.filter_by(puede_enviar_qr=puede_enviar_qr)
     if es_jurisdiccional is not None:
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
-    if puede_agendar_citas is not None:
+    if puede_agendar_citas is None:
+        consulta = consulta.filter_by(puede_agendar_citas=True)  # Si no se especifica, por defecto se filtra con verdadero
+    else:
         consulta = consulta.filter_by(puede_agendar_citas=puede_agendar_citas)
     return consulta.filter_by(estatus="A").order_by(Oficina.clave)
 
