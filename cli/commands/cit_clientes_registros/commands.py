@@ -10,7 +10,7 @@ from config.settings import LIMIT
 from lib.authentication import authorization_header
 import lib.exceptions
 
-from .crud import get_cit_clientes_registros, get_cit_clientes_registros_cantidades_creados_por_dia, resend_cit_clientes_registros
+from .crud import get_cit_clientes_registros, get_cit_clientes_registros_cantidades_creados_por_dia
 
 app = typer.Typer()
 
@@ -63,10 +63,41 @@ def consultar(
 
 
 @app.command()
+def mostrar_cantidades_creados_por_dia(
+    creado: str = None,
+    creado_desde: str = None,
+    creado_hasta: str = None,
+):
+    """Mostrar cantidades de registros creados por dia"""
+    rich.print("Mostrar cantidades de registros creados por dia...")
+    try:
+        respuesta = get_cit_clientes_registros_cantidades_creados_por_dia(
+            authorization_header=authorization_header(),
+            creado=creado,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except lib.exceptions.CLIAnyError as error:
+        typer.secho(str(error), fg=typer.colors.RED)
+        raise typer.Exit()
+    console = rich.console.Console()
+    table = rich.table.Table("creado", "cantidad")
+    for registro in respuesta["items"]:
+        table.add_row(
+            registro["creado"],
+            str(registro["cantidad"]),
+        )
+    console.print(table)
+    rich.print(f"Total: [green]{respuesta['total']}[/green] registros")
+
+
+"""
+
+@app.command()
 def reenviar(
     email: str = None,
 ):
-    """Reenviar mensajes de las registros de los clientes"""
+    Reenviar mensajes de las registros de los clientes
     rich.print("Reenviar mensajes de las registros de los clientes...")
     try:
         respuesta = resend_cit_clientes_registros(
@@ -95,31 +126,4 @@ def reenviar(
     console.print(table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] mensajes en cola")
 
-
-@app.command()
-def mostrar_cantidades_creados_por_dia(
-    creado: str = None,
-    creado_desde: str = None,
-    creado_hasta: str = None,
-):
-    """Mostrar cantidades de registros creados por dia"""
-    rich.print("Mostrar cantidades de registros creados por dia...")
-    try:
-        respuesta = get_cit_clientes_registros_cantidades_creados_por_dia(
-            authorization_header=authorization_header(),
-            creado=creado,
-            creado_desde=creado_desde,
-            creado_hasta=creado_hasta,
-        )
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-    console = rich.console.Console()
-    table = rich.table.Table("creado", "cantidad")
-    for registro in respuesta["items"]:
-        table.add_row(
-            registro["creado"],
-            str(registro["cantidad"]),
-        )
-    console.print(table)
-    rich.print(f"Total: [green]{respuesta['total']}[/green] registros")
+"""

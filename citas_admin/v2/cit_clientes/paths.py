@@ -24,6 +24,7 @@ cit_clientes = APIRouter(prefix="/v2/cit_clientes", tags=["citas clientes"])
 async def listado_clientes(
     apellido_primero: str = None,
     apellido_segundo: str = None,
+    creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     curp: str = None,
@@ -42,6 +43,7 @@ async def listado_clientes(
             db=db,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
+            creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             curp=curp,

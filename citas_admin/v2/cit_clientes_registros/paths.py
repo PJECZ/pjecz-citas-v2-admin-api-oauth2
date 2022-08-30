@@ -22,14 +22,15 @@ cit_clientes_registros = APIRouter(prefix="/v2/cit_clientes_registros", tags=["c
 
 @cit_clientes_registros.get("", response_model=LimitOffsetPage[CitClienteRegistroOut])
 async def listado_cit_clientes_registros(
-    nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
-    curp: str = None,
-    email: str = None,
-    ya_registrado: bool = None,
+    creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    curp: str = None,
+    email: str = None,
+    nombres: str = None,
+    ya_registrado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -39,14 +40,15 @@ async def listado_cit_clientes_registros(
     try:
         resultado = get_cit_clientes_registros(
             db=db,
-            nombres=nombres,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
-            curp=curp,
-            email=email,
-            ya_registrado=ya_registrado,
+            creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            curp=curp,
+            email=email,
+            nombres=nombres,
+            ya_registrado=ya_registrado,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

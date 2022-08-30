@@ -10,7 +10,7 @@ from config.settings import LIMIT
 from lib.authentication import authorization_header
 import lib.exceptions
 
-from .crud import get_cit_clientes, get_cit_clientes_cantidades_creados_por_dia
+from .crud import get_cit_clientes, get_cit_clientes_creados_por_dia
 
 app = typer.Typer()
 
@@ -67,7 +67,7 @@ def mostrar_cantidades_creados_por_dia(
     """Mostrar cantidades de clientes creados por dia"""
     rich.print("Mostrar cantidades de clientes creados por dia...")
     try:
-        respuesta = get_cit_clientes_cantidades_creados_por_dia(
+        respuesta = get_cit_clientes_creados_por_dia(
             authorization_header=authorization_header(),
             creado=creado,
             creado_desde=creado_desde,

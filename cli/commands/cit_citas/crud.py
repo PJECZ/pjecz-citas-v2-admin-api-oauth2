@@ -48,7 +48,7 @@ def get_cit_citas(
     return data_json
 
 
-def get_cit_citas_cantidades_creados_por_dia(
+def get_cit_citas_creados_por_dia(
     authorization_header: dict,
     creado: date = None,
     creado_desde: date = None,
@@ -64,7 +64,7 @@ def get_cit_citas_cantidades_creados_por_dia(
         parametros["creado_hasta"] = creado_hasta
     try:
         response = requests.get(
-            f"{BASE_URL}/cit_citas/calcular_cantidades_creados_por_dia",
+            f"{BASE_URL}/cit_citas/creados_por_dia",
             headers=authorization_header,
             params=parametros,
             timeout=TIMEOUT,
@@ -82,7 +82,7 @@ def get_cit_citas_cantidades_creados_por_dia(
     return data_json
 
 
-def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+def get_cit_citas_agendadas_por_oficina_servicio(
     authorization_header: dict,
     inicio: date = None,
     inicio_desde: date = None,
@@ -98,7 +98,7 @@ def get_cit_citas_cantidades_agendadas_por_oficina_servicio(
         parametros["inicio_hasta"] = inicio_hasta
     try:
         response = requests.get(
-            f"{BASE_URL}/cit_citas/calcular_cantidades_agendadas_por_servicio_oficina",
+            f"{BASE_URL}/cit_citas/agendadas_por_servicio_oficina",
             headers=authorization_header,
             params=parametros,
             timeout=TIMEOUT,

@@ -18,7 +18,7 @@ from lib.authentication import authorization_header
 import lib.exceptions
 from lib.formats import df_to_table
 
-from .crud import get_cit_citas, get_cit_citas_cantidades_creados_por_dia, get_cit_citas_cantidades_agendadas_por_oficina_servicio
+from .crud import get_cit_citas, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_oficina_servicio
 from ..cit_dias_disponibles.crud import get_cit_dia_disponible
 from ..oficinas.crud import get_oficinas
 from ..usuarios.crud import get_usuarios
@@ -175,7 +175,7 @@ def mostrar_cantidades_creados_por_dia(
 
     # Solicitar datos
     try:
-        respuesta = get_cit_citas_cantidades_creados_por_dia(
+        respuesta = get_cit_citas_creados_por_dia(
             authorization_header=authorization_header(),
             creado=creado,
             creado_desde=creado_desde,
@@ -210,7 +210,7 @@ def mostrar_cantidades_agendadas_por_oficina_servicio(
 
     # Solicitar datos
     try:
-        respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+        respuesta = get_cit_citas_agendadas_por_oficina_servicio(
             authorization_header=authorization_header(),
             inicio=inicio,
             inicio_desde=inicio_desde,
@@ -283,7 +283,7 @@ def enviar_informe_diario(
 
     # Solicitar citas agendadas por oficina y servicio para hoy
     try:
-        respuesta = get_cit_citas_cantidades_agendadas_por_oficina_servicio(
+        respuesta = get_cit_citas_agendadas_por_oficina_servicio(
             authorization_header=auth_head,
             inicio=today,
         )
@@ -322,7 +322,7 @@ def enviar_informe_diario(
 
     # Solicitar las cantidades de citas creadas por dia
     try:
-        respuesta = get_cit_citas_cantidades_creados_por_dia(
+        respuesta = get_cit_citas_creados_por_dia(
             authorization_header=auth_head,
             creado_hasta=yesterday,
         )

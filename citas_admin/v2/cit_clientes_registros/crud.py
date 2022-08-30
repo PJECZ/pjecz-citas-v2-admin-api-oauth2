@@ -20,7 +20,6 @@ DEFAULT_DIAS = 7
 
 def get_cit_clientes_registros(
     db: Session,
-    nombres: str = None,
     apellido_primero: str = None,
     apellido_segundo: str = None,
     creado: date = None,
@@ -28,6 +27,7 @@ def get_cit_clientes_registros(
     creado_hasta: date = None,
     curp: str = None,
     email: str = None,
+    nombres: str = None,
     ya_registrado: bool = None,
 ) -> Any:
     """Consultar los registros de clientes activos"""

@@ -31,8 +31,8 @@ def get_cit_citas(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
-    fecha: date = None,
     estado: str = None,
+    inicio: date = None,
     inicio_desde: datetime = None,
     inicio_hasta: datetime = None,
     oficina_id: int = None,
@@ -64,9 +64,9 @@ def get_cit_citas(
         if creado_hasta:
             hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCita.creado <= hasta_dt)
-    if fecha is not None:
-        inicio_desde = datetime(fecha.year, fecha.month, fecha.day, 0, 0, 0)
-        inicio_hasta = datetime(fecha.year, fecha.month, fecha.day, 23, 59, 59)
+    if inicio is not None:
+        inicio_desde = datetime(inicio.year, inicio.month, inicio.day, 0, 0, 0)
+        inicio_hasta = datetime(inicio.year, inicio.month, inicio.day, 23, 59, 59)
         consulta = consulta.filter(CitCita.inicio >= inicio_desde)
         consulta = consulta.filter(CitCita.inicio <= inicio_hasta)
     else:
@@ -91,7 +91,7 @@ def get_cit_citas(
         consulta = consulta.join(Oficina)
         consulta = consulta.filter(Oficina.clave == oficina_clave)
     consulta = consulta.filter_by(estatus="A")
-    if fecha is not None:
+    if inicio is not None:
         consulta = consulta.order_by(CitCita.inicio)
     else:
         consulta = consulta.order_by(CitCita.id.desc())

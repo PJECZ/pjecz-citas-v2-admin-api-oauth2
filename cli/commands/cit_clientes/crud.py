@@ -51,7 +51,7 @@ def get_cit_clientes(
     return data_json
 
 
-def get_cit_clientes_cantidades_creados_por_dia(
+def get_cit_clientes_creados_por_dia(
     authorization_header: dict,
     creado: date = None,
     creado_desde: date = None,
@@ -67,7 +67,7 @@ def get_cit_clientes_cantidades_creados_por_dia(
         parametros["creado_hasta"] = creado_hasta
     try:
         response = requests.get(
-            f"{BASE_URL}/cit_clientes/calcular_cantidades_creados_por_dia",
+            f"{BASE_URL}/cit_clientes/creados_por_dia",
             headers=authorization_header,
             params=parametros,
             timeout=TIMEOUT,

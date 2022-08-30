@@ -54,11 +54,47 @@ def get_cit_clientes_registros(
     return data_json
 
 
+def get_cit_clientes_registros_cantidades_creados_por_dia(
+    authorization_header: dict,
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+) -> Any:
+    """Solicitar cantidades de registros creados por dia"""
+    parametros = {}
+    if creado is not None:
+        parametros["creado"] = creado
+    if creado_desde is not None:
+        parametros["creado_desde"] = creado_desde
+    if creado_hasta is not None:
+        parametros["creado_hasta"] = creado_hasta
+    try:
+        response = requests.get(
+            f"{BASE_URL}/cit_clientes_registros/creados_por_dia",
+            headers=authorization_header,
+            params=parametros,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_clientes_registros") from error
+    except requests.exceptions.HTTPError as error:
+        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_clientes_registros: " + str(error)) from error
+    except requests.exceptions.RequestException as error:
+        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_clientes_registros") from error
+    data_json = response.json()
+    if "items" not in data_json or "total" not in data_json:
+        raise lib.exceptions.CLIResponseError("No se recibio items o total al solicitar cit_clientes_registros")
+    return data_json
+
+
+"""
+
 def resend_cit_clientes_registros(
     authorization_header: dict,
     cit_cliente_email: str = None,
 ) -> Any:
-    """Reenviar mensajes de las registros de los clientes"""
+    Reenviar mensajes de las registros de los clientes
     parametros = {}
     if cit_cliente_email is not None:
         parametros["cit_cliente_email"] = cit_cliente_email
@@ -82,41 +118,6 @@ def resend_cit_clientes_registros(
     return data_json
 
 
-def get_cit_clientes_registros_cantidades_creados_por_dia(
-    authorization_header: dict,
-    creado: date = None,
-    creado_desde: date = None,
-    creado_hasta: date = None,
-) -> Any:
-    """Solicitar cantidades de registros creados por dia"""
-    parametros = {}
-    if creado is not None:
-        parametros["creado"] = creado
-    if creado_desde is not None:
-        parametros["creado_desde"] = creado_desde
-    if creado_hasta is not None:
-        parametros["creado_hasta"] = creado_hasta
-    try:
-        response = requests.get(
-            f"{BASE_URL}/cit_clientes_registros/calcular_cantidades_creados_por_dia",
-            headers=authorization_header,
-            params=parametros,
-            timeout=TIMEOUT,
-        )
-        response.raise_for_status()
-    except requests.exceptions.ConnectionError as error:
-        raise lib.exceptions.CLIStatusCodeError("No hubo respuesta al solicitar cit_clientes_registros") from error
-    except requests.exceptions.HTTPError as error:
-        raise lib.exceptions.CLIStatusCodeError("Error Status Code al solicitar cit_clientes_registros: " + str(error)) from error
-    except requests.exceptions.RequestException as error:
-        raise lib.exceptions.CLIConnectionError("Error inesperado al solicitar cit_clientes_registros") from error
-    data_json = response.json()
-    if "items" not in data_json or "total" not in data_json:
-        raise lib.exceptions.CLIResponseError("No se recibio items o total al solicitar cit_clientes_registros")
-    return data_json
-
-
-"""
 def resend_cit_clientes_registros(
     db: Session,
     nombres: str = None,
