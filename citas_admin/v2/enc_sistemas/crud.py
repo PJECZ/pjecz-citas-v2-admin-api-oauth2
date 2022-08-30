@@ -35,16 +35,16 @@ def get_enc_sistemas(
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
-    if creado:
+    if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
         consulta = consulta.filter(EncSistema.creado >= desde_dt).filter(EncSistema.creado <= hasta_dt)
     else:
-        if creado_desde:
-            desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_desde is not None:
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(EncSistema.creado >= desde_dt)
-        if creado_hasta:
-            hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_hasta is not None:
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(EncSistema.creado <= hasta_dt)
     if estado is None:
         consulta = consulta.filter(EncSistema.estado == "CONTESTADO")  # Si no se especifica, se filtra

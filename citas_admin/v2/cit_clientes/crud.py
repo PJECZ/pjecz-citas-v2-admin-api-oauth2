@@ -38,16 +38,16 @@ def get_cit_clientes(
     if apellido_segundo is not None:
         consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
     curp = safe_curp(curp, search_fragment=True)
-    if creado:
+    if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
         consulta = consulta.filter(CitCliente.creado >= desde_dt).filter(CitCliente.creado <= hasta_dt)
     else:
-        if creado_desde:
-            desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_desde is not None:
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado >= desde_dt)
-        if creado_hasta:
-            hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_hasta is not None:
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado <= hasta_dt)
     if curp is not None:
         consulta = consulta.filter(CitCliente.curp.contains(curp))
@@ -101,16 +101,16 @@ def get_cit_clientes_creados_por_dia(
         creado_hasta = hoy
 
     # Si se recibe creado, se limita a esa fecha
-    if creado:
+    if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
         consulta = consulta.filter(CitCliente.creado >= desde_dt).filter(CitCliente.creado <= hasta_dt)
     else:
-        if creado_desde:
-            desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_desde is not None:
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado >= desde_dt)
-        if creado_hasta:
-            hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        if creado_hasta is not None:
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado <= hasta_dt)
 
     # Agrupar por creado y entregar SIN hacer la onsulta

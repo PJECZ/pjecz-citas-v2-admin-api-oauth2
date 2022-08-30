@@ -61,7 +61,7 @@ def consultar(
 
 
 @app.command()
-def mostrar_cantidades_creados_por_dia(
+def mostrar_creados_por_dia(
     creado: str = None,
     creado_desde: str = None,
     creado_hasta: str = None,

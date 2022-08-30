@@ -165,7 +165,7 @@ def enviar(
 
 
 @app.command()
-def mostrar_cantidades_creados_por_dia(
+def mostrar_creados_por_dia(
     creado: str = None,
     creado_desde: str = None,
     creado_hasta: str = None,
@@ -200,7 +200,7 @@ def mostrar_cantidades_creados_por_dia(
 
 
 @app.command()
-def mostrar_cantidades_agendadas_por_oficina_servicio(
+def mostrar_agendadas_por_oficina_servicio(
     inicio: str = None,
     inicio_desde: str = None,
     inicio_hasta: str = None,
