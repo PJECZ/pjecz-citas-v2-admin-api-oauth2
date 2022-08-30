@@ -8,7 +8,8 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError, CitasOutOfRangeParamError
+from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
 from lib.safe_string import safe_clave, safe_email, safe_string
 
 from .models import CitCita
@@ -19,8 +20,6 @@ from ..cit_servicios.models import CitServicio
 from ..oficinas.crud import get_oficina
 from ..oficinas.models import Oficina
 
-HOY = date.today()
-ANTIGUA_FECHA = date(year=2022, month=1, day=1)
 DEFAULT_DIAS = 7
 
 
@@ -29,14 +28,15 @@ def get_cit_citas(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     cit_servicio_id: int = None,
-    oficina_id: int = None,
-    oficina_clave: str = None,
-    fecha: date = None,
-    inicio_desde: datetime = None,
-    inicio_hasta: datetime = None,
-    estado: str = None,
+    creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    fecha: date = None,
+    estado: str = None,
+    inicio_desde: datetime = None,
+    inicio_hasta: datetime = None,
+    oficina_id: int = None,
+    oficina_clave: str = None,
 ) -> Any:
     """Consultar los citas activos"""
     consulta = db.query(CitCita)
@@ -46,18 +46,24 @@ def get_cit_citas(
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
     elif cit_cliente_email is not None:
         cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
+        if cit_cliente_email is None or cit_cliente_email == "":
+            raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
     if cit_servicio_id is not None:
         cit_servicio = get_cit_servicio(db, cit_servicio_id)
         consulta = consulta.filter(CitCita.cit_servicio == cit_servicio)
-    if oficina_id is not None:
-        oficina = get_oficina(db, oficina_id)
-        consulta = consulta.filter(CitCita.oficina == oficina)
-    elif oficina_clave is not None:
-        oficina_clave = safe_clave(oficina_clave)
-        consulta = consulta.join(Oficina)
-        consulta = consulta.filter(Oficina.clave == oficina_clave)
+    if creado:
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        consulta = consulta.filter(CitCita.creado >= desde_dt).filter(CitCita.creado <= hasta_dt)
+    else:
+        if creado_desde:
+            desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.creado >= desde_dt)
+        if creado_hasta:
+            hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.creado <= hasta_dt)
     if fecha is not None:
         inicio_desde = datetime(fecha.year, fecha.month, fecha.day, 0, 0, 0)
         inicio_hasta = datetime(fecha.year, fecha.month, fecha.day, 23, 59, 59)
@@ -75,14 +81,15 @@ def get_cit_citas(
         if estado not in CitCita.ESTADOS:
             raise CitasNotValidParamError("El estado no es válido")
         consulta = consulta.filter(CitCita.estado == estado)
-    if creado_desde is not None:
-        if not ANTIGUA_FECHA <= creado_desde <= HOY:
-            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
-        consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
-    if creado_hasta is not None:
-        if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
-        consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
+    if oficina_id is not None:
+        oficina = get_oficina(db, oficina_id)
+        consulta = consulta.filter(CitCita.oficina == oficina)
+    elif oficina_clave is not None:
+        oficina_clave = safe_clave(oficina_clave)
+        if oficina_clave is None or oficina_clave == "":
+            raise CitasNotValidParamError("No es válida la clave de la oficina")
+        consulta = consulta.join(Oficina)
+        consulta = consulta.filter(Oficina.clave == oficina_clave)
     consulta = consulta.filter_by(estatus="A")
     if fecha is not None:
         consulta = consulta.order_by(CitCita.inicio)
@@ -91,10 +98,7 @@ def get_cit_citas(
     return consulta
 
 
-def get_cit_cita(
-    db: Session,
-    cit_cita_id: int,
-) -> CitCita:
+def get_cit_cita(db: Session, cit_cita_id: int) -> CitCita:
     """Consultar un cita por su id"""
     cit_cita = db.query(CitCita).get(cit_cita_id)
     if cit_cita is None:
@@ -118,33 +122,26 @@ def get_cit_citas_cantidades_creados_por_dia(
     )
     # Filtrar estados
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
+    # Si NO se reciben creados, se limitan a los últimos DEFAULT_DIAS días
+    if creado is None and creado_desde is None and creado_hasta is None:
+        hoy_servidor = datetime.now(SERVIDOR_HUSO_HORARIO)
+        hoy = hoy_servidor.astimezone(LOCAL_HUSO_HORARIO).date()
+        creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        creado_hasta = hoy
     # Si se recibe creado, se limita a esa fecha
     if creado:
-        if not ANTIGUA_FECHA <= creado <= HOY:
-            raise CitasOutOfRangeParamError("Creado fuera de rango")
-        consulta = consulta.filter(func.date(CitCita.creado) == creado)
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        consulta = consulta.filter(CitCita.creado >= desde_dt).filter(CitCita.creado <= hasta_dt)
     else:
-        # Si se reciben creado_desde y creado_hasta, validar que sean correctos
-        if creado_desde and creado_hasta:
-            if creado_desde > creado_hasta:
-                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
-        # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
-        if creado_desde is None and creado_hasta is None:
-            creado_desde = HOY - timedelta(days=DEFAULT_DIAS)
-            creado_hasta = HOY
-        # Si solo se recibe creado_desde, entonces creado_hasta es HOY
-        if creado_desde and creado_hasta is None:
-            creado_hasta = HOY
-        if creado_desde is not None:
-            if not ANTIGUA_FECHA <= creado_desde <= HOY:
-                raise CitasOutOfRangeParamError("Creado desde fuera de rango")
-            consulta = consulta.filter(func.date(CitCita.creado) >= creado_desde)
-        if creado_hasta is not None:
-            if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-                raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
-            consulta = consulta.filter(func.date(CitCita.creado) <= creado_hasta)
+        if creado_desde:
+            desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.creado >= desde_dt)
+        if creado_hasta:
+            hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.creado <= hasta_dt)
     # Agrupar por la fecha de creacion y ejecutar la consulta
-    return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado)).all()
+    return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado))
 
 
 def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
@@ -168,30 +165,23 @@ def get_cit_citas_cantidades_agendadas_por_servicio_oficina(
     consulta = consulta.filter(Oficina.estatus == "A")
     # Filtrar estados
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
+    # Si NO se reciben inicios, se limitan a los últimos DEFAULT_DIAS días
+    if inicio is None and inicio_desde is None and inicio_hasta is None:
+        hoy_servidor = datetime.now(SERVIDOR_HUSO_HORARIO)
+        hoy = hoy_servidor.astimezone(LOCAL_HUSO_HORARIO).date()
+        inicio_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        inicio_hasta = hoy
     # Si se recibe inicio, se limita a esa fecha
     if inicio:
-        if not ANTIGUA_FECHA <= inicio:
-            raise CitasOutOfRangeParamError("Inicio fuera de rango")
-        consulta = consulta.filter(func.date(CitCita.inicio) == inicio)
+        desde_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        hasta_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        consulta = consulta.filter(CitCita.inicio >= desde_dt).filter(CitCita.inicio <= hasta_dt)
     else:
-        # Si se reciben inicio_desde y inicio_hasta, validar que sean correctos
-        if inicio_desde and inicio_hasta:
-            if inicio_desde > inicio_hasta:
-                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
-        # Si NO se reciben inicio_desde y inicio_hasta, se limitan a los últimos 30 días
-        if inicio_desde is None and inicio_hasta is None:
-            inicio_desde = HOY - timedelta(days=DEFAULT_DIAS)
-            inicio_hasta = HOY
-        # Si solo se recibe inicio_desde, entonces inicio_hasta es HOY
-        if inicio_desde and inicio_hasta is None:
-            inicio_hasta = HOY
-        if inicio_desde is not None:
-            if inicio_desde < ANTIGUA_FECHA:
-                raise CitasOutOfRangeParamError("Inicio desde fuera de rango")
-            consulta = consulta.filter(func.date(CitCita.inicio) >= inicio_desde)
-        if inicio_hasta is not None:
-            if inicio_hasta < ANTIGUA_FECHA:
-                raise CitasOutOfRangeParamError("Inicio hasta fuera de rango")
-            consulta = consulta.filter(func.date(CitCita.inicio) <= inicio_hasta)
+        if inicio_desde:
+            desde_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.inicio >= desde_dt)
+        if inicio_hasta:
+            hasta_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCita.creado <= hasta_dt)
     # Agrupar por oficina y servicio y ejecutar la consulta
-    return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave).all()
+    return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave)

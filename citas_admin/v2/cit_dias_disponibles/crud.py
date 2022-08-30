@@ -5,20 +5,16 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
-import pytz
+
+from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
 
 from ..cit_dias_inhabiles.crud import get_cit_dias_inhabiles
 
 LIMITE_DIAS = 90
 QUITAR_PRIMER_DIA_DESPUES_HORAS = 14
-SERVIDOR_HUSO_HORARIO = pytz.utc
-LOCAL_HUSO_HORARIO = pytz.timezone("America/Mexico_City")
 
 
-def get_cit_dias_disponibles(
-    db: Session,
-    limit: int = LIMITE_DIAS,
-) -> Any:
+def get_cit_dias_disponibles(db: Session, limit: int = LIMITE_DIAS) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []
 

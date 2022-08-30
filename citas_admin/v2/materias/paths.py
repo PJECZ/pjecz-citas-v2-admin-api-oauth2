@@ -44,7 +44,7 @@ async def detalle_materia(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         materia = get_materia(
-            db,
+            db=db,
             materia_id=materia_id,
         )
     except CitasAnyError as error:

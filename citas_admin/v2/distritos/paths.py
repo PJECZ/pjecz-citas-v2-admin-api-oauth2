@@ -44,7 +44,7 @@ async def detalle_distrito(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         distrito = get_distrito(
-            db,
+            db=db,
             distrito_id=distrito_id,
         )
     except CitasAnyError as error:

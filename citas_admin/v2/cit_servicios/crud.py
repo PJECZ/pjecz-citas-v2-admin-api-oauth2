@@ -10,10 +10,7 @@ from .models import CitServicio
 from ..cit_categorias.crud import get_cit_categoria
 
 
-def get_cit_servicios(
-    db: Session,
-    cit_categoria_id: int = None,
-) -> Any:
+def get_cit_servicios(db: Session, cit_categoria_id: int = None) -> Any:
     """Consultar los servicios activos"""
     consulta = db.query(CitServicio)
     if cit_categoria_id is not None:

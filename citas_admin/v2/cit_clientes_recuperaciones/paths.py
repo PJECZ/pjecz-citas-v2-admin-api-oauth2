@@ -2,7 +2,6 @@
 Cit Clientes Recuperaciones v2, rutas (paths)
 """
 from datetime import date
-from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
