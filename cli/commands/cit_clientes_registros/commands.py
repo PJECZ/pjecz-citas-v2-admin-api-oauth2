@@ -84,11 +84,8 @@ def mostrar_creados_por_dia(
         raise typer.Exit()
     console = rich.console.Console()
     table = rich.table.Table("creado", "cantidad")
-    for registro in respuesta["items"]:
-        table.add_row(
-            registro["creado"],
-            str(registro["cantidad"]),
-        )
+    for creado, cantidad in respuesta["items"].items():
+        table.add_row(creado, str(cantidad))
     console.print(table)
     rich.print(f"Total: [green]{respuesta['total']}[/green] registros")
 

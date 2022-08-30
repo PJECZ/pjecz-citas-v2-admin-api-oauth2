@@ -30,9 +30,7 @@ def consultar(
     console = rich.console.Console()
     table = rich.table.Table("Fecha")
     for registro in respuesta:
-        table.add_row(
-            registro["fecha"],
-        )
+        table.add_row(registro["fecha"])
     console.print(table)
 
 
