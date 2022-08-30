@@ -15,7 +15,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_dias_inhabiles = APIRouter(prefix="/v2/cit_dias_inhabiles", tags=["citas"])
+cit_dias_inhabiles = APIRouter(prefix="/v2/cit_dias_inhabiles", tags=["citas dias inhabiles"])
 
 
 @cit_dias_inhabiles.get("", response_model=LimitOffsetPage[CitDiaInhabilOut])

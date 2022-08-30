@@ -15,11 +15,11 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_categorias = APIRouter(prefix="/v2/cit_categorias", tags=["citas"])
+cit_categorias = APIRouter(prefix="/v2/cit_categorias", tags=["citas categorias"])
 
 
 @cit_categorias.get("", response_model=LimitOffsetPage[CitCategoriaOut])
-async def listado_cit_categorias(
+async def listado_categorias(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -34,7 +34,7 @@ async def listado_cit_categorias(
 
 
 @cit_categorias.get("/{cit_categoria_id}", response_model=CitCategoriaOut)
-async def detalle_cit_categoria(
+async def detalle_categoria(
     cit_categoria_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),

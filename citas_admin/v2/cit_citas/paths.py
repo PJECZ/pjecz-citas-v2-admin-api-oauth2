@@ -17,11 +17,11 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_citas = APIRouter(prefix="/v2/cit_citas", tags=["citas"])
+cit_citas = APIRouter(prefix="/v2/cit_citas", tags=["citas citas"])
 
 
 @cit_citas.get("", response_model=LimitOffsetPage[CitCitaOut])
-async def listado_cit_citas(
+async def listado_citas(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     cit_servicio_id: int = None,
@@ -60,7 +60,7 @@ async def listado_cit_citas(
 
 
 @cit_citas.get("/creados_por_dia", response_model=CitCitasCreadosPorDiaOut)
-async def calcular_cantidades_creados_por_dia(
+async def cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
@@ -86,7 +86,7 @@ async def calcular_cantidades_creados_por_dia(
 
 
 @cit_citas.get("/agendadas_por_servicio_oficina", response_model=CitCitasAgendadasPorServicioOficinaOut)
-async def calcular_cantidades_agendadas_por_servicio_oficina(
+async def cantidades_citas_agendadas_por_servicio_oficina(
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
@@ -112,7 +112,7 @@ async def calcular_cantidades_agendadas_por_servicio_oficina(
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=CitCitaOut)
-async def detalle_cit_cita(
+async def detalle_cita(
     cit_cita_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),

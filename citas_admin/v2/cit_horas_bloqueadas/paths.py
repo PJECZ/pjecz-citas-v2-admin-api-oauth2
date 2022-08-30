@@ -16,7 +16,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_horas_bloqueadas = APIRouter(prefix="/v2/cit_horas_bloqueadas", tags=["citas"])
+cit_horas_bloqueadas = APIRouter(prefix="/v2/cit_horas_bloqueadas", tags=["citas horas bloqueadas"])
 
 
 @cit_horas_bloqueadas.get("", response_model=LimitOffsetPage[CitHoraBloqueadaOut])

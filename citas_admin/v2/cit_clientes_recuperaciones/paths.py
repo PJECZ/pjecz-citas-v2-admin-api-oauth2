@@ -17,7 +17,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones", tags=["citas"])
+cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones", tags=["citas clientes recuperaciones"])
 
 
 @cit_clientes_recuperaciones.get("", response_model=LimitOffsetPage[CitClienteRecuperacionOut])
@@ -48,7 +48,7 @@ async def listar_recuperaciones(
 
 
 @cit_clientes_recuperaciones.get("/creados_por_dia", response_model=CitClientesRecuperacionesCreadosPorDiaOut)
-async def calcular_cantidades_creados_por_dia(
+async def cantidades_recuperaciones_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,

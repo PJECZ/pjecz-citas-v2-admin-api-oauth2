@@ -15,7 +15,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_servicios = APIRouter(prefix="/v2/cit_servicios", tags=["citas"])
+cit_servicios = APIRouter(prefix="/v2/cit_servicios", tags=["citas servicios"])
 
 
 @cit_servicios.get("", response_model=LimitOffsetPage[CitServicioOut])

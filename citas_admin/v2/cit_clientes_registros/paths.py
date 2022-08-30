@@ -17,7 +17,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_clientes_registros = APIRouter(prefix="/v2/cit_clientes_registros", tags=["citas"])
+cit_clientes_registros = APIRouter(prefix="/v2/cit_clientes_registros", tags=["citas clientes registros"])
 
 
 @cit_clientes_registros.get("", response_model=LimitOffsetPage[CitClienteRegistroOut])
@@ -53,7 +53,7 @@ async def listado_cit_clientes_registros(
     return paginate(resultado)
 
 
-@cit_clientes_registros.get("/calcular_cantidades_creados_por_dia", response_model=CitClientesRegistrosCreadosPorDiaOut)
+@cit_clientes_registros.get("/creados_por_dia", response_model=CitClientesRegistrosCreadosPorDiaOut)
 async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
