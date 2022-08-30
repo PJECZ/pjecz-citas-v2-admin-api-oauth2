@@ -77,62 +77,6 @@ def get_cit_cliente_registro(db: Session, cit_cliente_registro_id: int) -> CitCl
     return cit_cliente_registro
 
 
-def resend_cit_clientes_registros(
-    db: Session,
-    nombres: str = None,
-    apellido_primero: str = None,
-    apellido_segundo: str = None,
-    curp: str = None,
-    email: str = None,
-) -> Any:
-    """Reenviar mensajes de los registros pendientes"""
-
-    # Consultar los registros pendientes
-    consulta = db.query(CitClienteRegistro).filter_by(ya_registrado=False).filter_by(estatus="A")
-
-    # Filtrar por cliente
-    nombres = safe_string(nombres)
-    if nombres is not None:
-        consulta = consulta.filter(CitClienteRegistro.nombres.contains(nombres))
-    apellido_primero = safe_string(apellido_primero)
-    if apellido_primero is not None:
-        consulta = consulta.filter(CitClienteRegistro.apellido_primero.contains(apellido_primero))
-    apellido_segundo = safe_string(apellido_segundo)
-    if apellido_segundo is not None:
-        consulta = consulta.filter(CitClienteRegistro.apellido_segundo.contains(apellido_segundo))
-    curp = safe_curp(curp, search_fragment=True)
-    if curp is not None:
-        consulta = consulta.filter(CitClienteRegistro.curp.contains(curp))
-    if email is not None:
-        email = safe_email(email, search_fragment=True)
-        if email is None or email == "":
-            raise CitasNotValidParamError("No es válido el correo electrónico")
-        consulta = consulta.filter(CitClienteRegistro.email.contains(email))
-
-    # Bucle para enviar los mensajes, colocando en la cola de tareas
-    enviados = []
-    for cit_cliente_registro in consulta.order_by(CitClienteRegistro.id.desc()):
-
-        # Si ya expiró, no se envía y de da de baja
-        if cit_cliente_registro.expiracion <= datetime.now():
-            cit_cliente_registro.estatus = "B"
-            db.add(cit_cliente_registro)
-            db.commit()
-            continue
-
-        # Enviar el mensaje
-        task_queue.enqueue(
-            "citas_admin.blueprints.cit_clientes_registros.tasks.enviar",
-            cit_cliente_registro_id=cit_cliente_registro.id,
-        )
-
-        # Acumular
-        enviados.append(CitClienteRegistroOut.from_orm(cit_cliente_registro))
-
-    # Entregar
-    return enviados
-
-
 def get_cit_clientes_registros_cantidades_creados_por_dia(
     db: Session,
     creado: date = None,

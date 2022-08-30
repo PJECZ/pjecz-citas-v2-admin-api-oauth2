@@ -86,17 +86,20 @@ def get_cit_clientes_cantidades_creados_por_dia(
     creado_hasta: date = None,
 ) -> Any:
     """Calcular las cantidades de clientes creados por dia"""
+
     # Observe que para la columna creado se usa la función func.date()
     consulta = db.query(
         func.date(CitCliente.creado).label("creado"),
         func.count(CitCliente.id).label("cantidad"),
     )
+
     # Si NO se reciben creados, se limitan a los últimos DEFAULT_DIAS días
     if creado is None and creado_desde is None and creado_hasta is None:
         hoy_servidor = datetime.now(SERVIDOR_HUSO_HORARIO)
         hoy = hoy_servidor.astimezone(LOCAL_HUSO_HORARIO).date()
         creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
         creado_hasta = hoy
+
     # Si se recibe creado, se limita a esa fecha
     if creado:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
@@ -109,4 +112,6 @@ def get_cit_clientes_cantidades_creados_por_dia(
         if creado_hasta:
             hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado <= hasta_dt)
+
+    # Agrupar por creado y entregar SIN hacer la onsulta
     return consulta.group_by(func.date(CitCliente.creado))

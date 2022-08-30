@@ -11,7 +11,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_cantidades_creados_por_dia, resend_cit_clientes_recuperaciones
+from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_cantidades_creados_por_dia
 from .schemas import CitClienteRecuperacionOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -45,31 +45,6 @@ async def listar_recuperaciones(
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(resultado)
-
-
-@cit_clientes_recuperaciones.get("/reenviar_mensajes", response_model=Dict)
-async def reenviar_mensajes(
-    cit_cliente_id: int = None,
-    cit_cliente_email: str = None,
-    creado_desde: date = None,
-    creado_hasta: date = None,
-    current_user: UsuarioInDB = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
-):
-    """Reenviar mensajes de las recuperaciones pendientes"""
-    if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.MODIFICAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        enviados = resend_cit_clientes_recuperaciones(
-            db,
-            cit_cliente_id=cit_cliente_id,
-            cit_cliente_email=cit_cliente_email,
-            creado_desde=creado_desde,
-            creado_hasta=creado_hasta,
-        )
-    except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return {"items": enviados, "total": len(enviados)}
 
 
 @cit_clientes_recuperaciones.get("/calcular_cantidades_creados_por_dia", response_model=Dict)

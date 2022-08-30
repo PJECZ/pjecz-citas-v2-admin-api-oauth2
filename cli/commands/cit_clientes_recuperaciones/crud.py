@@ -102,3 +102,83 @@ def get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
     if "items" not in data_json or "total" not in data_json:
         raise lib.exceptions.CLIResponseError("No se recibio items o total al solicitar cit_clientes_recuperaciones")
     return data_json
+
+
+"""
+def resend_cit_clientes_recuperaciones(
+    db: Session,
+    cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+) -> Any:
+    Reenviar mensajes de las recuperaciones pendientes
+
+    # Consultar las recuperaciones pendientes
+    consulta = db.query(CitClienteRecuperacion).filter_by(ya_recuperado=False).filter_by(estatus="A")
+
+    # Filtrar por cliente
+    if cit_cliente_id is not None:
+        cit_cliente = get_cit_cliente(db, get_cit_cliente)
+        consulta = consulta.filter(CitClienteRecuperacion.cit_cliente == cit_cliente)
+    elif cit_cliente_email is not None:
+        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
+        if cit_cliente_email is None or cit_cliente_email == "":
+            raise CitasNotValidParamError("No es válido el correo electrónico")
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.email == cit_cliente_email)
+
+    # Filtrar por fecha de creación
+    if creado_desde is not None:
+        consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) >= creado_desde)
+    if creado_hasta is not None:
+        consulta = consulta.filter(func.date(CitClienteRecuperacion.creado) <= creado_hasta)
+
+    # Bucle para enviar los mensajes, colocando en la cola de tareas
+    enviados = []
+    for cit_cliente_recuperacion in consulta.order_by(CitClienteRecuperacion.id).all():
+
+        # Si ya expiró, no se envía y de da de baja
+        if cit_cliente_recuperacion.expiracion <= datetime.now():
+            cit_cliente_recuperacion.estatus = "B"
+            db.commit()
+            continue
+
+        # Enviar el mensaje
+        task_queue.enqueue(
+            "citas_admin.blueprints.cit_clientes_recuperaciones.tasks.enviar",
+            cit_cliente_recuperacion_id=cit_cliente_recuperacion.id,
+        )
+
+        # Acumular
+        enviados.append(CitClienteRecuperacionOut.from_orm(cit_cliente_recuperacion))
+
+    # Entregar
+    return enviados
+
+@cit_clientes_recuperaciones.get("/reenviar_mensajes", response_model=Dict)
+async def reenviar_mensajes(
+    cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    Reenviar mensajes de las recuperaciones pendientes
+    if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.MODIFICAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        enviados = resend_cit_clientes_recuperaciones(
+            db,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_email=cit_cliente_email,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+        )
+    except CitasAnyError as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    return {"items": enviados, "total": len(enviados)}
+
+
+"""
