@@ -66,6 +66,7 @@ async def cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    distrito_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -78,6 +79,7 @@ async def cantidades_creados_por_dia(
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            distrito_id=distrito_id,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

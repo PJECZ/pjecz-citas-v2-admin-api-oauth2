@@ -169,6 +169,7 @@ def mostrar_creados_por_dia(
     creado: str = None,
     creado_desde: str = None,
     creado_hasta: str = None,
+    distrito_id: int = None,
 ):
     """Mostrar cantidades de citas creadas por dia"""
     rich.print("Mostrar cantidades de citas creadas por dia...")

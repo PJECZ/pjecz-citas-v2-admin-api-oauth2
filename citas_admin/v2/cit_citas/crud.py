@@ -17,6 +17,7 @@ from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
 from ..cit_servicios.crud import get_cit_servicio
 from ..cit_servicios.models import CitServicio
+from ..distritos.crud import get_distrito
 from ..oficinas.crud import get_oficina
 from ..oficinas.models import Oficina
 
@@ -124,6 +125,7 @@ def get_cit_citas_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    distrito_id: int = None,
 ) -> Any:
     """Calcular las cantidades de citas creados por dia"""
 
@@ -132,6 +134,12 @@ def get_cit_citas_creados_por_dia(
         func.date(CitCita.creado).label("creado"),
         func.count(CitCita.id).label("cantidad"),
     )
+
+    # Si se recibe distrito_id, se filtra por distrito
+    if distrito_id is not None:
+        distrito = get_distrito(db, distrito_id)
+        consulta = consulta.select_from(CitCita).join(Oficina)
+        consulta = consulta.filter(Oficina.distrito == distrito)
 
     # Filtrar estados
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))

@@ -9,11 +9,9 @@ from sqlalchemy.sql import func
 
 from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
-from lib.redis import task_queue
 from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitClienteRegistro
-from .schemas import CitClienteRegistroOut
 
 DEFAULT_DIAS = 7
 

@@ -9,11 +9,9 @@ from sqlalchemy.sql import func
 
 from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
-from lib.redis import task_queue
 from lib.safe_string import safe_email
 
 from .models import CitClienteRecuperacion
-from .schemas import CitClienteRecuperacionOut
 from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
 

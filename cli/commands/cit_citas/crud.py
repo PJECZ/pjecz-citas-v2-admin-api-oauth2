@@ -56,6 +56,7 @@ def get_cit_citas_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    distrito_id: int = None,
 ) -> Any:
     """Solicitar cantidades de citas creadas por dia"""
     parametros = {}
@@ -65,6 +66,8 @@ def get_cit_citas_creados_por_dia(
         parametros["creado_desde"] = creado_desde
     if creado_hasta is not None:
         parametros["creado_hasta"] = creado_hasta
+    if distrito_id is not None:
+        parametros["distrito_id"] = distrito_id
     try:
         response = requests.get(
             f"{BASE_URL}/cit_citas/creados_por_dia",
