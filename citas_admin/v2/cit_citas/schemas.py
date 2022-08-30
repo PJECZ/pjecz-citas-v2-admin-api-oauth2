@@ -43,5 +43,5 @@ class CitCitasCreadosPorDiaOut(BaseModel):
 class CitCitasAgendadasPorServicioOficinaOut(BaseModel):
     """Esquema para entregar cantidades de citas agendadas por servicio y oficina"""
 
-    items: dict
+    items: list
     total: int

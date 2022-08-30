@@ -104,7 +104,7 @@ async def cantidades_citas_agendadas_por_servicio_oficina(
             inicio=inicio,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
-        )
+        ).all()  # Observe que se ejecuta la consulta
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     total = 0
