@@ -181,6 +181,7 @@ def mostrar_creados_por_dia(
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            distrito_id=distrito_id,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
