@@ -12,21 +12,33 @@ import lib.exceptions
 
 def get_cit_citas(
     authorization_header: dict,
-    email: str = None,
+    cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    cit_servicio_id: int = None,
+    cit_servicio_clave: str = None,
     estado: str = None,
     inicio: date = None,
     limit: int = LIMIT,
+    oficina_id: int = None,
     oficina_clave: str = None,
     offset: int = 0,
 ) -> Any:
     """Solicitar cit_citas"""
     parametros = {"limit": limit}
-    if email is not None:
-        parametros["cit_cliente_email"] = email
+    if cit_cliente_id is not None:
+        parametros["cit_cliente_id"] = cit_cliente_id
+    if cit_cliente_email is not None:
+        parametros["cit_cliente_email"] = cit_cliente_email
+    if cit_servicio_id is not None:
+        parametros["cit_servicio_id"] = cit_servicio_id
+    if cit_servicio_clave is not None:
+        parametros["cit_servicio_clave"] = cit_servicio_clave
     if estado is not None:
         parametros["estado"] = estado
     if inicio is not None:
         parametros["inicio"] = inicio
+    if oficina_id is not None:
+        parametros["oficina_id"] = oficina_id
     if oficina_clave is not None:
         parametros["oficina_clave"] = oficina_clave
     if offset > 0:

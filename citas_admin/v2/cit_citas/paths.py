@@ -1,7 +1,7 @@
 """
 Cit Citas v2, rutas (paths)
 """
-from datetime import date, datetime
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -25,12 +25,13 @@ async def listado_citas(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     cit_servicio_id: int = None,
+    cit_servicio_clave: str = None,
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     inicio: date = None,
-    inicio_desde: datetime = None,
-    inicio_hasta: datetime = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
     estado: str = None,
     oficina_id: int = None,
     oficina_clave: str = None,
@@ -46,6 +47,7 @@ async def listado_citas(
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
             cit_servicio_id=cit_servicio_id,
+            cit_servicio_clave=cit_servicio_clave,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,

@@ -40,10 +40,14 @@ SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL")
 
 @app.command()
 def consultar(
-    email: str = None,
+    cit_cliente_id: int = None,
+    cit_cliente_email: str = None,
+    cit_servicio_id: int = None,
+    cit_servicio_clave: str = None,
     estado: str = None,
     inicio: str = None,
     limit: int = LIMIT,
+    oficina_id: int = None,
     oficina_clave: str = None,
     offset: int = 0,
 ):
@@ -52,10 +56,14 @@ def consultar(
     try:
         respuesta = get_cit_citas(
             authorization_header=authorization_header(),
-            email=email,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_email=cit_cliente_email,
+            cit_servicio_id=cit_servicio_id,
+            cit_servicio_clave=cit_servicio_clave,
             estado=estado,
             inicio=inicio,
             limit=limit,
+            oficina_id=oficina_id,
             oficina_clave=oficina_clave,
             offset=offset,
         )

@@ -29,19 +29,21 @@ def get_cit_citas(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     cit_servicio_id: int = None,
+    cit_servicio_clave: str = None,
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     estado: str = None,
     inicio: date = None,
-    inicio_desde: datetime = None,
-    inicio_hasta: datetime = None,
+    inicio_desde: date = None,
+    inicio_hasta: date = None,
     oficina_id: int = None,
     oficina_clave: str = None,
 ) -> Any:
     """Consultar los citas activos"""
     consulta = db.query(CitCita)
-    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
+
+    # Filtrar por cliente
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
@@ -51,9 +53,19 @@ def get_cit_citas(
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
+
+    # Filtrar por servicio
     if cit_servicio_id is not None:
         cit_servicio = get_cit_servicio(db, cit_servicio_id)
         consulta = consulta.filter(CitCita.cit_servicio == cit_servicio)
+    elif cit_servicio_clave is not None:
+        cit_servicio_clave = safe_clave(cit_servicio_clave)
+        if cit_servicio_clave is None or cit_servicio_clave == "":
+            raise CitasNotValidParamError("No es válida la clave del servicio")
+        consulta = consulta.join(CitServicio)
+        consulta = consulta.filter(CitServicio.clave == cit_servicio_clave)
+
+    # Filtrar por creado
     if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
@@ -66,14 +78,7 @@ def get_cit_citas(
             hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCita.creado <= hasta_dt)
 
-    # Si NO se reciben inicios, se limitan a los últimos DEFAULT_DIAS días
-    if inicio is None and inicio_desde is None and inicio_hasta is None:
-        hoy_servidor = datetime.now(SERVIDOR_HUSO_HORARIO)
-        hoy = hoy_servidor.astimezone(LOCAL_HUSO_HORARIO).date()
-        inicio_desde = hoy - timedelta(days=DEFAULT_DIAS)
-        inicio_hasta = hoy
-
-    # Si se recibe inicio, se limita a esa fecha
+    # Filtrar por inicio
     if inicio is not None:
         desde_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
@@ -84,8 +89,9 @@ def get_cit_citas(
             consulta = consulta.filter(CitCita.inicio >= desde_dt)
         if inicio_hasta is not None:
             hasta_dt = datetime(year=inicio_hasta.year, month=inicio_hasta.month, day=inicio_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
-            consulta = consulta.filter(CitCita.creado <= hasta_dt)
+            consulta = consulta.filter(CitCita.inicio <= hasta_dt)
 
+    # Filtrar por estado
     if estado is None:
         consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))  # Si no se especifica, se filtra
     else:
@@ -93,6 +99,8 @@ def get_cit_citas(
         if estado not in CitCita.ESTADOS:
             raise CitasNotValidParamError("El estado no es válido")
         consulta = consulta.filter(CitCita.estado == estado)
+
+    # Filtrar por oficina
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
         consulta = consulta.filter(CitCita.oficina == oficina)
@@ -103,10 +111,14 @@ def get_cit_citas(
         consulta = consulta.join(Oficina)
         consulta = consulta.filter(Oficina.clave == oficina_clave)
     consulta = consulta.filter_by(estatus="A")
+
+    # Ordenar
     if inicio is not None or inicio_desde is not None or inicio_hasta is not None:
         consulta = consulta.order_by(CitCita.inicio)
     else:
         consulta = consulta.order_by(CitCita.id.desc())
+
+    # Entregar
     return consulta
 
 
@@ -212,7 +224,7 @@ def get_cit_citas_agendadas_por_servicio_oficina(
             consulta = consulta.filter(CitCita.inicio >= desde_dt)
         if inicio_hasta is not None:
             hasta_dt = datetime(year=inicio_hasta.year, month=inicio_hasta.month, day=inicio_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
-            consulta = consulta.filter(CitCita.creado <= hasta_dt)
+            consulta = consulta.filter(CitCita.inicio <= hasta_dt)
 
     # Agrupar por oficina y servicio y entregar SIN hacer la consulta
     return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave)
