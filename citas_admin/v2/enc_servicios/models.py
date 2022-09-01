@@ -1,5 +1,5 @@
 """
-Encuestas Sistemas v2, modelos
+Encuestas Servicios v2, modelos
 """
 from collections import OrderedDict
 from sqlalchemy import Column, Enum, ForeignKey, Integer, String
@@ -9,8 +9,8 @@ from lib.database import Base
 from lib.universal_mixin import UniversalMixin
 
 
-class EncSistema(Base, UniversalMixin):
-    """EncSistema"""
+class EncServicio(Base, UniversalMixin):
+    """EncServicio"""
 
     ESTADOS = OrderedDict(
         [
@@ -21,19 +21,22 @@ class EncSistema(Base, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "enc_sistemas"
+    __tablename__ = "enc_servicios"
 
     # Clave primaria
     id = Column(Integer, primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     cit_cliente_id = Column(Integer, ForeignKey("cit_clientes.id"), nullable=False)
-    cit_cliente = relationship("CitCliente", back_populates="enc_sistemas")
+    cit_cliente = relationship("CitCliente", back_populates="enc_servicios")
+    oficina_id = Column(Integer, ForeignKey("oficinas.id"), nullable=False)
+    oficina = relationship("Oficina", back_populates="enc_servicios")
 
     # Columnas
     respuesta_01 = Column(Integer(), nullable=True)
-    respuesta_02 = Column(String(255), nullable=True)
-    respuesta_03 = Column(String(255), nullable=True)
+    respuesta_02 = Column(Integer(), nullable=True)
+    respuesta_03 = Column(Integer(), nullable=True)
+    respuesta_04 = Column(String(255), nullable=True)
     estado = Column(Enum(*ESTADOS, name="estados", native_enum=False))
 
     @property
@@ -46,6 +49,21 @@ class EncSistema(Base, UniversalMixin):
         """Retorna el nombre del cliente"""
         return self.cit_cliente.nombre
 
+    @property
+    def oficina_clave(self):
+        """Clave de la oficina"""
+        return self.oficina.clave
+
+    @property
+    def oficina_descripcion(self):
+        """Descripcion de la oficina"""
+        return self.oficina.descripcion
+
+    @property
+    def oficina_descripcion_corta(self):
+        """Descripcion corta de la oficina"""
+        return self.oficina.descripcion_corta
+
     def __repr__(self):
         """Representación"""
-        return f"<EncSistema {self.id}>"
+        return f"<EncServicio {self.id}>"

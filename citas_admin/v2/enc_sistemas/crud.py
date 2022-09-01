@@ -26,6 +26,8 @@ def get_enc_sistemas(
 ) -> Any:
     """Consultar los encuestas de sistemas activos"""
     consulta = db.query(EncSistema)
+
+    # Filtrar por el cliente
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(EncSistema.cit_cliente == cit_cliente)
@@ -35,6 +37,8 @@ def get_enc_sistemas(
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
+
+    # Filtrar por creado
     if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
@@ -46,6 +50,8 @@ def get_enc_sistemas(
         if creado_hasta is not None:
             hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(EncSistema.creado <= hasta_dt)
+
+    # Filtrar por estado
     if estado is None:
         consulta = consulta.filter(EncSistema.estado == "CONTESTADO")  # Si no se especifica, se filtra
     else:
@@ -53,6 +59,8 @@ def get_enc_sistemas(
         if estado not in EncSistema.ESTADOS:
             raise CitasNotValidParamError("El estado no es válido")
         consulta = consulta.filter(EncSistema.estado == estado)
+
+    # Entregar
     return consulta.filter_by(estatus="A").order_by(EncSistema.id)
 
 
