@@ -21,7 +21,7 @@ cit_clientes_registros = APIRouter(prefix="/v2/cit_clientes_registros", tags=["c
 
 
 @cit_clientes_registros.get("", response_model=LimitOffsetPage[CitClienteRegistroOut])
-async def listado_cit_clientes_registros(
+async def listado_clientes_registros(
     apellido_primero: str = None,
     apellido_segundo: str = None,
     creado: date = None,
@@ -82,7 +82,7 @@ async def calcular_cantidades_creados_por_dia(
 
 
 @cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=CitClienteRegistroOut)
-async def detalle_cit_cliente_registro(
+async def detalle_cliente_registro(
     cit_cliente_registro_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),

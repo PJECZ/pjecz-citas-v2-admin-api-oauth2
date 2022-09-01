@@ -20,7 +20,7 @@ cit_horas_bloqueadas = APIRouter(prefix="/v2/cit_horas_bloqueadas", tags=["citas
 
 
 @cit_horas_bloqueadas.get("", response_model=LimitOffsetPage[CitHoraBloqueadaOut])
-async def listado_cit_horas_bloqueadas(
+async def listado_horas_bloqueadas(
     oficina_id: int = None,
     fecha: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -41,7 +41,7 @@ async def listado_cit_horas_bloqueadas(
 
 
 @cit_horas_bloqueadas.get("/{cit_hora_bloqueada_id}", response_model=CitHoraBloqueadaOut)
-async def detalle_cit_hora_bloqueada(
+async def detalle_hora_bloqueada(
     cit_hora_bloqueada_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),

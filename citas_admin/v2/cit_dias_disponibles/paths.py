@@ -19,7 +19,7 @@ cit_dias_disponibles = APIRouter(prefix="/v2/cit_dias_disponibles", tags=["citas
 
 
 @cit_dias_disponibles.get("", response_model=List[CitDiaDisponibleOut])
-async def listado_cit_dias_disponibles(
+async def listado_dias_disponibles(
     limit: int = 40,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -35,7 +35,7 @@ async def listado_cit_dias_disponibles(
 
 
 @cit_dias_disponibles.get("/proximo", response_model=CitDiaDisponibleOut)
-async def proximo_cit_dia_disponible(
+async def proximo_dia_disponible(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):

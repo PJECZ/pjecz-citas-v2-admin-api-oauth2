@@ -19,7 +19,7 @@ cit_dias_inhabiles = APIRouter(prefix="/v2/cit_dias_inhabiles", tags=["citas dia
 
 
 @cit_dias_inhabiles.get("", response_model=LimitOffsetPage[CitDiaInhabilOut])
-async def listado_cit_dias_inhabiles(
+async def listado_dias_inhabiles(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):

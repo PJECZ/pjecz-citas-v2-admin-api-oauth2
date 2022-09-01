@@ -19,7 +19,7 @@ cit_oficinas_servicios = APIRouter(prefix="/v2/cit_oficinas_servicios", tags=["c
 
 
 @cit_oficinas_servicios.get("", response_model=LimitOffsetPage[CitOficinaServicioOut])
-async def listado_cit_oficinas_servicios(
+async def listado_oficinas_servicios(
     cit_servicio_id: int = None,
     oficina_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -40,7 +40,7 @@ async def listado_cit_oficinas_servicios(
 
 
 @cit_oficinas_servicios.get("/{cit_oficina_servicio_id}", response_model=CitOficinaServicioOut)
-async def detalle_cit_oficina_servicio(
+async def detalle_oficina_servicio(
     cit_oficina_servicio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
