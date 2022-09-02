@@ -11,9 +11,12 @@ import lib.exceptions
 def get_cit_servicios(
     authorization_header: dict,
     limit: int = LIMIT,
+    offset: int = 0,
 ) -> Any:
     """Solicitar servicios"""
     parametros = {"limit": limit}
+    if offset > 0:
+        parametros["offset"] = offset
     try:
         response = requests.get(
             f"{BASE_URL}/cit_servicios",

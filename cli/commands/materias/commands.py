@@ -16,6 +16,7 @@ app = typer.Typer()
 @app.command()
 def consultar(
     limit: int = LIMIT,
+    offset: int = 0,
 ):
     """Consultar materias"""
     rich.print("Consultar materias...")

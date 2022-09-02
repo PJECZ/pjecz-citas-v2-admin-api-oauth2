@@ -10,11 +10,12 @@ import lib.exceptions
 
 def get_usuarios(
     authorization_header: dict,
-    limit: int = LIMIT,
     autoridad_id: int = None,
     autoridad_clave: str = None,
+    limit: int = LIMIT,
     oficina_id: int = None,
     oficina_clave: str = None,
+    offset: int = 0,
 ) -> Any:
     """Solicitar usuarios"""
     parametros = {"limit": limit}
@@ -22,6 +23,8 @@ def get_usuarios(
         parametros["autoridad_id"] = autoridad_id
     if autoridad_clave is not None:
         parametros["autoridad_clave"] = autoridad_clave
+    if offset > 0:
+        parametros["offset"] = offset
     if oficina_id is not None:
         parametros["oficina_id"] = oficina_id
     if oficina_clave is not None:
