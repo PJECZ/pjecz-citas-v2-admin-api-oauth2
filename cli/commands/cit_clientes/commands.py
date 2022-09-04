@@ -2,9 +2,15 @@
 Cit Clientes Commands
 """
 from datetime import datetime
+import locale
+import os
 
-import typer
+from dotenv import load_dotenv
 import rich
+import sendgrid
+from sendgrid.helpers.mail import Email, To, Content, Mail
+from tabulate import tabulate
+import typer
 
 from config.settings import LIMIT
 from lib.authentication import authorization_header
@@ -13,6 +19,14 @@ import lib.exceptions
 from .crud import get_cit_clientes, get_cit_clientes_creados_por_dia
 
 app = typer.Typer()
+
+# Region
+locale.setlocale(locale.LC_TIME, "es_MX.utf8")
+
+# SendGrid environment variables
+load_dotenv()
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
+SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL", "")
 
 
 @app.command()
@@ -42,7 +56,7 @@ def consultar(
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = rich.console.Console()
-    table = rich.table.Table("id", "creado", "nombres", "apellido pri", "apellido seg", "curp", "email", "md5", "sha256")
+    table = rich.table.Table("ID", "Creado", "Nombres", "A. Primero", "A. Segundo", "CURP", "e-mail", "MD5", "SHA256")
     for registro in respuesta["items"]:
         creado = datetime.strptime(registro["creado"], "%Y-%m-%dT%H:%M:%S.%f")
         table.add_row(
@@ -79,7 +93,9 @@ def mostrar_creados_por_dia(
         typer.secho(str(error), fg=typer.colors.RED)
         raise typer.Exit()
     console = rich.console.Console()
-    table = rich.table.Table("creado", "cantidad")
+    table = rich.table.Table()
+    table.add_column("Creado")
+    table.add_column("Cantidad", justify="right")
     for creado, cantidad in respuesta["items"].items():
         table.add_row(creado, str(cantidad))
     console.print(table)

@@ -1,8 +1,8 @@
 """
 Usuarios Typer Commands
 """
-import typer
 import rich
+import typer
 
 from config.settings import LIMIT
 from lib.authentication import authorization_header
@@ -27,11 +27,12 @@ def consultar(
     try:
         respuesta = get_usuarios(
             authorization_header=authorization_header(),
-            limit=limit,
             autoridad_id=autoridad_id,
             autoridad_clave=autoridad_clave,
+            limit=limit,
             oficina_id=oficina_id,
             oficina_clave=oficina_clave,
+            offset=offset,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)

@@ -1,8 +1,8 @@
 """
 Cit Dias Disponibles Typer Commands
 """
-import typer
 import rich
+import typer
 
 from config.settings import LIMIT
 from lib.authentication import authorization_header

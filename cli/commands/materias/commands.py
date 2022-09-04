@@ -1,8 +1,8 @@
 """
 Materias Typer Commands
 """
-import typer
 import rich
+import typer
 
 from config.settings import LIMIT
 from lib.authentication import authorization_header
@@ -24,6 +24,7 @@ def consultar(
         respuesta = get_materias(
             authorization_header=authorization_header(),
             limit=limit,
+            offset=offset,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)

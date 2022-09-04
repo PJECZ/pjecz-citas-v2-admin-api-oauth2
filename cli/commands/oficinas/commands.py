@@ -1,8 +1,8 @@
 """
 Oficinas Typer Commands
 """
-import typer
 import rich
+import typer
 
 from config.settings import LIMIT
 from lib.authentication import authorization_header
@@ -26,10 +26,11 @@ def consultar(
     try:
         respuesta = get_oficinas(
             authorization_header=authorization_header(),
-            limit=limit,
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,
+            limit=limit,
             puede_agendar_citas=puede_agendar_citas,
+            offset=offset,
         )
     except lib.exceptions.CLIAnyError as error:
         typer.secho(str(error), fg=typer.colors.RED)
