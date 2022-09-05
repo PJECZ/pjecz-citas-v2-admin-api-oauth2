@@ -1,12 +1,27 @@
 """
 CLI Commands Cit Clientes Registros Send Messages
 """
-from datetime import datetime
+from datetime import datetime, timedelta
+import locale
+import os
 from typing import Any
+
+from dotenv import load_dotenv
+import sendgrid
+from sendgrid.helpers.mail import Email, To, Content, Mail
+from tabulate import tabulate
 
 from config.settings import LIMIT
 
 from .request_api import get_cit_clientes_recuperaciones
+
+# Region
+locale.setlocale(locale.LC_TIME, "es_MX.utf8")
+
+# SendGrid environment variables
+load_dotenv()
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
+SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL", "")
 
 
 def resend_cit_clientes_recuperaciones(

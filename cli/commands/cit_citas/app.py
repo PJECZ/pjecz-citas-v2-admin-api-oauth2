@@ -16,6 +16,11 @@ from .request_api import get_cit_citas, get_cit_citas_agendadas_por_oficina_serv
 
 app = typer.Typer()
 
+# Pandas options on how to display dataframes
+pd.set_option("display.max_rows", 500)
+pd.set_option("display.max_columns", 500)
+pd.set_option("display.width", 150)
+
 
 @app.command()
 def consultar(
