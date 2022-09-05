@@ -105,7 +105,7 @@ def delete_cit_cliente_recuperacion(
 def resend_cit_clientes_recuperaciones(
     authorization_header: dict,
 ) -> Any:
-    """Reenviar las recuperaciones"""
+    """Reenviar los mensajes de las recuperaciones"""
 
     # Comparar las fechas de expiracion con la de hoy
     ahora = datetime.now()
@@ -131,7 +131,8 @@ def resend_cit_clientes_recuperaciones(
         for item in cit_clientes_recuperaciones["items"]:
 
             # Si ya expiró, no se envía y de da de baja
-            if item["expiracion"] <= ahora:
+            expiracion = datetime.strptime(item["expiracion"], "%Y-%m-%dT%H:%M:%S.%f")
+            if expiracion < ahora:
                 # delete_cit_cliente_recuperacion(authorization_header: dict, id=item["expiracion"], )
                 continue
 

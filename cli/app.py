@@ -4,18 +4,18 @@ CLI Typer main application
 """
 import typer
 
-from commands.cit_categorias.commands import app as cit_categorias_app
-from commands.cit_citas.commands import app as cit_citas_app
-from commands.cit_clientes.commands import app as cit_clientes_app
-from commands.cit_clientes_recuperaciones.commands import app as cit_clientes_recuperaciones_app
-from commands.cit_clientes_registros.commands import app as cit_clientes_registros_app
-from commands.cit_dias_disponibles.commands import app as cit_dias_disponibles_app
-from commands.cit_servicios.commands import app as cit_servicios_app
-from commands.distritos.commands import app as distritos_app
-from commands.materias.commands import app as materias_app
-from commands.oficinas.commands import app as oficinas_app
-from commands.roles.commands import app as roles_app
-from commands.usuarios.commands import app as usuarios_app
+from commands.cit_categorias.app import app as cit_categorias_app
+from commands.cit_citas.app import app as cit_citas_app
+from commands.cit_clientes.app import app as cit_clientes_app
+from commands.cit_clientes_recuperaciones.app import app as cit_clientes_recuperaciones_app
+from commands.cit_clientes_registros.app import app as cit_clientes_registros_app
+from commands.cit_dias_disponibles.app import app as cit_dias_disponibles_app
+from commands.cit_servicios.app import app as cit_servicios_app
+from commands.distritos.app import app as distritos_app
+from commands.materias.app import app as materias_app
+from commands.oficinas.app import app as oficinas_app
+from commands.roles.app import app as roles_app
+from commands.usuarios.app import app as usuarios_app
 
 app = typer.Typer()
 app.add_typer(cit_categorias_app, name="cit_categorias")
