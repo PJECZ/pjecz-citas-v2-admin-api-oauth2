@@ -1,10 +1,12 @@
 """
-Cit Clientes Recuperaciones - App
+CLI Commands Cit Clientes Recuperaciones App
 """
 import rich
 import typer
 
 from config.settings import LIMIT
+from lib.authentication import authorization_header
+from lib.exceptions import CLIAnyError
 
 app = typer.Typer()
 

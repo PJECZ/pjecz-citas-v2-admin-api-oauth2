@@ -1,3 +1,0 @@
-"""
-Cit Clientes Registros SendGrid
-"""

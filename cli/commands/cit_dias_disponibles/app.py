@@ -1,10 +1,12 @@
 """
-Cit Dias Disponibles - App
+CLI Commnads Cit Dias Disponibles App
 """
 import rich
 import typer
 
 from config.settings import LIMIT
+from lib.authentication import authorization_header
+from lib.exceptions import CLIAnyError
 
 app = typer.Typer()
 

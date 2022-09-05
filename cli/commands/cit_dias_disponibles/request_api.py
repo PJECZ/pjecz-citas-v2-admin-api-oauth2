@@ -1,7 +1,8 @@
 """
-Cit Dias Disponibles CRUD (create, read, update, and delete)
+CLI Commands Cit Dias Disponibles Request API
 """
 from typing import Any
+
 import requests
 
 from config.settings import BASE_URL, LIMIT, TIMEOUT

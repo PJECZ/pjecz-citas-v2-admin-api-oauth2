@@ -1,7 +1,8 @@
 """
-Materias CRUD (create, read, update, and delete)
+CLI Commands Materias Request API
 """
 from typing import Any
+
 import requests
 
 from config.settings import BASE_URL, LIMIT, TIMEOUT

@@ -1,5 +1,5 @@
 """
-Cit Clientes CRUD
+CLI Commands Cit Clientes Request API
 """
 from datetime import date
 from typing import Any

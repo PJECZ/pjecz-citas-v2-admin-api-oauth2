@@ -1,3 +1,0 @@
-"""
-Cit Clientes Recuperaciones SendGrid
-"""

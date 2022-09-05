@@ -1,3 +1,0 @@
-"""
-Cit Citas - Consultar
-"""

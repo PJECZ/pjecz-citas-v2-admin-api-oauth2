@@ -1,7 +1,8 @@
 """
-Oficinas CRUD (create, read, update, and delete)
+CLI Commands Oficinas Request API
 """
 from typing import Any
+
 import requests
 
 from config.settings import BASE_URL, LIMIT, TIMEOUT

@@ -1,17 +1,12 @@
 """
-Distritos - Consultar
+CLI Commands Distritos Request API
 """
 from typing import Any
 
-import rich
 import requests
-import typer
 
 from config.settings import BASE_URL, LIMIT, TIMEOUT
-import lib.authentication
 import lib.exceptions
-
-app = typer.Typer()
 
 
 def get_distritos(
@@ -41,32 +36,3 @@ def get_distritos(
     if "items" not in data_json or "total" not in data_json:
         raise lib.exceptions.CLIResponseError("No se recibio items o total en la respuesta al solicitar distritos")
     return data_json
-
-
-@app.command()
-def consultar(
-    limit: int = LIMIT,
-    offset: int = 0,
-):
-    """Consultar distritos"""
-    rich.print("Consultar distritos...")
-    try:
-        respuesta = get_distritos(
-            authorization_header=lib.authentication.authorization_header(),
-            limit=limit,
-            offset=offset,
-        )
-    except lib.exceptions.CLIAnyError as error:
-        typer.secho(str(error), fg=typer.colors.RED)
-        raise typer.Exit()
-    console = rich.console.Console()
-    table = rich.table.Table("ID", "Nombre", "Nombre Corto", "Es D.J.")
-    for registro in respuesta["items"]:
-        table.add_row(
-            str(registro["id"]),
-            registro["nombre"],
-            registro["nombre_corto"],
-            "SI" if registro["es_distrito_judicial"] else "NO",
-        )
-    console.print(table)
-    rich.print(f"Total: [green]{respuesta['total']}[/green] oficinas")
