@@ -68,3 +68,13 @@ def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True):
     if max_len == 0:
         return final
     return (final[:max_len] + "...") if len(final) > max_len else final
+
+
+def safe_telefono(input_str, max_len=10):
+    """Safe telefono"""
+    if not isinstance(input_str, str):
+        return None
+    solo_numeros = re.sub(r"[^0-9]+", "", unidecode(input_str))
+    if len(solo_numeros) > max_len:
+        return solo_numeros[:max_len]
+    return solo_numeros

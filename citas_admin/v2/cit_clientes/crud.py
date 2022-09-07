@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 
 from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
-from lib.safe_string import safe_curp, safe_email, safe_string
+from lib.safe_string import safe_curp, safe_email, safe_string, safe_telefono
 
 from .models import CitCliente
 
@@ -27,6 +27,7 @@ def get_cit_clientes(
     email: str = None,
     enviar_boletin: bool = None,
     nombres: str = None,
+    telefono: str = None,
     tiene_contrasena_sha256: bool = None,
 ) -> Any:
     """Consultar los clientes activos"""
@@ -37,7 +38,6 @@ def get_cit_clientes(
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
-    curp = safe_curp(curp, search_fragment=True)
     if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
@@ -49,10 +49,11 @@ def get_cit_clientes(
         if creado_hasta is not None:
             hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
             consulta = consulta.filter(CitCliente.creado <= hasta_dt)
+    curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitCliente.curp.contains(curp))
+    email = safe_email(email, search_fragment=True)
     if email is not None:
-        email = safe_email(email, search_fragment=True)
         if email is None or email == "":
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.filter(CitCliente.email.contains(email))
@@ -61,6 +62,9 @@ def get_cit_clientes(
     nombres = safe_string(nombres)
     if nombres is not None:
         consulta = consulta.filter(CitCliente.nombres.contains(nombres))
+    telefono = safe_telefono(telefono)
+    if telefono is not None:
+        consulta = consulta.filter(CitCliente.telefono.contains(telefono))
     if tiene_contrasena_sha256 is not None:
         if tiene_contrasena_sha256:
             consulta = consulta.filter(CitCliente.contrasena_sha256 != "")

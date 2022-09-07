@@ -31,6 +31,7 @@ async def listado_clientes(
     email: str = None,
     enviar_boletin: bool = None,
     nombres: str = None,
+    telefono: str = None,
     tiene_contrasena_sha256: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -50,6 +51,7 @@ async def listado_clientes(
             email=email,
             enviar_boletin=enviar_boletin,
             nombres=nombres,
+            telefono=telefono,
             tiene_contrasena_sha256=tiene_contrasena_sha256,
         )
     except CitasAnyError as error:
