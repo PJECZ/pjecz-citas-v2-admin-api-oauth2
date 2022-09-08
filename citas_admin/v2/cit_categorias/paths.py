@@ -15,11 +15,11 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_categorias = APIRouter(prefix="/v2/cit_categorias", tags=["citas"])
+cit_categorias = APIRouter(prefix="/v2/cit_categorias", tags=["citas categorias"])
 
 
 @cit_categorias.get("", response_model=LimitOffsetPage[CitCategoriaOut])
-async def listado_cit_categorias(
+async def listado_categorias(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -27,14 +27,14 @@ async def listado_cit_categorias(
     if current_user.permissions.get("CIT CATEGORIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_categorias(db)
+        listado = get_cit_categorias(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
 
 
 @cit_categorias.get("/{cit_categoria_id}", response_model=CitCategoriaOut)
-async def detalle_cit_categoria(
+async def detalle_categoria(
     cit_categoria_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -44,7 +44,7 @@ async def detalle_cit_categoria(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_categoria = get_cit_categoria(
-            db,
+            db=db,
             cit_categoria_id=cit_categoria_id,
         )
     except CitasAnyError as error:

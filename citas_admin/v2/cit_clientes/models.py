@@ -28,11 +28,19 @@ class CitCliente(Base, UniversalMixin):
     contrasena_sha256 = Column(String(256), nullable=False)
     renovacion = Column(Date(), nullable=False)
     limite_citas_pendientes = Column(Integer(), nullable=True, default=0)
+
+    # Columnas booleanas
     enviar_boletin = Column(Boolean(), nullable=True, default=True)
+    es_adulto_mayor = Column(Boolean(), nullable=False, default=False)
+    es_mujer = Column(Boolean(), nullable=False, default=False)
+    es_identidad = Column(Boolean(), nullable=False, default=False)
+    es_discapacidad = Column(Boolean(), nullable=False, default=False)
 
     # Hijos
     cit_citas = relationship("CitCita", back_populates="cit_cliente")
     cit_clientes_recuperaciones = relationship("CitClienteRecuperacion", back_populates="cit_cliente")
+    enc_servicios = relationship("EncServicio", back_populates="cit_cliente")
+    enc_sistemas = relationship("EncSistema", back_populates="cit_cliente")
 
     @property
     def nombre(self):

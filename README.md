@@ -94,9 +94,9 @@ Cree el archivo `instance/settings.py`
     # and the backend is in a different "origin" than the frontend.
     # https://fastapi.tiangolo.com/tutorial/cors/
     ORIGINS = [
-        "http://localhost:8002",
+        "http://localhost:8006",
         "http://localhost:3000",
-        "http://127.0.0.1:8002",
+        "http://127.0.0.1:8006",
         "http://127.0.0.1:3000",
     ]
 
@@ -169,3 +169,13 @@ Lea `cli/README.md` para saber como configurar el CLI
 Ejecute el script `cli/app.py`
 
     cli/app.py --help
+
+## Google Cloud deployment
+
+Crear el archivo `requirements.txt`
+
+    poetry export -f requirements.txt --output requirements.txt --without-hashes
+
+Y subir a Google Cloud
+
+    gcloud app deploy

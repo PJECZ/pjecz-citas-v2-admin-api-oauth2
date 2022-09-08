@@ -2,7 +2,6 @@
 Cit Clientes Recuperaciones v2, rutas (paths)
 """
 from datetime import date
-from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -12,22 +11,23 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
 
-from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_cantidades_creados_por_dia, resend_cit_clientes_recuperaciones
-from .schemas import CitClienteRecuperacionOut
+from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_creados_por_dia
+from .schemas import CitClienteRecuperacionOut, CitClientesRecuperacionesCreadosPorDiaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones", tags=["citas"])
+cit_clientes_recuperaciones = APIRouter(prefix="/v2/cit_clientes_recuperaciones", tags=["citas clientes recuperaciones"])
 
 
 @cit_clientes_recuperaciones.get("", response_model=LimitOffsetPage[CitClienteRecuperacionOut])
 async def listar_recuperaciones(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
-    ya_recuperado: bool = None,
+    creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    ya_recuperado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -36,45 +36,21 @@ async def listar_recuperaciones(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         resultado = get_cit_clientes_recuperaciones(
-            db,
+            db=db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
-            ya_recuperado=ya_recuperado,
+            creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            ya_recuperado=ya_recuperado,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(resultado)
 
 
-@cit_clientes_recuperaciones.get("/reenviar_mensajes", response_model=Dict)
-async def reenviar_mensajes(
-    cit_cliente_id: int = None,
-    cit_cliente_email: str = None,
-    creado_desde: date = None,
-    creado_hasta: date = None,
-    current_user: UsuarioInDB = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
-):
-    """Reenviar mensajes de las recuperaciones pendientes"""
-    if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.MODIFICAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        enviados = resend_cit_clientes_recuperaciones(
-            db,
-            cit_cliente_id=cit_cliente_id,
-            cit_cliente_email=cit_cliente_email,
-            creado_desde=creado_desde,
-            creado_hasta=creado_hasta,
-        )
-    except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return {"items": enviados, "total": len(enviados)}
-
-
-@cit_clientes_recuperaciones.get("/calcular_cantidades_creados_por_dia", response_model=Dict)
-async def calcular_cantidades_creados_por_dia(
+@cit_clientes_recuperaciones.get("/creados_por_dia", response_model=CitClientesRecuperacionesCreadosPorDiaOut)
+async def cantidades_recuperaciones_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
@@ -85,8 +61,8 @@ async def calcular_cantidades_creados_por_dia(
     if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_clientes_recuperaciones_cantidades_creados_por_dia(
-            db,
+        fechas_cantidades = get_cit_clientes_recuperaciones_creados_por_dia(
+            db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
@@ -96,7 +72,7 @@ async def calcular_cantidades_creados_por_dia(
     total = 0
     for fecha_cantidad in fechas_cantidades:
         total += fecha_cantidad["cantidad"]
-    return {"items": fechas_cantidades, "total": total}
+    return CitClientesRecuperacionesCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
 @cit_clientes_recuperaciones.get("/{cit_cliente_recuperacion_id}", response_model=CitClienteRecuperacionOut)
@@ -110,7 +86,7 @@ async def detalle_recuperacion(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_cliente_recuperacion = get_cit_cliente_recuperacion(
-            db,
+            db=db,
             cit_cliente_recuperacion_id=cit_cliente_recuperacion_id,
         )
     except CitasAnyError as error:

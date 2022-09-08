@@ -20,7 +20,6 @@ modulos = APIRouter(prefix="/v2/modulos", tags=["usuarios"])
 
 @modulos.get("", response_model=LimitOffsetPage[ModuloOut])
 async def listado_modulos(
-    en_navegacion: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -28,10 +27,7 @@ async def listado_modulos(
     if current_user.permissions.get("MODULOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_modulos(
-            db,
-            en_navegacion=en_navegacion,
-        )
+        listado = get_modulos(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
@@ -48,7 +44,7 @@ async def detalle_modulo(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         modulo = get_modulo(
-            db,
+            db=db,
             modulo_id=modulo_id,
         )
     except CitasAnyError as error:

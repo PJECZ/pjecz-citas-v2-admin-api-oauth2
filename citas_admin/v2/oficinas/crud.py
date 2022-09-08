@@ -32,7 +32,9 @@ def get_oficinas(
         consulta = consulta.filter_by(puede_enviar_qr=puede_enviar_qr)
     if es_jurisdiccional is not None:
         consulta = consulta.filter_by(es_jurisdiccional=es_jurisdiccional)
-    if puede_agendar_citas is not None:
+    if puede_agendar_citas is None:
+        consulta = consulta.filter_by(puede_agendar_citas=True)  # Si no se especifica, por defecto se filtra con verdadero
+    else:
         consulta = consulta.filter_by(puede_agendar_citas=puede_agendar_citas)
     return consulta.filter_by(estatus="A").order_by(Oficina.clave)
 
@@ -50,8 +52,8 @@ def get_oficina(db: Session, oficina_id: int) -> Oficina:
 def get_oficina_with_clave(db: Session, clave: str) -> Oficina:
     """Consultar un oficina por su id"""
     clave = safe_clave(clave)
-    if clave is None:
-        raise CitasNotValidParamError("La clave no es válida")
+    if clave is None or clave == "":
+        raise CitasNotValidParamError("No es válida la clave de la oficina")
     oficina = db.query(Oficina).filter_by(clave=clave).first()
     if oficina is None:
         raise CitasNotExistsError("No existe ese oficina")

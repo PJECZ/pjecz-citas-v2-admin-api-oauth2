@@ -25,3 +25,10 @@ class CitClienteRegistroOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitClientesRegistrosCreadosPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de registros creados por dia"""
+
+    items: dict
+    total: int

@@ -33,7 +33,7 @@ async def listado_oficinas(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_oficinas(
-            db,
+            db=db,
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,
             es_jurisdiccional=es_jurisdiccional,
@@ -56,7 +56,7 @@ async def detalle_oficina(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         oficina = get_oficina(
-            db,
+            db=db,
             oficina_id=oficina_id,
         )
     except CitasAnyError as error:

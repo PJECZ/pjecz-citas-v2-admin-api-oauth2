@@ -15,11 +15,11 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_servicios = APIRouter(prefix="/v2/cit_servicios", tags=["citas"])
+cit_servicios = APIRouter(prefix="/v2/cit_servicios", tags=["citas servicios"])
 
 
 @cit_servicios.get("", response_model=LimitOffsetPage[CitServicioOut])
-async def listado_cit_servicios(
+async def listado_servicios(
     cit_categoria_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -29,7 +29,7 @@ async def listado_cit_servicios(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_cit_servicios(
-            db,
+            db=db,
             cit_categoria_id=cit_categoria_id,
         )
     except CitasAnyError as error:
@@ -38,7 +38,7 @@ async def listado_cit_servicios(
 
 
 @cit_servicios.get("/{cit_servicio_id}", response_model=CitServicioOut)
-async def detalle_cit_servicio(
+async def detalle_servicio(
     cit_servicio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -48,7 +48,7 @@ async def detalle_cit_servicio(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         cit_servicio = get_cit_servicio(
-            db,
+            db=db,
             cit_servicio_id=cit_servicio_id,
         )
     except CitasAnyError as error:

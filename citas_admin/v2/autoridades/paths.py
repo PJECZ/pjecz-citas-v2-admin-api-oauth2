@@ -31,7 +31,7 @@ async def listado_autoridades(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_autoridades(
-            db,
+            db=db,
             distrito_id=distrito_id,
             es_jurisdiccional=es_jurisdiccional,
             es_notaria=es_notaria,
@@ -52,7 +52,7 @@ async def detalle_autoridad(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         autoridad = get_autoridad(
-            db,
+            db=db,
             autoridad_id=autoridad_id,
         )
     except CitasAnyError as error:

@@ -1,7 +1,7 @@
 """
 Cit Clientes v2, esquemas de pydantic
 """
-from typing import Optional
+from typing import Dict, Optional
 from datetime import date, datetime
 from pydantic import BaseModel
 
@@ -28,3 +28,10 @@ class CitClienteOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class CitClienteCreadosPorDiaOut(BaseModel):
+    """Esquema para entregar cantidades de clientes creados por dia"""
+
+    items: dict
+    total: int

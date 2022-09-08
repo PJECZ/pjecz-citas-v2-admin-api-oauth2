@@ -9,14 +9,9 @@ from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 from .models import Modulo
 
 
-def get_modulos(
-    db: Session,
-    en_navegacion: bool = None,
-) -> Any:
+def get_modulos(db: Session) -> Any:
     """Consultar los modulos activos"""
     consulta = db.query(Modulo)
-    if en_navegacion is not None:
-        consulta = consulta.filter_by(en_navegacion=en_navegacion)
     return consulta.filter_by(estatus="A").order_by(Modulo.nombre)
 
 

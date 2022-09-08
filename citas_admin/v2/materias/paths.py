@@ -27,7 +27,7 @@ async def listado_materias(
     if current_user.permissions.get("MATERIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_materias(db)
+        listado = get_materias(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return paginate(listado)
@@ -44,7 +44,7 @@ async def detalle_materia(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         materia = get_materia(
-            db,
+            db=db,
             materia_id=materia_id,
         )
     except CitasAnyError as error:

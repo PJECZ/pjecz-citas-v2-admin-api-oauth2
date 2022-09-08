@@ -30,7 +30,7 @@ async def listado_permisos(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         listado = get_permisos(
-            db,
+            db=db,
             modulo_id=modulo_id,
             rol_id=rol_id,
         )
@@ -50,7 +50,7 @@ async def detalle_permiso(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         permiso = get_permiso(
-            db,
+            db=db,
             permiso_id=permiso_id,
         )
     except CitasAnyError as error:

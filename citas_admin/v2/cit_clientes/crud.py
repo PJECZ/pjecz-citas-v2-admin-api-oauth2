@@ -1,72 +1,79 @@
 """
 Cit Clientes v2, CRUD (create, read, update, and delete)
 """
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasOutOfRangeParamError
-from lib.safe_string import safe_curp, safe_email, safe_string
+from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
+from lib.safe_string import safe_curp, safe_email, safe_string, safe_telefono
 
 from .models import CitCliente
 
-HOY = date.today()
-ANTIGUA_FECHA = date(year=2022, month=1, day=1)
+DEFAULT_DIAS = 7
 
 
 def get_cit_clientes(
     db: Session,
     apellido_primero: str = None,
     apellido_segundo: str = None,
+    creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     curp: str = None,
     email: str = None,
     enviar_boletin: bool = None,
     nombres: str = None,
+    telefono: str = None,
     tiene_contrasena_sha256: bool = None,
 ) -> Any:
     """Consultar los clientes activos"""
     consulta = db.query(CitCliente)
-    nombres = safe_string(nombres)
-    if nombres is not None:
-        consulta = consulta.filter(CitCliente.nombres.contains(nombres))
     apellido_primero = safe_string(apellido_primero)
     if apellido_primero is not None:
         consulta = consulta.filter(CitCliente.apellido_primero.contains(apellido_primero))
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
+    if creado is not None:
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        consulta = consulta.filter(CitCliente.creado >= desde_dt).filter(CitCliente.creado <= hasta_dt)
+    else:
+        if creado_desde is not None:
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCliente.creado >= desde_dt)
+        if creado_hasta is not None:
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCliente.creado <= hasta_dt)
     curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitCliente.curp.contains(curp))
     email = safe_email(email, search_fragment=True)
     if email is not None:
+        if email is None or email == "":
+            raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.filter(CitCliente.email.contains(email))
+    if enviar_boletin is not None:
+        consulta = consulta.filter(CitCliente.enviar_boletin == enviar_boletin)
+    nombres = safe_string(nombres)
+    if nombres is not None:
+        consulta = consulta.filter(CitCliente.nombres.contains(nombres))
+    telefono = safe_telefono(telefono)
+    if telefono is not None:
+        consulta = consulta.filter(CitCliente.telefono.contains(telefono))
     if tiene_contrasena_sha256 is not None:
         if tiene_contrasena_sha256:
             consulta = consulta.filter(CitCliente.contrasena_sha256 != "")
         else:
             consulta = consulta.filter(CitCliente.contrasena_sha256 == "")
-    if creado_desde is not None:
-        if not ANTIGUA_FECHA <= creado_desde <= HOY:
-            raise CitasOutOfRangeParamError("Creado desde fuera de rango")
-        consulta = consulta.filter(func.date(CitCliente.creado) >= creado_desde)
-    if creado_hasta is not None:
-        if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-            raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
-        consulta = consulta.filter(func.date(CitCliente.creado) <= creado_hasta)
-    if enviar_boletin is not None:
-        consulta = consulta.filter(CitCliente.enviar_boletin == enviar_boletin)
     return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
 
 
-def get_cit_cliente(
-    db: Session,
-    cit_cliente_id: int,
-) -> CitCliente:
+def get_cit_cliente(db: Session, cit_cliente_id: int) -> CitCliente:
     """Consultar un cliente por su id"""
     cit_cliente = db.query(CitCliente).get(cit_cliente_id)
     if cit_cliente is None:
@@ -76,41 +83,39 @@ def get_cit_cliente(
     return cit_cliente
 
 
-def get_cit_clientes_cantidades_creados_por_dia(
+def get_cit_clientes_creados_por_dia(
     db: Session,
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
 ) -> Any:
     """Calcular las cantidades de clientes creados por dia"""
+
     # Observe que para la columna creado se usa la función func.date()
     consulta = db.query(
         func.date(CitCliente.creado).label("creado"),
         func.count(CitCliente.id).label("cantidad"),
     )
+
+    # Si NO se reciben creados, se limitan a los últimos DEFAULT_DIAS días
+    if creado is None and creado_desde is None and creado_hasta is None:
+        hoy_servidor = datetime.now(SERVIDOR_HUSO_HORARIO)
+        hoy = hoy_servidor.astimezone(LOCAL_HUSO_HORARIO).date()
+        creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        creado_hasta = hoy
+
     # Si se recibe creado, se limita a esa fecha
-    if creado:
-        if not ANTIGUA_FECHA <= creado <= HOY:
-            raise CitasOutOfRangeParamError("Creado fuera de rango")
-        consulta = consulta.filter(func.date(CitCliente.creado) == creado)
+    if creado is not None:
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        consulta = consulta.filter(CitCliente.creado >= desde_dt).filter(CitCliente.creado <= hasta_dt)
     else:
-        # Si se reciben creado_desde y creado_hasta, validar que sean correctos
-        if creado_desde and creado_hasta:
-            if creado_desde > creado_hasta:
-                raise CitasOutOfRangeParamError("El rango de fechas no es correcto")
-        # Si NO se reciben creado_desde y creado_hasta, se limitan a los últimos 30 días
-        if creado_desde is None and creado_hasta is None:
-            creado_desde = HOY - timedelta(days=30)
-            creado_hasta = HOY
-        # Si solo se recibe creado_desde, entonces creado_hasta es HOY
-        if creado_desde and creado_hasta is None:
-            creado_hasta = HOY
         if creado_desde is not None:
-            if not ANTIGUA_FECHA <= creado_desde <= HOY:
-                raise CitasOutOfRangeParamError("Creado desde fuera de rango")
-            consulta = consulta.filter(func.date(CitCliente.creado) >= creado_desde)
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCliente.creado >= desde_dt)
         if creado_hasta is not None:
-            if not ANTIGUA_FECHA <= creado_hasta <= HOY:
-                raise CitasOutOfRangeParamError("Creado hasta fuera de rango")
-            consulta = consulta.filter(func.date(CitCliente.creado) <= creado_hasta)
-    return consulta.group_by(func.date(CitCliente.creado)).all()
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            consulta = consulta.filter(CitCliente.creado <= hasta_dt)
+
+    # Agrupar por creado y entregar SIN hacer la onsulta
+    return consulta.group_by(func.date(CitCliente.creado))

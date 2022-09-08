@@ -15,11 +15,11 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_dias_disponibles = APIRouter(prefix="/v2/cit_dias_disponibles", tags=["citas"])
+cit_dias_disponibles = APIRouter(prefix="/v2/cit_dias_disponibles", tags=["citas dias disponibles"])
 
 
 @cit_dias_disponibles.get("", response_model=List[CitDiaDisponibleOut])
-async def listado_cit_dias_disponibles(
+async def listado_dias_disponibles(
     limit: int = 40,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -35,7 +35,7 @@ async def listado_cit_dias_disponibles(
 
 
 @cit_dias_disponibles.get("/proximo", response_model=CitDiaDisponibleOut)
-async def proximo_cit_dia_disponible(
+async def proximo_dia_disponible(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -43,7 +43,7 @@ async def proximo_cit_dia_disponible(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        dia_disponible = get_cit_dia_disponible(db)
+        dia_disponible = get_cit_dia_disponible(db=db)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return dia_disponible
