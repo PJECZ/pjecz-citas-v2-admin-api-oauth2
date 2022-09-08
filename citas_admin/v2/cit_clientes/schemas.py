@@ -22,6 +22,10 @@ class CitClienteOut(BaseModel):
     renovacion: date
     limite_citas_pendientes: Optional[int]
     enviar_boletin: bool
+    es_adulto_mayor: bool
+    es_mujer: bool
+    es_identidad: bool
+    es_discapacidad: bool
     creado: datetime
 
     class Config:

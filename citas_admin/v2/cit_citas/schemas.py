@@ -25,6 +25,7 @@ class CitCitaOut(BaseModel):
     notas: str
     estado: str
     asistencia: bool
+    codigo_asistencia: str
     creado: datetime
 
     class Config:
