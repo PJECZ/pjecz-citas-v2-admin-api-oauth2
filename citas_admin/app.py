@@ -32,6 +32,7 @@ from .v2.oficinas.paths import oficinas
 from .v2.permisos.paths import permisos
 from .v2.roles.paths import roles
 from .v2.usuarios.paths import usuarios
+from .v2.usuarios_oficinas.paths import usuarios_oficinas
 from .v2.usuarios_roles.paths import usuarios_roles
 
 from .v2.usuarios.authentications import authenticate_user, create_access_token, get_current_active_user
@@ -65,6 +66,7 @@ app.include_router(oficinas)
 app.include_router(permisos)
 app.include_router(roles)
 app.include_router(usuarios)
+app.include_router(usuarios_oficinas)
 app.include_router(usuarios_roles)
 
 # Pagination
