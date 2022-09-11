@@ -37,6 +37,7 @@ class Usuario(Base, UniversalMixin):
 
     # Hijos
     usuarios_roles = relationship("UsuarioRol", back_populates="usuario")
+    usuarios_oficinas = relationship("UsuarioOficina", back_populates="usuario")
 
     # Propiedades
     permisos_consultados = {}
