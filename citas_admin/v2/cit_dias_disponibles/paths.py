@@ -6,6 +6,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 
@@ -23,12 +24,17 @@ async def listado_dias_disponibles(
     limit: int = 40,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de dias disponibles"""
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_dias_disponibles(db=db, limit=limit)
+        listado = get_cit_dias_disponibles(
+            db=db,
+            limit=limit,
+            settings=settings,
+        )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
     return listado

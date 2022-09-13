@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 from lib.fastapi_pagination import LimitOffsetPage
@@ -32,6 +33,7 @@ async def listado_encuestas_servicios(
     oficina_clave: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de encuestas de servicios"""
     if current_user.permissions.get("ENC SERVICIOS", 0) < Permiso.VER:
@@ -47,6 +49,7 @@ async def listado_encuestas_servicios(
             estado=estado,
             oficina_id=oficina_id,
             oficina_clave=oficina_clave,
+            settings=settings,
         )
     except (CitasIsDeletedError, CitasNotExistsError) as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

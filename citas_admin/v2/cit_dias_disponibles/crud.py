@@ -5,8 +5,9 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
+import pytz
 
-from config.settings import LOCAL_HUSO_HORARIO, SERVIDOR_HUSO_HORARIO
+from config.settings import Settings
 
 from ..cit_dias_inhabiles.crud import get_cit_dias_inhabiles
 
@@ -14,9 +15,17 @@ LIMITE_DIAS = 90
 QUITAR_PRIMER_DIA_DESPUES_HORAS = 14
 
 
-def get_cit_dias_disponibles(db: Session, limit: int = LIMITE_DIAS) -> Any:
+def get_cit_dias_disponibles(
+    db: Session,
+    settings: Settings,
+    limit: int = LIMITE_DIAS,
+) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []
+
+    # Zonas horarias
+    local_huso_horario = pytz.timezone(settings.tz)
+    servidor_huso_horario = pytz.utc
 
     # Consultar dias inhabiles
     fechas_inhabiles = []
@@ -39,8 +48,8 @@ def get_cit_dias_disponibles(db: Session, limit: int = LIMITE_DIAS) -> Any:
         dias_disponibles.append(fecha)
 
     # Definir tiempo local
-    servidor_tiempo = datetime.now(SERVIDOR_HUSO_HORARIO)
-    tiempo_local = servidor_tiempo.astimezone(LOCAL_HUSO_HORARIO)
+    servidor_tiempo = datetime.now(servidor_huso_horario)
+    tiempo_local = servidor_tiempo.astimezone(local_huso_horario)
 
     # Definir que dia es hoy
     hoy = tiempo_local.date()

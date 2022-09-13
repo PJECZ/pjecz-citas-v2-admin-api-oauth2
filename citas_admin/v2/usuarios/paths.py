@@ -43,6 +43,26 @@ async def listado_usuarios(
     return paginate(listado)
 
 
+@usuarios.get("/api_key/new", response_model=UsuarioOut)
+async def new_api_key(
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Genera una nueva api_key para el usuario"""
+    if current_user.permissions.get("USUARIOS", 0) < Permiso.EDITAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        usuario = get_usuario(
+            db=db,
+            usuario_id=current_user.id,
+        )
+        usuario.api_key = usuario.generate_api_key()
+        db.commit()
+    except CitasAnyError as error:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
+    return UsuarioOut.from_orm(usuario)
+
+
 @usuarios.get("/{usuario_id}", response_model=UsuarioOut)
 async def detalle_usuario(
     usuario_id: int,

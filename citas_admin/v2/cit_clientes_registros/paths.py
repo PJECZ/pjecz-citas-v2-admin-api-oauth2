@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
@@ -33,6 +34,7 @@ async def listado_clientes_registros(
     ya_registrado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de registros de clientes"""
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
@@ -49,6 +51,7 @@ async def listado_clientes_registros(
             email=email,
             nombres=nombres,
             ya_registrado=ya_registrado,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
@@ -62,6 +65,7 @@ async def calcular_cantidades_creados_por_dia(
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Calcular las cantidades de registros de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
@@ -72,6 +76,7 @@ async def calcular_cantidades_creados_por_dia(
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

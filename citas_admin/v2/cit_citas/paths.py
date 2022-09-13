@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
@@ -37,6 +38,7 @@ async def listado_citas(
     oficina_clave: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de citas"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
@@ -57,6 +59,7 @@ async def listado_citas(
             estado=estado,
             oficina_id=oficina_id,
             oficina_clave=oficina_clave,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
@@ -71,6 +74,7 @@ async def cantidades_creados_por_dia(
     distrito_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Calcular las cantidades de citas creadas por dia"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
@@ -82,6 +86,7 @@ async def cantidades_creados_por_dia(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             distrito_id=distrito_id,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
@@ -98,6 +103,7 @@ async def cantidades_citas_agendadas_por_servicio_oficina(
     inicio_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Calcular las cantidades de citas agendadas por oficina y servicio"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
@@ -108,6 +114,7 @@ async def cantidades_citas_agendadas_por_servicio_oficina(
             inicio=inicio,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
+            settings=settings,
         ).all()  # Observe que se ejecuta la consulta
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

@@ -1,6 +1,7 @@
 """
 Usuarios v2, esquemas de pydantic
 """
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 
@@ -41,17 +42,5 @@ class UsuarioInDB(UsuarioOut):
     permissions: dict
     hashed_password: str
     disabled: bool
-
-
-class Token(BaseModel):
-    """Token"""
-
-    access_token: str
-    token_type: str
-    username: str
-
-
-class TokenData(BaseModel):
-    """Token data"""
-
-    username: Optional[str] = None
+    api_key: str
+    api_key_expiracion: datetime

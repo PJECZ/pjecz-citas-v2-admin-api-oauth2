@@ -4,9 +4,10 @@ Encuestas Sistemas v2, CRUD (create, read, update, and delete)
 from datetime import date, datetime
 from typing import Any
 
+from config.settings import Settings
 from sqlalchemy.orm import Session
+import pytz
 
-from config.settings import SERVIDOR_HUSO_HORARIO
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
 from lib.safe_string import safe_email, safe_string
 
@@ -17,6 +18,7 @@ from ..cit_clientes.models import CitCliente
 
 def get_enc_sistemas(
     db: Session,
+    settings: Settings,
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
     creado: date = None,
@@ -25,6 +27,12 @@ def get_enc_sistemas(
     estado: str = None,
 ) -> Any:
     """Consultar los encuestas de sistemas activos"""
+
+    # Zonas horarias
+    local_huso_horario = pytz.timezone(settings.tz)
+    servidor_huso_horario = pytz.utc
+
+    # Consultar
     consulta = db.query(EncSistema)
 
     # Filtrar por el cliente
@@ -40,15 +48,15 @@ def get_enc_sistemas(
 
     # Filtrar por creado
     if creado is not None:
-        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
-        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(EncSistema.creado >= desde_dt).filter(EncSistema.creado <= hasta_dt)
     else:
         if creado_desde is not None:
-            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(SERVIDOR_HUSO_HORARIO)
+            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
             consulta = consulta.filter(EncSistema.creado >= desde_dt)
         if creado_hasta is not None:
-            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(SERVIDOR_HUSO_HORARIO)
+            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
             consulta = consulta.filter(EncSistema.creado <= hasta_dt)
 
     # Filtrar por estado

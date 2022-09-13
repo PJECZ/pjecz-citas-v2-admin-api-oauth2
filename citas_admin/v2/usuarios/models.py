@@ -1,7 +1,7 @@
 """
 Usuarios v2, modelos
 """
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -34,6 +34,8 @@ class Usuario(Base, UniversalMixin):
     curp = Column(String(18))
     puesto = Column(String(256))
     telefono_celular = Column(String(256))
+    api_key = Column(String(128), nullable=False)
+    api_key_expiracion = Column(DateTime(), nullable=False)
 
     # Hijos
     usuarios_roles = relationship("UsuarioRol", back_populates="usuario")
