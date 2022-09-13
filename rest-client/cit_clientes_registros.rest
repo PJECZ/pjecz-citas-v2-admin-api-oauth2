@@ -7,19 +7,19 @@ GET {{root}}
 
 ### Clientes registrados
 GET {{baseUrl}}/cit_clientes_registros
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Cantidad de clientes registrados creados en los ultimos 30 dias
 GET {{baseUrl}}/cit_clientes_registros/creados_por_dia
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Cantidad de clientes registrados creados el 2022-07-23
 GET {{baseUrl}}/cit_clientes_registros/creados_por_dia
     ?creado=2022-07-23
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Cantidad de clientes registrados creados desde el 2020-07-23 hasta el 2020-07-26
 GET {{baseUrl}}/cit_clientes_registros/creados_por_dia
     ?creado_desde=2022-07-23
     &creado_hasta=2022-07-26
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}

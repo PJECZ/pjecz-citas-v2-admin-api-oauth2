@@ -15,7 +15,7 @@ from lib.database import get_db
 from .models import Usuario
 from .schemas import UsuarioInDB
 
-X_API_KEY = APIKeyHeader(name="X-API-Key")
+X_API_KEY = APIKeyHeader(name="X-Api-Key")
 
 
 def get_user(

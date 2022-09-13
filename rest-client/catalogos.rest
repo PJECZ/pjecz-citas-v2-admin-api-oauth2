@@ -7,20 +7,20 @@ GET {{root}}
 
 ### Materias
 GET {{baseUrl}}/materias
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Distritos
 GET {{baseUrl}}/distritos
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Autoridades
 GET {{baseUrl}}/autoridades
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Domicilios
 GET {{baseUrl}}/domicilios
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Oficinas
 GET {{baseUrl}}/oficinas
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}

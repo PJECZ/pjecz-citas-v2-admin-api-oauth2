@@ -8,8 +8,8 @@ GET {{root}}
 ### Dias disponibles
 GET {{baseUrl}}/cit_dias_disponibles
     ?limit=5
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
 
 ### Siguiente dia disponible
 GET {{baseUrl}}/cit_dias_disponibles/proximo
-X-API-Key: {{api_key}}
+X-Api-Key: {{api_key}}
