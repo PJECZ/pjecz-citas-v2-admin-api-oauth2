@@ -65,15 +65,15 @@ def get_cit_dias_disponibles(
     elif tiempo_local.hour >= QUITAR_PRIMER_DIA_DESPUES_HORAS:
         dias_disponibles.pop(0)
 
-    # Elaborar respuesta como listado de dicionarios
-    respuesta = []
+    # Elaborar listado
+    listado = []
     for fecha in dias_disponibles:
-        respuesta.append({"fecha": fecha})
-        if len(respuesta) >= limit:
+        listado.append(fecha)
+        if len(listado) >= limit:
             break
 
     # Entregar
-    return respuesta
+    return listado
 
 
 def get_cit_dia_disponible(db: Session) -> Any:
