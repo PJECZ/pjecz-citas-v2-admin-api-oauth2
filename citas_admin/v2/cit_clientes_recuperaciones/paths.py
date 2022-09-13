@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination import LimitOffsetPage
@@ -30,6 +31,7 @@ async def listar_recuperaciones(
     ya_recuperado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de recuperaciones de clientes"""
     if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.VER:
@@ -43,6 +45,7 @@ async def listar_recuperaciones(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             ya_recuperado=ya_recuperado,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
@@ -56,6 +59,7 @@ async def cantidades_recuperaciones_creados_por_dia(
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Calcular cantidades de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES RECUPERACIONES", 0) < Permiso.VER:
@@ -66,6 +70,7 @@ async def cantidades_recuperaciones_creados_por_dia(
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
+            settings=settings,
         )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error

@@ -1,11 +1,11 @@
 """
 Cit Dias Disponibles v2, rutas (paths)
 """
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_pagination import Page, paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 
@@ -18,20 +18,25 @@ from ..usuarios.schemas import UsuarioInDB
 cit_dias_disponibles = APIRouter(prefix="/v2/cit_dias_disponibles", tags=["citas dias disponibles"])
 
 
-@cit_dias_disponibles.get("", response_model=List[CitDiaDisponibleOut])
+@cit_dias_disponibles.get("", response_model=Page[CitDiaDisponibleOut])
 async def listado_dias_disponibles(
     limit: int = 40,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ):
     """Listado de dias disponibles"""
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_dias_disponibles(db=db, limit=limit)
+        listado = get_cit_dias_disponibles(
+            db=db,
+            limit=limit,
+            settings=settings,
+        )
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return listado
+    return paginate([CitDiaDisponibleOut(fecha=item) for item in listado])
 
 
 @cit_dias_disponibles.get("/proximo", response_model=CitDiaDisponibleOut)

@@ -1,10 +1,13 @@
 """
 Usuarios v2, CRUD (create, read, update, and delete)
 """
+from datetime import datetime, timedelta
 from typing import Any
+
 from sqlalchemy.orm import Session
 
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
+from lib.pwgen import generar_api_key
 from lib.safe_string import safe_email
 
 from .models import Usuario
@@ -57,3 +60,13 @@ def get_usuario_with_email(db: Session, email: str) -> Usuario:
     if usuario.estatus != "A":
         raise CitasIsDeletedError("No es activo ese usuario, está eliminado")
     return usuario
+
+
+def get_new_api_key(db: Session, usuario_id: int, dias: int = 90) -> str:
+    """Generar una nueva api_key"""
+    usuario = get_usuario(db, usuario_id)
+    usuario.api_key = generar_api_key(hashid=usuario.encode_id(), email=usuario.email)
+    usuario.api_key_expiracion = datetime.now() + timedelta(days=dias)
+    db.add(usuario)
+    db.commit()
+    return usuario.api_key
