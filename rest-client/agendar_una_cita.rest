@@ -9,6 +9,10 @@ GET {{root}}
 GET {{baseUrl}}/distritos
 X-Api-Key: {{api_key}}
 
+### GET Distrito Saltillo
+GET {{baseUrl}}/distritos/6
+X-Api-Key: {{api_key}}
+
 ### GET Oficinas del Distrito
 GET {{baseUrl}}/oficinas
     ?distrito_id=6
@@ -28,9 +32,9 @@ GET {{baseUrl}}/cit_dias_disponibles
     ?oficina_id=71
 X-Api-Key: {{api_key}}
 
-### GET Horas para elegir
+### GET Horas para elegir PENDIENTE
 GET {{baseUrl}}/cit_horas_disponibles
     ?oficina_id=71
     &cit_servicio_id=2
-    &fecha=2022-09-20
+    &fecha=2022-08-01
 X-Api-Key: {{api_key}}

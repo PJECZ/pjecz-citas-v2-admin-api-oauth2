@@ -9,11 +9,11 @@ from sqlalchemy.orm import Session
 
 from config.settings import Settings, get_settings
 from lib.database import get_db
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.exceptions import CitasAnyError
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_enc_servicios, get_enc_servicio
-from .schemas import EncServicioOut
+from .schemas import EncServicioOut, OneEncServicioOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -21,7 +21,7 @@ from ..usuarios.schemas import UsuarioInDB
 enc_servicios = APIRouter(prefix="/v2/enc_servicios", tags=["encuestas"])
 
 
-@enc_servicios.get("", response_model=LimitOffsetPage[EncServicioOut])
+@enc_servicios.get("", response_model=CustomPage[EncServicioOut])
 async def listado_encuestas_servicios(
     cit_cliente_id: int = None,
     cit_cliente_email: str = None,
@@ -39,7 +39,7 @@ async def listado_encuestas_servicios(
     if current_user.permissions.get("ENC SERVICIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_enc_servicios(
+        resultados = get_enc_servicios(
             db=db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_email=cit_cliente_email,
@@ -51,12 +51,12 @@ async def listado_encuestas_servicios(
             oficina_clave=oficina_clave,
             settings=settings,
         )
-    except (CitasIsDeletedError, CitasNotExistsError) as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    except CitasAnyError as error:
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
-@enc_servicios.get("/{enc_servicio_id}", response_model=EncServicioOut)
+@enc_servicios.get("/{enc_servicio_id}", response_model=OneEncServicioOut)
 async def detalle_encuestas_servicio(
     enc_servicio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -67,6 +67,6 @@ async def detalle_encuestas_servicio(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         enc_servicio = get_enc_servicio(db, enc_servicio_id=enc_servicio_id)
-    except (CitasIsDeletedError, CitasNotExistsError) as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return EncServicioOut.from_orm(enc_servicio)
+    except CitasAnyError as error:
+        return OneEncServicioOut(success=False, message=str(error))
+    return OneEncServicioOut.from_orm(enc_servicio)

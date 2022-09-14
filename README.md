@@ -10,16 +10,16 @@ Se va a mejorar con los consejos en [I've been abusing HTTP Status Codes in my A
 
 Status code: **200**
 
-Body
+Body que entrega un listado
 
     {
-        "result": true,
-        "payload": {
-            "id": 1,
-            "name": "slim",
-            "surname": "jim",
-            "email:" "james@slimjim.xyz",
-            "role": "chief doughnut"
+        "success": true,
+        "message": "Success",
+        "result": {
+            "total": 914,
+            "items": [ { "id": 1 } ],
+            "limit": 100,
+            "offset": 0
         }
     }
 
@@ -30,8 +30,8 @@ Status code: **200**
 Body
 
     {
-        "result": false,
-        "errorMessage": "No employee found for ID 100"
+        "success": false,
+        "message": "No employee found for ID 100"
     }
 
 ### Escenario fallido: ruta incorrecta
