@@ -11,6 +11,10 @@ class CitasAlreadyExistsError(CitasAnyError):
     """Excepción ya existe"""
 
 
+class CitasAuthenticationError(CitasAnyError):
+    """Excepción por que fallo la autentificacion"""
+
+
 class CitasIsDeletedError(CitasAnyError):
     """Excepción esta eliminado"""
 
