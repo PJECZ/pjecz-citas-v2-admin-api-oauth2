@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_roles, get_rol
 from .schemas import RolOut
@@ -22,7 +22,7 @@ from ..usuarios_roles.schemas import UsuarioRolOut
 roles = APIRouter(prefix="/v2/roles", tags=["usuarios"])
 
 
-@roles.get("", response_model=LimitOffsetPage[RolOut])
+@roles.get("", response_model=CustomPage[RolOut])
 async def listado_roles(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -31,10 +31,10 @@ async def listado_roles(
     if current_user.permissions.get("ROLES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_roles(db=db)
+        resultados = get_roles(db=db)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @roles.get("/{rol_id}", response_model=RolOut)
@@ -56,7 +56,7 @@ async def detalle_rol(
     return RolOut.from_orm(rol)
 
 
-@roles.get("/{rol_id}/usuarios", response_model=LimitOffsetPage[UsuarioRolOut])
+@roles.get("/{rol_id}/usuarios", response_model=CustomPage[UsuarioRolOut])
 async def listado_usuarios_rol(
     rol_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -66,16 +66,16 @@ async def listado_usuarios_rol(
     if current_user.permissions.get("USUARIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_usuarios_roles(
+        resultados = get_usuarios_roles(
             db=db,
             rol_id=rol_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
-@roles.get("/{rol_id}/permisos", response_model=LimitOffsetPage[PermisoOut])
+@roles.get("/{rol_id}/permisos", response_model=CustomPage[PermisoOut])
 async def listado_permisos_rol(
     rol_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -85,10 +85,10 @@ async def listado_permisos_rol(
     if current_user.permissions.get("PERMISOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_permisos(
+        resultados = get_permisos(
             db=db,
             rol_id=rol_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)

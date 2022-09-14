@@ -40,14 +40,9 @@ async def listado_oficinas(
             puede_agendar_citas=puede_agendar_citas,
             puede_enviar_qr=puede_enviar_qr,
         )
-        pagina = paginate(resultados)
-        pagina.success = True
-        pagina.message = "Success"
-    except (CitasNotExistsError, CitasIsDeletedError) as error:
-        return make_custom_error_page(error)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return pagina
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @oficinas.get("/{oficina_id}", response_model=OficinaOut)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_usuarios_roles, get_usuario_rol
 from .schemas import UsuarioRolOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 usuarios_roles = APIRouter(prefix="/v2/usuarios_roles", tags=["usuarios"])
 
 
-@usuarios_roles.get("", response_model=LimitOffsetPage[UsuarioRolOut])
+@usuarios_roles.get("", response_model=CustomPage[UsuarioRolOut])
 async def listado_usuarios_roles(
     rol_id: int = None,
     usuario_id: int = None,
@@ -29,14 +29,14 @@ async def listado_usuarios_roles(
     if current_user.permissions.get("USUARIOS ROLES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_usuarios_roles(
+        resultados = get_usuarios_roles(
             db=db,
             rol_id=rol_id,
             usuario_id=usuario_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @usuarios_roles.get("/{usuario_rol_id}", response_model=UsuarioRolOut)

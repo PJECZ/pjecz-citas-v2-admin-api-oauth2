@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_horas_disponibles
 from .schemas import CitHoraDisponibleOut
@@ -20,7 +20,7 @@ from ..usuarios.schemas import UsuarioInDB
 cit_horas_disponibles = APIRouter(prefix="/v2/cit_horas_disponibles", tags=["horas disponibles"])
 
 
-@cit_horas_disponibles.get("", response_model=LimitOffsetPage[CitHoraDisponibleOut])
+@cit_horas_disponibles.get("", response_model=CustomPage[CitHoraDisponibleOut])
 async def listado_cit_horas_disponibles(
     cit_servicio_id: int,
     fecha: date,
@@ -33,7 +33,7 @@ async def listado_cit_horas_disponibles(
     if current_user.permissions.get("CIT HORAS BLOQUEADAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_horas_disponibles(
+        resultados = get_cit_horas_disponibles(
             db=db,
             cit_servicio_id=cit_servicio_id,
             oficina_id=oficina_id,
@@ -41,5 +41,5 @@ async def listado_cit_horas_disponibles(
             settings=settings,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)

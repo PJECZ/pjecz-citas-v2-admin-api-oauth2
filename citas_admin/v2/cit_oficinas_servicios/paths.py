@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_oficinas_servicios, get_cit_oficina_servicio
 from .schemas import CitOficinaServicioOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 cit_oficinas_servicios = APIRouter(prefix="/v2/cit_oficinas_servicios", tags=["citas oficinas servicios"])
 
 
-@cit_oficinas_servicios.get("", response_model=LimitOffsetPage[CitOficinaServicioOut])
+@cit_oficinas_servicios.get("", response_model=CustomPage[CitOficinaServicioOut])
 async def listado_oficinas_servicios(
     cit_servicio_id: int = None,
     oficina_id: int = None,
@@ -29,14 +29,14 @@ async def listado_oficinas_servicios(
     if current_user.permissions.get("CIT OFICINAS SERVICIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_oficinas_servicios(
+        resultados = get_cit_oficinas_servicios(
             db=db,
             cit_servicio_id=cit_servicio_id,
             oficina_id=oficina_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @cit_oficinas_servicios.get("/{cit_oficina_servicio_id}", response_model=CitOficinaServicioOut)

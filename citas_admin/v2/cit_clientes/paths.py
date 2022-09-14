@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_clientes, get_cit_cliente, get_cit_clientes_creados_por_dia
 from .schemas import CitClienteOut, CitClienteCreadosPorDiaOut
@@ -21,7 +21,7 @@ from ..usuarios.schemas import UsuarioInDB
 cit_clientes = APIRouter(prefix="/v2/cit_clientes", tags=["citas clientes"])
 
 
-@cit_clientes.get("", response_model=LimitOffsetPage[CitClienteOut])
+@cit_clientes.get("", response_model=CustomPage[CitClienteOut])
 async def listado_clientes(
     apellido_primero: str = None,
     apellido_segundo: str = None,
@@ -42,7 +42,7 @@ async def listado_clientes(
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        resultado = get_cit_clientes(
+        resultados = get_cit_clientes(
             db=db,
             apellido_primero=apellido_primero,
             apellido_segundo=apellido_segundo,
@@ -58,8 +58,8 @@ async def listado_clientes(
             settings=settings,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(resultado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @cit_clientes.get("/creados_por_dia", response_model=CitClienteCreadosPorDiaOut)

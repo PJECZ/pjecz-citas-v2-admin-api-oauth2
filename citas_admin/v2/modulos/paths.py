@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_modulos, get_modulo
 from .schemas import ModuloOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 modulos = APIRouter(prefix="/v2/modulos", tags=["usuarios"])
 
 
-@modulos.get("", response_model=LimitOffsetPage[ModuloOut])
+@modulos.get("", response_model=CustomPage[ModuloOut])
 async def listado_modulos(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -27,10 +27,10 @@ async def listado_modulos(
     if current_user.permissions.get("MODULOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_modulos(db=db)
+        resultados = get_modulos(db=db)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @modulos.get("/{modulo_id}", response_model=ModuloOut)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_categorias, get_cit_categoria
 from .schemas import CitCategoriaOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 cit_categorias = APIRouter(prefix="/v2/cit_categorias", tags=["citas categorias"])
 
 
-@cit_categorias.get("", response_model=LimitOffsetPage[CitCategoriaOut])
+@cit_categorias.get("", response_model=CustomPage[CitCategoriaOut])
 async def listado_categorias(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -27,10 +27,10 @@ async def listado_categorias(
     if current_user.permissions.get("CIT CATEGORIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_categorias(db=db)
+        resultados = get_cit_categorias(db=db)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @cit_categorias.get("/{cit_categoria_id}", response_model=CitCategoriaOut)

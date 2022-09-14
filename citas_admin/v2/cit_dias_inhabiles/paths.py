@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_dias_inhabiles, get_cit_dia_inhabil
 from .schemas import CitDiaInhabilOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 cit_dias_inhabiles = APIRouter(prefix="/v2/cit_dias_inhabiles", tags=["citas dias inhabiles"])
 
 
-@cit_dias_inhabiles.get("", response_model=LimitOffsetPage[CitDiaInhabilOut])
+@cit_dias_inhabiles.get("", response_model=CustomPage[CitDiaInhabilOut])
 async def listado_dias_inhabiles(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -27,10 +27,10 @@ async def listado_dias_inhabiles(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_dias_inhabiles(db=db)
+        resultados = get_cit_dias_inhabiles(db=db)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @cit_dias_inhabiles.get("/{cit_dia_inhabil_id}", response_model=CitDiaInhabilOut)

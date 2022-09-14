@@ -9,8 +9,3 @@ class BaseOut(BaseModel):
 
     success: bool = True
     message: str = "Success"
-
-    class Config:
-        """SQLAlchemy config"""
-
-        orm_mode = True
