@@ -1,7 +1,6 @@
 """
 Oficinas v2, esquemas de pydantic
 """
-from typing import Optional
 from datetime import time
 from pydantic import BaseModel
 
@@ -23,7 +22,7 @@ class OficinaOut(BaseModel):
     es_jurisdiccional: bool
     limite_personas: int
     puede_agendar_citas: bool
-    puede_enviar_qr: Optional[bool]
+    puede_enviar_qr: bool
 
     class Config:
         """SQLAlchemy config"""

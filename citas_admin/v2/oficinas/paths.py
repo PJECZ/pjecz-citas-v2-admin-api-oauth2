@@ -6,8 +6,8 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
 from lib.database import get_db
-from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination import LimitOffsetPage
+from lib.exceptions import CitasAnyError, CitasNotExistsError, CitasIsDeletedError
+from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_oficinas, get_oficina
 from .schemas import OficinaOut
@@ -18,7 +18,7 @@ from ..usuarios.schemas import UsuarioInDB
 oficinas = APIRouter(prefix="/v2/oficinas", tags=["catalogos"])
 
 
-@oficinas.get("", response_model=LimitOffsetPage[OficinaOut])
+@oficinas.get("", response_model=CustomPage[OficinaOut])
 async def listado_oficinas(
     distrito_id: int = None,
     domicilio_id: int = None,
@@ -32,7 +32,7 @@ async def listado_oficinas(
     if current_user.permissions.get("OFICINAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_oficinas(
+        resultados = get_oficinas(
             db=db,
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,
@@ -40,9 +40,14 @@ async def listado_oficinas(
             puede_agendar_citas=puede_agendar_citas,
             puede_enviar_qr=puede_enviar_qr,
         )
+        pagina = paginate(resultados)
+        pagina.success = True
+        pagina.message = "Success"
+    except (CitasNotExistsError, CitasIsDeletedError) as error:
+        return make_custom_error_page(error)
     except CitasAnyError as error:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return paginate(listado)
+    return pagina
 
 
 @oficinas.get("/{oficina_id}", response_model=OficinaOut)

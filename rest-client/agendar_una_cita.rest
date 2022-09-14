@@ -11,7 +11,7 @@ X-Api-Key: {{api_key}}
 
 ### GET Oficinas del Distrito
 GET {{baseUrl}}/oficinas
-    ?distrito_id=6
+    ?distrito_id=12
 X-Api-Key: {{api_key}}
 
 ### Oficina 71 J TERCERO FAMILIAR SALTILLO
