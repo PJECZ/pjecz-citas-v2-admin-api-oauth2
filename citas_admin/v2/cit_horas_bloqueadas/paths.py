@@ -11,7 +11,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_horas_bloqueadas, get_cit_hora_bloqueada
-from .schemas import CitHoraBloqueadaOut
+from .schemas import CitHoraBloqueadaOut, OneCitHoraBloqueadaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -40,7 +40,7 @@ async def listado_horas_bloqueadas(
     return paginate(resultados)
 
 
-@cit_horas_bloqueadas.get("/{cit_hora_bloqueada_id}", response_model=CitHoraBloqueadaOut)
+@cit_horas_bloqueadas.get("/{cit_hora_bloqueada_id}", response_model=OneCitHoraBloqueadaOut)
 async def detalle_hora_bloqueada(
     cit_hora_bloqueada_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -55,5 +55,5 @@ async def detalle_hora_bloqueada(
             cit_hora_bloqueada_id=cit_hora_bloqueada_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitHoraBloqueadaOut.from_orm(cit_hora_bloqueada)
+        return OneCitHoraBloqueadaOut(success=False, message=error.message)
+    return OneCitHoraBloqueadaOut.from_orm(cit_hora_bloqueada)

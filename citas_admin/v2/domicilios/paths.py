@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_domicilios, get_domicilio
-from .schemas import DomicilioOut
+from .schemas import DomicilioOut, OneDomicilioOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_domicilios(
     return paginate(resultados)
 
 
-@domicilios.get("/{domicilio_id}", response_model=DomicilioOut)
+@domicilios.get("/{domicilio_id}", response_model=OneDomicilioOut)
 async def detalle_domicilio(
     domicilio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_domicilio(
             domicilio_id=domicilio_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return DomicilioOut.from_orm(domicilio)
+        return OneDomicilioOut(success=False, message=str(error))
+    return OneDomicilioOut.from_orm(domicilio)

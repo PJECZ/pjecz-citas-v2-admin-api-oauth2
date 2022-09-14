@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_servicios, get_cit_servicio
-from .schemas import CitServicioOut
+from .schemas import CitServicioOut, OneCitServicioOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -37,7 +37,7 @@ async def listado_servicios(
     return paginate(resultados)
 
 
-@cit_servicios.get("/{cit_servicio_id}", response_model=CitServicioOut)
+@cit_servicios.get("/{cit_servicio_id}", response_model=OneCitServicioOut)
 async def detalle_servicio(
     cit_servicio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -52,5 +52,5 @@ async def detalle_servicio(
             cit_servicio_id=cit_servicio_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitServicioOut.from_orm(cit_servicio)
+        return OneCitServicioOut(success=False, message=str(error))
+    return OneCitServicioOut.from_orm(cit_servicio)

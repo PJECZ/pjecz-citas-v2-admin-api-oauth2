@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_categorias, get_cit_categoria
-from .schemas import CitCategoriaOut
+from .schemas import CitCategoriaOut, OneCitCategoriaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_categorias(
     return paginate(resultados)
 
 
-@cit_categorias.get("/{cit_categoria_id}", response_model=CitCategoriaOut)
+@cit_categorias.get("/{cit_categoria_id}", response_model=OneCitCategoriaOut)
 async def detalle_categoria(
     cit_categoria_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_categoria(
             cit_categoria_id=cit_categoria_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitCategoriaOut.from_orm(cit_categoria)
+        return OneCitCategoriaOut(success=False, message=str(error))
+    return OneCitCategoriaOut.from_orm(cit_categoria)

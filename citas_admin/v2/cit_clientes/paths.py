@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_clientes, get_cit_cliente, get_cit_clientes_creados_por_dia
-from .schemas import CitClienteOut, CitClienteCreadosPorDiaOut
+from .schemas import CitClienteOut, CitClienteCreadosPorDiaOut, OneCitClienteOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -90,7 +90,7 @@ async def cantidades_clientes_creados_por_dia(
     return CitClienteCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
-@cit_clientes.get("/{cit_cliente_id}", response_model=CitClienteOut)
+@cit_clientes.get("/{cit_cliente_id}", response_model=OneCitClienteOut)
 async def detalle_cliente(
     cit_cliente_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -105,5 +105,5 @@ async def detalle_cliente(
             cit_cliente_id=cit_cliente_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitClienteOut.from_orm(cit_cliente)
+        return OneCitClienteOut(success=False, message=str(error))
+    return OneCitClienteOut.from_orm(cit_cliente)

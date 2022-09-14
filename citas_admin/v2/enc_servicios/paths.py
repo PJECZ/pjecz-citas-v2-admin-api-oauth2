@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_enc_servicios, get_enc_servicio
-from .schemas import EncServicioOut
+from .schemas import EncServicioOut, OneEncServicioOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -56,7 +56,7 @@ async def listado_encuestas_servicios(
     return paginate(resultados)
 
 
-@enc_servicios.get("/{enc_servicio_id}", response_model=EncServicioOut)
+@enc_servicios.get("/{enc_servicio_id}", response_model=OneEncServicioOut)
 async def detalle_encuestas_servicio(
     enc_servicio_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -68,5 +68,5 @@ async def detalle_encuestas_servicio(
     try:
         enc_servicio = get_enc_servicio(db, enc_servicio_id=enc_servicio_id)
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return EncServicioOut.from_orm(enc_servicio)
+        return OneEncServicioOut(success=False, message=str(error))
+    return OneEncServicioOut.from_orm(enc_servicio)

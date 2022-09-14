@@ -10,9 +10,9 @@ from lib.schemas_base import OneBaseOut
 class CitDiaInhabilOut(BaseModel):
     """Esquema para entregar dias inhabiles"""
 
-    id: int
-    fecha: date
-    descripcion: str
+    id: int | None
+    fecha: date | None
+    descripcion: str | None
 
     class Config:
         """SQLAlchemy config"""

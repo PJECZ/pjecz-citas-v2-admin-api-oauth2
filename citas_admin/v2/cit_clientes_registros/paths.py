@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_creados_por_dia
-from .schemas import CitClienteRegistroOut, CitClientesRegistrosCreadosPorDiaOut
+from .schemas import CitClienteRegistroOut, CitClientesRegistrosCreadosPorDiaOut, OneCitClienteRegistroOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -86,7 +86,7 @@ async def calcular_cantidades_creados_por_dia(
     return CitClientesRegistrosCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
-@cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=CitClienteRegistroOut)
+@cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=OneCitClienteRegistroOut)
 async def detalle_cliente_registro(
     cit_cliente_registro_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -101,5 +101,5 @@ async def detalle_cliente_registro(
             cit_cliente_registro_id=cit_cliente_registro_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitClienteRegistroOut.from_orm(cit_cliente_registro)
+        return OneCitClienteRegistroOut(success=False, message=str(error))
+    return OneCitClienteRegistroOut.from_orm(cit_cliente_registro)

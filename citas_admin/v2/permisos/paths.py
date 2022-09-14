@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_permisos, get_permiso
-from .schemas import PermisoOut
+from .schemas import PermisoOut, OnePermisoOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -39,7 +39,7 @@ async def listado_permisos(
     return paginate(resultados)
 
 
-@permisos.get("/{permiso_id}", response_model=PermisoOut)
+@permisos.get("/{permiso_id}", response_model=OnePermisoOut)
 async def detalle_permiso(
     permiso_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -54,5 +54,5 @@ async def detalle_permiso(
             permiso_id=permiso_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return PermisoOut.from_orm(permiso)
+        return OnePermisoOut(success=False, message=str(error))
+    return OnePermisoOut.from_orm(permiso)

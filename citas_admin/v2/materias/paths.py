@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_materias, get_materia
-from .schemas import MateriaOut
+from .schemas import MateriaOut, OneMateriaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_materias(
     return paginate(resultados)
 
 
-@materias.get("/{materia_id}", response_model=MateriaOut)
+@materias.get("/{materia_id}", response_model=OneMateriaOut)
 async def detalle_materia(
     materia_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_materia(
             materia_id=materia_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return MateriaOut.from_orm(materia)
+        return OneMateriaOut(success=False, message=str(error))
+    return OneMateriaOut.from_orm(materia)

@@ -9,8 +9,8 @@ from lib.schemas_base import OneBaseOut
 class CitCategoriaOut(BaseModel):
     """Esquema para entregar categorias"""
 
-    id: int
-    nombre: str
+    id: int | None
+    nombre: str | None
 
     class Config:
         """SQLAlchemy config"""

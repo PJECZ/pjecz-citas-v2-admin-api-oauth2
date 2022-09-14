@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_autoridades, get_autoridad
-from .schemas import AutoridadOut
+from .schemas import AutoridadOut, OneAutoridadOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -41,7 +41,7 @@ async def listado_autoridades(
     return paginate(resultados)
 
 
-@autoridades.get("/{autoridad_id}", response_model=AutoridadOut)
+@autoridades.get("/{autoridad_id}", response_model=OneAutoridadOut)
 async def detalle_autoridad(
     autoridad_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -56,5 +56,5 @@ async def detalle_autoridad(
             autoridad_id=autoridad_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return AutoridadOut.from_orm(autoridad)
+        return OneAutoridadOut(success=False, message=str(error))
+    return OneAutoridadOut.from_orm(autoridad)

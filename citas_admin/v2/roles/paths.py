@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_roles, get_rol
-from .schemas import RolOut
+from .schemas import RolOut, OneRolOut
 from ..permisos.crud import get_permisos
 from ..permisos.models import Permiso
 from ..permisos.schemas import PermisoOut
@@ -37,7 +37,7 @@ async def listado_roles(
     return paginate(resultados)
 
 
-@roles.get("/{rol_id}", response_model=RolOut)
+@roles.get("/{rol_id}", response_model=OneRolOut)
 async def detalle_rol(
     rol_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -52,8 +52,8 @@ async def detalle_rol(
             rol_id=rol_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return RolOut.from_orm(rol)
+        return OneRolOut(success=False, message=str(error))
+    return OneRolOut.from_orm(rol)
 
 
 @roles.get("/{rol_id}/usuarios", response_model=CustomPage[UsuarioRolOut])

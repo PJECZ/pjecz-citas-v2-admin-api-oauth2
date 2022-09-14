@@ -13,7 +13,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_clientes_recuperaciones, get_cit_cliente_recuperacion, get_cit_clientes_recuperaciones_creados_por_dia
-from .schemas import CitClienteRecuperacionOut, CitClientesRecuperacionesCreadosPorDiaOut
+from .schemas import CitClienteRecuperacionOut, CitClientesRecuperacionesCreadosPorDiaOut, OneCitClienteRecuperacionOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -80,7 +80,7 @@ async def cantidades_recuperaciones_creados_por_dia(
     return CitClientesRecuperacionesCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
-@cit_clientes_recuperaciones.get("/{cit_cliente_recuperacion_id}", response_model=CitClienteRecuperacionOut)
+@cit_clientes_recuperaciones.get("/{cit_cliente_recuperacion_id}", response_model=OneCitClienteRecuperacionOut)
 async def detalle_recuperacion(
     cit_cliente_recuperacion_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -95,5 +95,5 @@ async def detalle_recuperacion(
             cit_cliente_recuperacion_id=cit_cliente_recuperacion_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitClienteRecuperacionOut.from_orm(cit_cliente_recuperacion)
+        return OneCitClienteRecuperacionOut(success=False, message=str(error))
+    return OneCitClienteRecuperacionOut.from_orm(cit_cliente_recuperacion)

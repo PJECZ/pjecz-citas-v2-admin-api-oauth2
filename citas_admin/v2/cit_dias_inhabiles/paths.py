@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_cit_dias_inhabiles, get_cit_dia_inhabil
-from .schemas import CitDiaInhabilOut
+from .schemas import CitDiaInhabilOut, OneCitDiaInhabilOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_dias_inhabiles(
     return paginate(resultados)
 
 
-@cit_dias_inhabiles.get("/{cit_dia_inhabil_id}", response_model=CitDiaInhabilOut)
+@cit_dias_inhabiles.get("/{cit_dia_inhabil_id}", response_model=OneCitDiaInhabilOut)
 async def detalle_dia_inhabil(
     cit_dia_inhabil_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_dia_inhabil(
             cit_dia_inhabil_id=cit_dia_inhabil_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return CitDiaInhabilOut.from_orm(dia_inhabil)
+        return OneCitDiaInhabilOut(success=False, message=str(error))
+    return OneCitDiaInhabilOut.from_orm(dia_inhabil)

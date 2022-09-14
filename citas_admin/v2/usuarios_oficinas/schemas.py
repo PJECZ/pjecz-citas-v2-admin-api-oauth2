@@ -9,12 +9,12 @@ from lib.schemas_base import OneBaseOut
 class UsuarioOficinaOut(BaseModel):
     """Esquema para entregar usuario-oficina"""
 
-    id: int
-    oficina_id: int
-    oficina_nombre: str
-    usuario_id: int
-    usuario_nombre: str
-    descripcion: str
+    id: int | None
+    oficina_id: int | None
+    oficina_nombre: str | None
+    usuario_id: int | None
+    usuario_nombre: str | None
+    descripcion: str | None
 
     class Config:
         """SQLAlchemy config"""

@@ -10,18 +10,18 @@ from lib.schemas_base import OneBaseOut
 class CitClienteRegistroOut(BaseModel):
     """Esquema para entregar registros de clientes"""
 
-    id: int
-    nombres: str
-    apellido_primero: str
-    apellido_segundo: str
-    curp: str
-    telefono: str
-    email: str
-    expiracion: datetime
-    cadena_validar: str
-    mensajes_cantidad: int
-    ya_registrado: bool
-    creado: datetime
+    id: int | None
+    nombres: str | None
+    apellido_primero: str | None
+    apellido_segundo: str | None
+    curp: str | None
+    telefono: str | None
+    email: str | None
+    expiracion: datetime | None
+    cadena_validar: str | None
+    mensajes_cantidad: int | None
+    ya_registrado: bool | None
+    creado: datetime | None
 
     class Config:
         """SQLAlchemy config"""

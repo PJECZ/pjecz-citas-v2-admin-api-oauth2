@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_modulos, get_modulo
-from .schemas import ModuloOut
+from .schemas import ModuloOut, OneModuloOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_modulos(
     return paginate(resultados)
 
 
-@modulos.get("/{modulo_id}", response_model=ModuloOut)
+@modulos.get("/{modulo_id}", response_model=OneModuloOut)
 async def detalle_modulo(
     modulo_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_modulo(
             modulo_id=modulo_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return ModuloOut.from_orm(modulo)
+        return OneModuloOut(success=False, message=str(error))
+    return OneModuloOut.from_orm(modulo)

@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError, CitasNotExistsError, CitasIsDeletedErr
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_oficinas, get_oficina
-from .schemas import OficinaOut
+from .schemas import OficinaOut, OneOficinaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -45,7 +45,7 @@ async def listado_oficinas(
     return paginate(resultados)
 
 
-@oficinas.get("/{oficina_id}", response_model=OficinaOut)
+@oficinas.get("/{oficina_id}", response_model=OneOficinaOut)
 async def detalle_oficina(
     oficina_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -60,5 +60,5 @@ async def detalle_oficina(
             oficina_id=oficina_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return OficinaOut.from_orm(oficina)
+        return OneOficinaOut(success=False, message=str(error))
+    return OneOficinaOut.from_orm(oficina)

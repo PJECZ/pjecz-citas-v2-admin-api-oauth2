@@ -2,7 +2,6 @@
 Usuarios v2, esquemas de pydantic
 """
 from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel
 
 from lib.schemas_base import OneBaseOut
@@ -11,25 +10,25 @@ from lib.schemas_base import OneBaseOut
 class UsuarioOut(BaseModel):
     """Esquema para entregar usuarios"""
 
-    id: int
-    distrito_id: int
-    distrito_nombre: str
-    distrito_nombre_corto: str
-    autoridad_id: int
-    autoridad_clave: str
-    autoridad_descripcion: str
-    autoridad_descripcion_corta: str
-    oficina_id: int
-    oficina_clave: str
-    oficina_descripcion: str
-    oficina_descripcion_corta: str
-    email: str
-    nombres: str
-    apellido_paterno: str
-    apellido_materno: Optional[str] = ""
-    curp: Optional[str] = ""
-    puesto: Optional[str] = ""
-    telefono_celular: Optional[str] = ""
+    id: int | None
+    distrito_id: int | None
+    distrito_nombre: str | None
+    distrito_nombre_corto: str | None
+    autoridad_id: int | None
+    autoridad_clave: str | None
+    autoridad_descripcion: str | None
+    autoridad_descripcion_corta: str | None
+    oficina_id: int | None
+    oficina_clave: str | None
+    oficina_descripcion: str | None
+    oficina_descripcion_corta: str | None
+    email: str | None
+    nombres: str | None
+    apellido_paterno: str | None
+    apellido_materno: str | None
+    curp: str | None
+    puesto: str | None
+    telefono_celular: str | None
 
     class Config:
         """SQLAlchemy config"""
