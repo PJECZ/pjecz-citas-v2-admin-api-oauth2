@@ -4,7 +4,7 @@ Schemas Base
 from pydantic import BaseModel
 
 
-class BaseOut(BaseModel):
+class OneBaseOut(BaseModel):
     """BaseOut"""
 
     success: bool = True

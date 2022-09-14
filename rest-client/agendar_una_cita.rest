@@ -9,6 +9,10 @@ GET {{root}}
 GET {{baseUrl}}/distritos
 X-Api-Key: {{api_key}}
 
+### GET Distrito Saltillo
+GET {{baseUrl}}/distritos/6
+X-Api-Key: {{api_key}}
+
 ### GET Oficinas del Distrito
 GET {{baseUrl}}/oficinas
     ?distrito_id=12

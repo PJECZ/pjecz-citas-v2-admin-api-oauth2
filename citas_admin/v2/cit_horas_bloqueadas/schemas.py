@@ -4,6 +4,8 @@ Cit Horas Bloqueadas v2, esquemas de pydantic
 from datetime import date, time
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitHoraBloqueadaOut(BaseModel):
     """Esquema para entregar horas bloqueadas"""
@@ -22,3 +24,7 @@ class CitHoraBloqueadaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitHoraBloqueadaOut(CitHoraBloqueadaOut, OneBaseOut):
+    """Esquema para entregar una hora bloqueada"""

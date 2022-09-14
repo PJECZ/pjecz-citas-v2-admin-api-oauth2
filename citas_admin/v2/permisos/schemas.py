@@ -3,6 +3,8 @@ Permisos v2, esquemas de pydantic
 """
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class PermisoOut(BaseModel):
     """Esquema para entregar permisos"""
@@ -19,3 +21,7 @@ class PermisoOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OnePermisoOut(PermisoOut, OneBaseOut):
+    """Esquema para entregar un permiso"""

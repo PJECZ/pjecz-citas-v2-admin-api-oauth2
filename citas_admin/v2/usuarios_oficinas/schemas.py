@@ -3,6 +3,8 @@ Usuarios-Oficinas v2, esquemas de pydantic
 """
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class UsuarioOficinaOut(BaseModel):
     """Esquema para entregar usuario-oficina"""
@@ -18,3 +20,7 @@ class UsuarioOficinaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneUsuarioOficinaOut(UsuarioOficinaOut, OneBaseOut):
+    """Esquema para entregar un usuario-oficina"""

@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
 
 from .crud import get_distritos, get_distrito
-from .schemas import DistritoOut
+from .schemas import DistritoOut, OneDistritoOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -33,7 +33,7 @@ async def listado_distritos(
     return paginate(resultados)
 
 
-@distritos.get("/{distrito_id}", response_model=DistritoOut)
+@distritos.get("/{distrito_id}", response_model=OneDistritoOut)
 async def detalle_distrito(
     distrito_id: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -48,5 +48,5 @@ async def detalle_distrito(
             distrito_id=distrito_id,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    return DistritoOut.from_orm(distrito)
+        return OneDistritoOut(success=False, message=str(error))
+    return OneDistritoOut.from_orm(distrito)

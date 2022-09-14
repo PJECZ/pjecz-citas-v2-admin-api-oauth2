@@ -3,6 +3,8 @@ Cit Oficinas-Servicios v2, esquemas de pydantic
 """
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitOficinaServicioOut(BaseModel):
     """Esquema para entregar oficinas-servicios"""
@@ -21,3 +23,7 @@ class CitOficinaServicioOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitOficinaServicioOut(CitOficinaServicioOut, OneBaseOut):
+    """Esquema para entregar una oficina-servicio"""

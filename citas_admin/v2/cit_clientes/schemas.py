@@ -5,6 +5,8 @@ from typing import Dict, Optional
 from datetime import date, datetime
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitClienteOut(BaseModel):
     """Esquema para entregar clientes"""
@@ -32,6 +34,10 @@ class CitClienteOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitClienteOut(CitClienteOut, OneBaseOut):
+    """Esquema para entregar un cliente"""
 
 
 class CitClienteCreadosPorDiaOut(BaseModel):

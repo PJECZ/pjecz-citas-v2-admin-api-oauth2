@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class EncSistemaOut(BaseModel):
     """Esquema para entregar encuestas de sistemas"""
@@ -23,3 +25,7 @@ class EncSistemaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneEncSistemaOut(EncSistemaOut, OneBaseOut):
+    """Esquema para entregar una encuesta de sistema"""

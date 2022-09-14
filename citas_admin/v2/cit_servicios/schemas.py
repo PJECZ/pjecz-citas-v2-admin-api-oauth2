@@ -5,6 +5,8 @@ from datetime import time
 from typing import Optional
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitServicioOut(BaseModel):
     """Esquema para entregar servicios"""
@@ -24,3 +26,7 @@ class CitServicioOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitServicioOut(CitServicioOut, OneBaseOut):
+    """Esquema para entregar un servicio"""

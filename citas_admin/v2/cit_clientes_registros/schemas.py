@@ -4,6 +4,8 @@ Cit Clientes Registros v2, esquemas de pydantic
 from datetime import date, datetime
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitClienteRegistroOut(BaseModel):
     """Esquema para entregar registros de clientes"""
@@ -25,6 +27,10 @@ class CitClienteRegistroOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitClienteRegistroOut(CitClienteRegistroOut, OneBaseOut):
+    """Esquema para entregar un registro de cliente"""
 
 
 class CitClientesRegistrosCreadosPorDiaOut(BaseModel):

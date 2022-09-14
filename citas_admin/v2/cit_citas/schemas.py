@@ -4,6 +4,8 @@ Cit Citas v2, esquemas de pydantic
 from datetime import date, datetime
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class CitCitaOut(BaseModel):
     """Esquema para entregar citas"""
@@ -32,6 +34,10 @@ class CitCitaOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OneCitCitaOut(CitCitaOut, OneBaseOut):
+    """Esquema para entregar una cita"""
 
 
 class CitCitasCreadosPorDiaOut(BaseModel):
