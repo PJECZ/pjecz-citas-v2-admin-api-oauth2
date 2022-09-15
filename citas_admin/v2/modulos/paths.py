@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 
 from .crud import get_modulos, get_modulo
 from .schemas import ModuloOut, OneModuloOut

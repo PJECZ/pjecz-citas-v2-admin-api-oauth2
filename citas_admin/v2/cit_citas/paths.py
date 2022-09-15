@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 
 from .crud import get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina
 from .schemas import CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut
