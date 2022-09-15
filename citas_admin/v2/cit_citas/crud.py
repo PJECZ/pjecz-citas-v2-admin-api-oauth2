@@ -1,7 +1,7 @@
 """
 Cit Citas v2, CRUD (create, read, update, and delete)
 """
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 from sqlalchemy import or_
@@ -10,12 +10,17 @@ from sqlalchemy.sql import func
 import pytz
 
 from config.settings import Settings
-from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
+from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError, CitasOutOfRangeParamError
+from lib.pwgen import generar_codigo_asistencia
 from lib.safe_string import safe_clave, safe_email, safe_string
 
 from .models import CitCita
+from ..cit_citas_anonimas.crud import get_cit_citas_anonimas
 from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
+from ..cit_dias_disponibles.crud import get_cit_dias_disponibles
+from ..cit_horas_disponibles.crud import get_cit_horas_disponibles
+from ..cit_oficinas_servicios.crud import get_cit_oficinas_servicios
 from ..cit_servicios.crud import get_cit_servicio
 from ..cit_servicios.models import CitServicio
 from ..distritos.crud import get_distrito
@@ -244,3 +249,81 @@ def get_cit_citas_agendadas_por_servicio_oficina(
 
     # Agrupar por oficina y servicio y entregar SIN hacer la consulta
     return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave)
+
+
+def create_cit_cita(
+    db: Session,
+    cit_cliente_id: int,
+    cit_servicio_id: int,
+    fecha: date,
+    hora_minuto: time,
+    oficina_id: int,
+    notas: str,
+    settings: Settings,
+):
+    """Crear una cita"""
+
+    # Consultar el cliente
+    cit_cliente = get_cit_cliente(db=db, cit_cliente_id=cit_cliente_id)
+
+    # Consultar la oficina
+    oficina = get_oficina(db=db, oficina_id=oficina_id)
+
+    # Consultar el servicio
+    cit_servicio = get_cit_servicio(db=db, cit_servicio_id=cit_servicio_id)
+
+    # Validar que ese servicio lo ofrezca esta oficina
+    cit_oficinas_servicios = get_cit_oficinas_servicios(db=db, oficina_id=oficina_id).all()
+    if cit_servicio_id not in [cit_oficina_servicio.cit_servicio_id for cit_oficina_servicio in cit_oficinas_servicios]:
+        raise CitasNotValidParamError("No es posible agendar este servicio en esta oficina")
+
+    # Validar la fecha, debe ser un dia disponible
+    if fecha not in get_cit_dias_disponibles(db=db, settings=settings):
+        raise CitasNotValidParamError("No es valida la fecha")
+
+    # Validar la hora_minuto, respecto a las horas disponibles
+    if hora_minuto not in get_cit_horas_disponibles(db=db, cit_servicio_id=cit_servicio_id, fecha=fecha, oficina_id=oficina_id, settings=settings):
+        raise CitasOutOfRangeParamError("No es valida la hora-minuto porque no esta disponible")
+
+    # Validar que las citas en ese tiempo para esa oficina NO hayan llegado al limite de personas
+    cit_citas_anonimas = get_cit_citas_anonimas(db=db, fecha=fecha, hora_minuto=hora_minuto, oficina_id=oficina_id)
+    if cit_citas_anonimas.count() >= oficina.limite_personas:
+        raise CitasOutOfRangeParamError("No se puede crear la cita porque ya se alcanzo el limite de personas en la oficina")
+
+    # Validar que la cantidad de citas con estado PENDIENTE no haya llegado al limite de este cliente
+    limite = settings.limite_citas_pendientes
+    if cit_cliente.limite_citas_pendientes > limite:
+        limite = cit_cliente.limite_citas_pendientes
+    cit_citas = get_cit_citas(db=db, cit_cliente_id=cit_cliente_id, estado="PENDIENTE", settings=settings)
+    if cit_citas.count() >= limite:
+        raise CitasOutOfRangeParamError("No se puede crear la cita porque ya se alcanzo el limite de citas pendientes")
+
+    # Definir los tiempos de la cita
+    inicio_dt = datetime(year=fecha.year, month=fecha.month, day=fecha.day, hour=hora_minuto.hour, minute=hora_minuto.minute)
+    termino_dt = datetime(year=fecha.year, month=fecha.month, day=fecha.day, hour=hora_minuto.hour, minute=hora_minuto.minute) + timedelta(hours=cit_servicio.duracion.hour, minutes=cit_servicio.duracion.minute)
+
+    # Validar que no tenga una cita pendiente en la misma fecha y hora
+    for cit_cita in cit_citas.all():
+        if cit_cita.inicio == inicio_dt:
+            raise CitasOutOfRangeParamError("No se puede crear la cita porque ya tiene una cita pendiente en la misma fecha y hora")
+
+    # Insertar registro
+    cit_cita = CitCita(
+        cit_servicio_id=cit_servicio.id,
+        cit_cliente_id=cit_cliente_id,
+        oficina_id=oficina.id,
+        inicio=inicio_dt,
+        termino=termino_dt,
+        notas=safe_string(input_str=notas, max_len=512),
+        estado="PENDIENTE",
+        asistencia=False,
+        codigo_asistencia=generar_codigo_asistencia(),
+    )
+    db.add(cit_cita)
+    db.commit()
+    db.refresh(cit_cita)
+
+    # TODO: Agregar tarea en el fondo para que se envie un mensaje via correo electronico
+
+    # Entregar
+    return cit_cita

@@ -40,22 +40,22 @@ GET {{baseUrl}}/cit_horas_disponibles
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
-GET {{baseUrl}}/cit_clientes/99999
+GET {{baseUrl}}/cit_clientes/3575
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_id=99999
+    ?cit_cliente_id=3575
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por email
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_email=noname@company.com
+    ?cit_cliente_email=lic.aavillegas@gmail.com
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por CURP
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_curp=XXXX
+    ?cit_cliente_curp=VIDP560831MCLLZT00
 X-Api-Key: {{api_key}}
 
 ### POST crear cita PENDIENTE
@@ -66,8 +66,9 @@ X-Api-Key: {{api_key}}
     "cit_cliente_id": 3575,
     "oficina_id": 71,
     "cit_servicio_id": 2,
-    "fecha": "2022-08-22",
-    "hora_minuto": "11:15"
+    "fecha": "2022-09-22",
+    "hora_minuto": "09:15",
+    "notas": "Cita de prueba"
 }
 
 ### GET mis citas
