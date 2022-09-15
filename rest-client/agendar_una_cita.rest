@@ -9,11 +9,11 @@ GET {{root}}
 GET {{baseUrl}}/distritos
 X-Api-Key: {{api_key}}
 
-### GET Distrito Saltillo
+### GET 6 Distrito Saltillo
 GET {{baseUrl}}/distritos/6
 X-Api-Key: {{api_key}}
 
-### GET Oficinas del Distrito
+### GET Oficinas del Distrito 6
 GET {{baseUrl}}/oficinas
     ?distrito_id=6
 X-Api-Key: {{api_key}}
@@ -32,9 +32,65 @@ GET {{baseUrl}}/cit_dias_disponibles
     ?oficina_id=71
 X-Api-Key: {{api_key}}
 
-### GET Horas para elegir PENDIENTE
+### GET Horas para elegir
 GET {{baseUrl}}/cit_horas_disponibles
     ?oficina_id=71
     &cit_servicio_id=2
-    &fecha=2022-08-01
+    &fecha=2022-09-22
 X-Api-Key: {{api_key}}
+
+### GET Cliente por ID
+GET {{baseUrl}}/cit_clientes/9999
+X-Api-Key: {{api_key}}
+
+### GET Cliente por ID
+GET {{baseUrl}}/cit_clientes/perfil
+    ?cit_cliente_id=9999
+X-Api-Key: {{api_key}}
+
+### GET Cliente por email
+GET {{baseUrl}}/cit_clientes/perfil
+    ?cit_cliente_email=anonymous@noreply.com
+X-Api-Key: {{api_key}}
+
+### GET Cliente por CURP
+GET {{baseUrl}}/cit_clientes/perfil
+    ?cit_cliente_curp=XXXX999999XXXXXX99
+X-Api-Key: {{api_key}}
+
+### POST crear cita
+POST {{baseUrl}}/cit_citas/nueva
+X-Api-Key: {{api_key}}
+
+{
+    "cit_cliente_id": 9999,
+    "oficina_id": 71,
+    "cit_servicio_id": 2,
+    "fecha": "2022-09-22",
+    "hora_minuto": "09:30",
+    "notas": "Cita de prueba"
+}
+
+### GET mis citas por ID de cliente
+GET {{baseUrl}}/cit_citas/mis_citas
+    ?cit_cliente_id=3575
+X-Api-Key: {{api_key}}
+
+### GET mis citas por CURP de cliente
+GET {{baseUrl}}/cit_citas/mis_citas
+    ?cit_cliente_curp=ZZZ
+X-Api-Key: {{api_key}}
+
+### GET mis citas por email de cliente
+GET {{baseUrl}}/cit_citas/mis_citas
+    ?cit_cliente_email=guillermo.valdes@pjecz.gob.mx
+X-Api-Key: {{api_key}}
+
+### POST cancelar una cita PENDIENTE
+POST {{baseUrl}}/cit_citas/cancelar
+X-Api-Key: {{api_key}}
+
+{
+    "cit_cliente_id": 3575,
+    "cit_cita_id": 1299
+}

@@ -56,7 +56,7 @@ def safe_email(input_str, search_fragment=False):
 def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True):
     """Safe string"""
     if not isinstance(input_str, str):
-        return None
+        return ""
     if do_unidecode:
         new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))
     else:

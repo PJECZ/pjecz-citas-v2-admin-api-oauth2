@@ -83,10 +83,25 @@ def get_cit_clientes(
 
 def get_cit_cliente(
     db: Session,
-    cit_cliente_id: int,
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
 ) -> CitCliente:
-    """Consultar un cliente por su id"""
-    cit_cliente = db.query(CitCliente).get(cit_cliente_id)
+    """Consultar un cliente por su ID, CURP o correo electrónico"""
+    if cit_cliente_id is not None:
+        cit_cliente = db.query(CitCliente).get(cit_cliente_id)
+    elif cit_cliente_curp is not None:
+        cit_cliente_curp = safe_curp(cit_cliente_curp, search_fragment=False)
+        if cit_cliente_curp is None or cit_cliente_curp == "":
+            raise CitasNotValidParamError("No es válido el CURP")
+        cit_cliente = db.query(CitCliente).filter_by(curp=cit_cliente_curp).first()
+    elif cit_cliente_email is not None:
+        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=False)
+        if cit_cliente_email is None or cit_cliente_email == "":
+            raise CitasNotValidParamError("No es válido el correo electrónico")
+        cit_cliente = db.query(CitCliente).filter_by(email=cit_cliente_email).first()
+    else:
+        raise CitasNotValidParamError("No se indicó el id, curp o email del cliente")
     if cit_cliente is None:
         raise CitasNotExistsError("No existe ese cliente")
     if cit_cliente.estatus != "A":

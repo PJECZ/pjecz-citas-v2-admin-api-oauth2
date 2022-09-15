@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     db_name: str
     db_pass: str
     db_user: str
+    limite_citas_pendientes: int
     salt: str
     tz: str
 

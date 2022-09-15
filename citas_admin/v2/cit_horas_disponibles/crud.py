@@ -6,14 +6,13 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from config.settings import Settings
+from lib.exceptions import CitasEmptyError, CitasNotValidParamError
 
 from ..cit_citas_anonimas.crud import get_cit_citas_anonimas
 from ..cit_dias_disponibles.crud import get_cit_dias_disponibles
 from ..cit_horas_bloqueadas.crud import get_cit_horas_bloqueadas
 from ..cit_servicios.crud import get_cit_servicio
 from ..oficinas.crud import get_oficina
-
-LIMITE_DIAS = 90
 
 
 def get_cit_horas_disponibles(
@@ -22,6 +21,7 @@ def get_cit_horas_disponibles(
     fecha: date,
     oficina_id: int,
     settings: Settings,
+    size: int = 32,
 ) -> Any:
     """Consultar las horas disponibles, entrega un listado de horas"""
 
@@ -33,7 +33,7 @@ def get_cit_horas_disponibles(
 
     # Validar la fecha, debe ser un dia disponible
     if fecha not in get_cit_dias_disponibles(db=db, settings=settings):
-        raise ValueError("No es valida la fecha")
+        raise CitasNotValidParamError("No es valida la fecha")
 
     # Tomar los tiempos de inicio y termino de la oficina
     apertura = oficina.apertura
@@ -101,7 +101,7 @@ def get_cit_horas_disponibles(
             citas_ya_agendadas[cit_cita.inicio] += 1
 
     # Bucle por los intervalos
-    horas_minutos_segundos_disponibles = []
+    listado = []
     tiempo = tiempo_inicial
     while tiempo < tiempo_final:
         # Bandera
@@ -117,13 +117,16 @@ def get_cit_horas_disponibles(
                 es_hora_disponible = False
         # Acumular si es hora disponible
         if es_hora_disponible:
-            horas_minutos_segundos_disponibles.append(tiempo.time())
+            listado.append(tiempo.time())
+        # Terminar bucle si se alcanza el tamaño
+        if len(listado) >= size:
+            break
         # Siguiente intervalo
         tiempo = tiempo + duracion
 
     # Que hacer cuando no haya horas_minutos_segundos_disponibles
-    if len(horas_minutos_segundos_disponibles) == 0:
-        raise ValueError("No hay horas disponibles")
+    if len(listado) == 0:
+        raise CitasEmptyError("No hay horas disponibles")
 
     # Entregar
-    return horas_minutos_segundos_disponibles
+    return listado

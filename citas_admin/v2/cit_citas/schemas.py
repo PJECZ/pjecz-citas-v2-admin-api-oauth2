@@ -1,10 +1,21 @@
 """
 Cit Citas v2, esquemas de pydantic
 """
-from datetime import date, datetime
+from datetime import date, datetime, time
 from pydantic import BaseModel
 
 from lib.schemas_base import OneBaseOut
+
+
+class CitCitaIn(BaseModel):
+    """Esquema para entregar citas"""
+
+    cit_cliente_id: int
+    cit_servicio_id: int
+    fecha: date
+    hora_minuto: time
+    oficina_id: int
+    notas: str
 
 
 class CitCitaOut(BaseModel):

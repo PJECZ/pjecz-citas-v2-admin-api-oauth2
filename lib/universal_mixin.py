@@ -16,7 +16,7 @@ hashids = Hashids(salt=settings.salt, min_length=8)
 class UniversalMixin:
     """Columnas y métodos comunes a todas las tablas"""
 
-    creado = Column(DateTime, nullable=False)
+    creado = Column(DateTime, server_default=func.now(), nullable=False)
     modificado = Column(DateTime, onupdate=func.now(), server_default=func.now())
     estatus = Column(String(1), server_default="A", nullable=False)
 
