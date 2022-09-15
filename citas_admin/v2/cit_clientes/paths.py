@@ -90,6 +90,29 @@ async def cantidades_clientes_creados_por_dia(
     return CitClienteCreadosPorDiaOut(items=fechas_cantidades, total=total)
 
 
+@cit_clientes.get("/perfil", response_model=OneCitClienteOut)
+async def perfil_cliente(
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Consultar el perfil de un cliente por su ID, CURP o email"""
+    if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        cit_cliente = get_cit_cliente(
+            db=db,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_curp=cit_cliente_curp,
+            cit_cliente_email=cit_cliente_email,
+        )
+    except CitasAnyError as error:
+        return OneCitClienteOut(success=False, message=str(error))
+    return OneCitClienteOut.from_orm(cit_cliente)
+
+
 @cit_clientes.get("/{cit_cliente_id}", response_model=OneCitClienteOut)
 async def detalle_cliente(
     cit_cliente_id: int,
