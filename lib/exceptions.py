@@ -15,6 +15,10 @@ class CitasAuthenticationError(CitasAnyError):
     """Excepción por que fallo la autentificacion"""
 
 
+class CitasEmptyError(CitasAnyError):
+    """Excepción por que no hay resultados"""
+
+
 class CitasIsDeletedError(CitasAnyError):
     """Excepción esta eliminado"""
 

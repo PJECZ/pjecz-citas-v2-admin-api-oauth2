@@ -29,14 +29,14 @@ async def listado_dias_disponibles(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        listado = get_cit_dias_disponibles(
+        resultados = get_cit_dias_disponibles(
             db=db,
             size=size,
             settings=settings,
         )
     except CitasAnyError as error:
         return make_custom_error_list(error)
-    items = [CitDiaDisponibleOut(fecha=item) for item in listado]
+    items = [CitDiaDisponibleOut(fecha=item) for item in resultados]
     result = ListResult(total=len(items), items=items, size=size)
     return CustomList(result=result)
 
