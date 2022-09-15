@@ -12,7 +12,7 @@ import pytz
 from config.settings import Settings
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError, CitasOutOfRangeParamError
 from lib.pwgen import generar_codigo_asistencia
-from lib.safe_string import safe_clave, safe_email, safe_string
+from lib.safe_string import safe_clave, safe_curp, safe_email, safe_string
 
 from .models import CitCita
 from ..cit_citas_anonimas.crud import get_cit_citas_anonimas
@@ -34,6 +34,7 @@ def get_cit_citas(
     db: Session,
     settings: Settings,
     cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
     cit_cliente_email: str = None,
     cit_servicio_id: int = None,
     cit_servicio_clave: str = None,
@@ -58,8 +59,14 @@ def get_cit_citas(
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
+    elif cit_cliente_curp is not None:
+        cit_cliente_curp = safe_curp(cit_cliente_curp, search_fragment=False)
+        if cit_cliente_curp is None or cit_cliente_curp == "":
+            raise CitasNotValidParamError("No es válido el CURP")
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.curp == cit_cliente_curp)
     elif cit_cliente_email is not None:
-        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
+        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=False)
         if cit_cliente_email is None or cit_cliente_email == "":
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
@@ -327,3 +334,23 @@ def create_cit_cita(
 
     # Entregar
     return cit_cita
+
+
+def get_mis_citas(
+    db: Session,
+    settings: Settings,
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+):
+    """Consultar las citas PENDIENTE de un cliente en especifico"""
+
+    # Validar que se envie al menos un parametro
+    if not cit_cliente_id and not cit_cliente_curp and not cit_cliente_email:
+        raise CitasNotValidParamError("No se envio ningun parametro para consultar las citas")
+
+    # Consultar el cliente
+    cit_cliente = get_cit_cliente(db=db, cit_cliente_id=cit_cliente_id, cit_cliente_curp=cit_cliente_curp, cit_cliente_email=cit_cliente_email)
+
+    # Consultar las citas
+    return get_cit_citas(db=db, cit_cliente_id=cit_cliente.id, estado="PENDIENTE", settings=settings)

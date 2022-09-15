@@ -12,7 +12,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 
-from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina
+from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina, get_mis_citas
 from .schemas import CitCitaIn, CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -148,6 +148,31 @@ async def nueva_cita(
     except CitasAnyError as error:
         return OneCitCitaOut(success=False, message=str(error))
     return OneCitCitaOut.from_orm(cit_cita)
+
+
+@cit_citas.get("/mis_citas", response_model=CustomPage[CitCitaOut])
+async def mis_citas(
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    """Mis citas"""
+    if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        resultados = get_mis_citas(
+            db=db,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_curp=cit_cliente_curp,
+            cit_cliente_email=cit_cliente_email,
+            settings=settings,
+        )
+    except CitasAnyError as error:
+        return make_custom_error_page(error)
+    return paginate(resultados)
 
 
 @cit_citas.get("/{cit_cita_id}", response_model=OneCitCitaOut)
