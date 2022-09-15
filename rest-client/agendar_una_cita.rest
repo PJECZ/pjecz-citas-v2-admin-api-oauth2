@@ -40,6 +40,10 @@ GET {{baseUrl}}/cit_horas_disponibles
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
+GET {{baseUrl}}/cit_clientes/99999
+X-Api-Key: {{api_key}}
+
+### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
     ?cit_cliente_id=99999
 X-Api-Key: {{api_key}}
