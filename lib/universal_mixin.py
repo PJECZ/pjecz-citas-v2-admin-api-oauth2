@@ -1,16 +1,16 @@
 """
 UniversalMixin define las columnas y métodos comunes de todos los modelos
 """
-import os
 import re
+
 from hashids import Hashids
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 
-HASHID_REGEXP = re.compile("[0-9a-zA-Z]{8,16}")
-SALT = os.environ.get("SALT", "Esta es una muy mala cadena aleatoria")
+from config.settings import get_settings
 
-hashids = Hashids(salt=SALT, min_length=8)
+settings = get_settings()
+hashids = Hashids(salt=settings.salt, min_length=8)
 
 
 class UniversalMixin:
@@ -27,7 +27,7 @@ class UniversalMixin:
     @classmethod
     def decode_id(cls, id_encoded: str):
         """Convertir el ID de entero a cadena"""
-        if re.fullmatch(HASHID_REGEXP, id_encoded) is None:
+        if re.fullmatch(r"[0-9a-zA-Z]{8,16}", id_encoded) is None:
             return None
         descifrado = hashids.decode(id_encoded)
         try:

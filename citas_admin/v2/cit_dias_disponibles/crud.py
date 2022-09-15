@@ -18,7 +18,7 @@ QUITAR_PRIMER_DIA_DESPUES_HORAS = 14
 def get_cit_dias_disponibles(
     db: Session,
     settings: Settings,
-    limit: int = LIMITE_DIAS,
+    size: int = LIMITE_DIAS,
 ) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []
@@ -34,7 +34,7 @@ def get_cit_dias_disponibles(
         fechas_inhabiles = [item.fecha for item in cit_dias_inhabiles]
 
     # Agregar cada dia hasta el limite a partir de manana
-    for fecha in (date.today() + timedelta(n) for n in range(1, LIMITE_DIAS)):
+    for fecha in (date.today() + timedelta(n) for n in range(1, size)):
 
         # Quitar los sabados y domingos
         if fecha.weekday() in (5, 6):
@@ -69,7 +69,7 @@ def get_cit_dias_disponibles(
     listado = []
     for fecha in dias_disponibles:
         listado.append(fecha)
-        if len(listado) >= limit:
+        if len(listado) >= size:
             break
 
     # Entregar
@@ -93,4 +93,4 @@ def get_cit_dia_disponible(db: Session) -> Any:
         fecha = fecha + timedelta(1)
 
     # Entregar
-    return {"fecha": fecha}
+    return fecha

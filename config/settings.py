@@ -8,7 +8,6 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     """Settings"""
 
-    autentications_log: str
     db_host: str
     db_name: str
     db_pass: str

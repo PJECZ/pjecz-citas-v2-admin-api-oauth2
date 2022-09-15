@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 
 from .crud import get_cit_horas_bloqueadas, get_cit_hora_bloqueada
 from .schemas import CitHoraBloqueadaOut, OneCitHoraBloqueadaOut
@@ -55,5 +55,5 @@ async def detalle_hora_bloqueada(
             cit_hora_bloqueada_id=cit_hora_bloqueada_id,
         )
     except CitasAnyError as error:
-        return OneCitHoraBloqueadaOut(success=False, message=error.message)
+        return OneCitHoraBloqueadaOut(success=False, message=str(error))
     return OneCitHoraBloqueadaOut.from_orm(cit_hora_bloqueada)

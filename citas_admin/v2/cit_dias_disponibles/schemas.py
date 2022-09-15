@@ -11,3 +11,7 @@ class CitDiaDisponibleOut(BaseModel):
     """Esquema para entregar dia disponible"""
 
     fecha: date
+
+
+class OneCitDiaDisponibleOut(CitDiaDisponibleOut, OneBaseOut):
+    """Esquema para entregar un dia disponible"""

@@ -1,5 +1,5 @@
 """
-FastAPI Pagination Custom
+FastAPI Pagination Custom Page
 """
 from typing import Generic, List, Sequence, TypeVar
 
@@ -12,14 +12,14 @@ T = TypeVar("T")
 
 
 class LimitOffsetParams(BaseLimitOffsetParams):
-    """Agregar los parametros de paginacion limit y offset"""
+    """Modificar limit y offset por defecto"""
 
     limit: int = Query(100, ge=1, le=1000, description="Query limit")
     offset: int = Query(1, ge=1, description="Query offset")
 
 
 class PageResult(GenericModel, Generic[T]):
-    """Resultado para la paginacion que contiene items, total, limit y offset"""
+    """Resultado que contiene items, total, limit y offset"""
 
     total: int
     items: List[T]
@@ -28,7 +28,7 @@ class PageResult(GenericModel, Generic[T]):
 
 
 class CustomPage(AbstractPage[T], Generic[T]):
-    """Pagina personalizada"""
+    """Pagina personalizada con success y message"""
 
     success: bool = True
     message: str = "Success"
@@ -54,7 +54,7 @@ class CustomPage(AbstractPage[T], Generic[T]):
 
 
 def make_custom_error_page(error: Exception) -> CustomPage:
-    """Crear pagina de error"""
+    """Crear pagina personalizada sin items, con success en falso y message con el error"""
 
     result = PageResult(total=0, items=[], limit=0, offset=0)
     return CustomPage(success=False, message=str(error), result=result)
