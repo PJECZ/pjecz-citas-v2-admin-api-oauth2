@@ -36,26 +36,26 @@ X-Api-Key: {{api_key}}
 GET {{baseUrl}}/cit_horas_disponibles
     ?oficina_id=71
     &cit_servicio_id=2
-    &fecha=2022-09-22
+    &fecha=2022-09-19
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
-GET {{baseUrl}}/cit_clientes/9999
+GET {{baseUrl}}/cit_clientes/775
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_id=9999
+    ?cit_cliente_id=3575
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por email
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_email=anonymous@noreply.com
+    ?cit_cliente_email=anonymous@company.com
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por CURP
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_curp=XXXX999999XXXXXX99
+    ?cit_cliente_curp=XXXXXX00000000000
 X-Api-Key: {{api_key}}
 
 ### POST crear cita
@@ -63,27 +63,27 @@ POST {{baseUrl}}/cit_citas/nueva
 X-Api-Key: {{api_key}}
 
 {
-    "cit_cliente_id": 9999,
+    "cit_cliente_id": 775,
     "oficina_id": 71,
     "cit_servicio_id": 2,
     "fecha": "2022-09-22",
-    "hora_minuto": "09:30",
+    "hora_minuto": "09:45",
     "notas": "Cita de prueba"
 }
 
 ### GET mis citas por ID de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_id=3575
+    ?cit_cliente_id=775
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por CURP de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_curp=ZZZ
+    ?cit_cliente_curp=XXXXXX00000000000
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por email de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_email=guillermo.valdes@pjecz.gob.mx
+    ?cit_cliente_email=anonymous@company.com
 X-Api-Key: {{api_key}}
 
 ### POST cancelar una cita PENDIENTE

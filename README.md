@@ -53,10 +53,6 @@ Verifique que este en True
 
 ## Configuracion
 
-Genere el `SECRET_KEY`
-
-    openssl rand -hex 32
-
 Cree un archivo para las variables de entorno `.env`
 
     # Base de datos
@@ -65,40 +61,18 @@ Cree un archivo para las variables de entorno `.env`
     DB_USER=adminpjeczcitasv2
     DB_PASS=****************
 
-    # OAuth2, para SECRET_KEY use openssl rand -hex 24
-    ACCESS_TOKEN_EXPIRE_MINUTES=30
-    ALGORITHM=HS256
-    SECRET_KEY=************************************************
+    # Limite de citas pendientes por cliente
+    LIMITE_CITAS_PENDIENTES=30
+
+    # Redis
+    REDIS_URL=redis://127.0.0.1:6379
+    TASK_QUEUE=pjecz_citas_v2
+
+    # Timezone
+    TZ=America/Mexico_City
 
     # Salt sirve para cifrar el ID con HashID, debe ser igual que en la app Flask
     SALT=************************
-
-Cree el archivo `instance/settings.py`
-
-    """
-    Configuración para desarrollo
-    """
-    import os
-
-    # Variables de entorno
-    DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
-    DB_NAME = os.environ.get("DB_NAME", "pjecz_citas_v2")
-    DB_PASS = os.environ.get("DB_PASS", "wrongpassword")
-    DB_USER = os.environ.get("DB_USER", "nouser")
-
-    # PostgreSQL
-    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
-
-    # CORS or "Cross-Origin Resource Sharing" refers to the situations when a frontend
-    # running in a browser has JavaScript code that communicates with a backend,
-    # and the backend is in a different "origin" than the frontend.
-    # https://fastapi.tiangolo.com/tutorial/cors/
-    ORIGINS = [
-        "http://localhost:8006",
-        "http://localhost:3000",
-        "http://127.0.0.1:8006",
-        "http://127.0.0.1:3000",
-    ]
 
 Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Konsole
 
@@ -116,13 +90,11 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
 
     echo "== Variables de entorno"
     export $(grep -v '^#' .env | xargs)
-    echo "   ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}"
     echo "   DB_HOST: ${DB_HOST}"
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
     echo "   SALT: ${SALT}"
-    echo "   SECRET_KEY: ${SECRET_KEY}"
     echo
 
     export PGHOST=$DB_HOST
@@ -137,6 +109,14 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
     echo
 
 ## Instalacion
+
+En Fedora Linux agregue este software
+
+    sudo dnf -y groupinstall "Development Tools"
+    sudo dnf -y install glibc-langpack-en glibc-langpack-es
+    sudo dnf -y install pipenv poetry python3-virtualenv
+    sudo dnf -y install python3-devel python3-docs python3-idle
+    sudo dnf -y install python3-ipython
 
 Clone el repositorio `pjecz-citas-v2-admin-api-oauth2`
 
@@ -153,14 +133,6 @@ Instale el entorno virtual y los paquetes necesarios
 Ejecute el script `arrancar.py` que contiene el comando y parametros para arrancar el servicio
 
     ./arrancar.py
-
-O use el comando para arrancar con uvicorn
-
-    uvicorn --host=127.0.0.1 --port 8006 --reload citas_admin.app:app
-
-O use el comando para arrancar con gunicorn
-
-    gunicorn --workers=2 --bind 127.0.0.1:8006 citas_admin.app:app
 
 ## Command Line Interface
 
