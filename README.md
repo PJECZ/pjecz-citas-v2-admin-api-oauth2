@@ -1,6 +1,6 @@
 # pjecz-citas-v2-admin-api-oauth2
 
-API OAuth2 del Sistema de Citas V2 para brindar informacion a otros sistemas.
+API de Citas V2 para brindar informacion a otros sistemas.
 
 ## Mejores practicas
 
@@ -133,14 +133,6 @@ Instale el entorno virtual y los paquetes necesarios
 Ejecute el script `arrancar.py` que contiene el comando y parametros para arrancar el servicio
 
     ./arrancar.py
-
-## Command Line Interface
-
-Lea `cli/README.md` para saber como configurar el CLI
-
-Ejecute el script `cli/app.py`
-
-    cli/app.py --help
 
 ## Google Cloud deployment
 
