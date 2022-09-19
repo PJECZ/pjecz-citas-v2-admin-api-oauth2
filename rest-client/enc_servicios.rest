@@ -1,0 +1,10 @@
+@root = {{$dotenv HOST}}
+@baseUrl = {{root}}/v2
+@api_key = {{$dotenv API_KEY}}
+
+### Bienvenida
+GET {{root}}
+
+### GET Encuestas de servicios
+GET {{baseUrl}}/enc_servicios
+X-Api-Key: {{api_key}}

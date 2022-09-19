@@ -36,7 +36,7 @@ X-Api-Key: {{api_key}}
 GET {{baseUrl}}/cit_horas_disponibles
     ?oficina_id=71
     &cit_servicio_id=2
-    &fecha=2022-09-19
+    &fecha=2022-09-26
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
@@ -45,7 +45,7 @@ X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_id=3575
+    ?cit_cliente_id=775
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por email
@@ -55,7 +55,7 @@ X-Api-Key: {{api_key}}
 
 ### GET Cliente por CURP
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_curp=XXXXXX00000000000
+    ?cit_cliente_curp=XXXX00000000000XXX
 X-Api-Key: {{api_key}}
 
 ### POST crear cita
@@ -63,17 +63,17 @@ POST {{baseUrl}}/cit_citas/nueva
 X-Api-Key: {{api_key}}
 
 {
-    "cit_cliente_id": 775,
+    "cit_cliente_id": 12832,
     "oficina_id": 71,
     "cit_servicio_id": 2,
-    "fecha": "2022-09-22",
+    "fecha": "2022-09-26",
     "hora_minuto": "09:45",
     "notas": "Cita de prueba"
 }
 
 ### GET mis citas por ID de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_id=775
+    ?cit_cliente_id=12832
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por CURP de cliente
