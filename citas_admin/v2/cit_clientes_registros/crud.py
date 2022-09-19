@@ -38,38 +38,53 @@ def get_cit_clientes_registros(
 
     # Consultar
     consulta = db.query(CitClienteRegistro)
+
+    # Filtrar por apellido primero
     apellido_primero = safe_string(apellido_primero)
     if apellido_primero is not None:
         consulta = consulta.filter(CitClienteRegistro.apellido_primero.contains(apellido_primero))
+
+    # Filtrar por apedillo segundo
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitClienteRegistro.apellido_segundo.contains(apellido_segundo))
+
+    # Filtrar por creado
     if creado is not None:
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitClienteRegistro.creado >= desde_dt).filter(CitClienteRegistro.creado <= hasta_dt)
-    else:
-        if creado_desde is not None:
-            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitClienteRegistro.creado >= desde_dt)
-        if creado_hasta is not None:
-            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitClienteRegistro.creado <= hasta_dt)
+    if creado is None and creado_desde is not None:
+        desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitClienteRegistro.creado >= desde_dt)
+    if creado is None and creado_hasta is not None:
+        hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitClienteRegistro.creado <= hasta_dt)
+
+    # Filtrar por CURP
     curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitClienteRegistro.curp.contains(curp))
+
+    # Filtrar por email
     if email is not None:
         email = safe_email(email, search_fragment=True)
         if email is None or email == "":
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.filter(CitClienteRegistro.email.contains(email))
+
+    # Filtrar por nombres
     nombres = safe_string(nombres)
     if nombres is not None:
         consulta = consulta.filter(CitClienteRegistro.nombres.contains(nombres))
+
+    # Filtrar por ya registrado
     if ya_registrado is None:
         consulta = consulta.filter_by(ya_registrado=False)  # Si no se especifica, se filtra por no registrados
     else:
         consulta = consulta.filter_by(ya_registrado=ya_registrado)
+
+    # Entregar
     return consulta.filter_by(estatus="A").order_by(CitClienteRegistro.id.desc())
 
 
