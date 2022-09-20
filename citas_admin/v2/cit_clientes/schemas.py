@@ -1,7 +1,6 @@
 """
 Cit Clientes v2, esquemas de pydantic
 """
-from typing import Dict, Optional
 from datetime import date, datetime
 from pydantic import BaseModel
 
@@ -22,7 +21,7 @@ class CitClienteOut(BaseModel):
     contrasena_md5: str | None
     contrasena_sha256: str | None
     renovacion: date | None
-    limite_citas_pendientes: Optional[int] | None
+    limite_citas_pendientes: int | None
     enviar_boletin: bool | None
     es_adulto_mayor: bool | None
     es_mujer: bool | None
@@ -43,5 +42,5 @@ class OneCitClienteOut(CitClienteOut, OneBaseOut):
 class CitClienteCreadosPorDiaOut(BaseModel):
     """Esquema para entregar cantidades de clientes creados por dia"""
 
-    items: dict
-    total: int
+    creado: date
+    cantidad: int

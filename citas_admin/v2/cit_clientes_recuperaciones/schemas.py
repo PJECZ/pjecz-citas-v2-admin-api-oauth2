@@ -1,7 +1,7 @@
 """
 Cit Clientes Recuperaciones v2, esquemas de pydantic
 """
-from datetime import datetime
+from datetime import date, datetime
 from pydantic import BaseModel
 
 from lib.schemas_base import OneBaseOut
@@ -34,5 +34,5 @@ class OneCitClienteRecuperacionOut(CitClienteRecuperacionOut, OneBaseOut):
 class CitClientesRecuperacionesCreadosPorDiaOut(BaseModel):
     """Esquema para entregar cantidades de recuperaciones creadas por dia"""
 
-    items: dict
-    total: int
+    creado: date
+    cantidad: int

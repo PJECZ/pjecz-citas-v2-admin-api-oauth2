@@ -16,8 +16,6 @@ from .models import CitClienteRecuperacion
 from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
 
-DEFAULT_DIAS = 7
-
 
 def get_cit_clientes_recuperaciones(
     db: Session,
@@ -87,6 +85,7 @@ def get_cit_clientes_recuperaciones_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    size: int = 10,
 ) -> Any:
     """Calcular las cantidades de recuperaciones de clientes creados por dia"""
 
@@ -104,7 +103,7 @@ def get_cit_clientes_recuperaciones_creados_por_dia(
     if creado is None and creado_desde is None and creado_hasta is None:
         hoy_servidor = datetime.now(servidor_huso_horario)
         hoy = hoy_servidor.astimezone(local_huso_horario).date()
-        creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        creado_desde = hoy - timedelta(days=size - 1)
         creado_hasta = hoy
 
     # Si se recibe creado, se limita a esa fecha
@@ -112,13 +111,12 @@ def get_cit_clientes_recuperaciones_creados_por_dia(
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitClienteRecuperacion.creado >= desde_dt).filter(CitClienteRecuperacion.creado <= hasta_dt)
-    else:
-        if creado_desde is not None:
-            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitClienteRecuperacion.creado >= desde_dt)
-        if creado_hasta is not None:
-            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitClienteRecuperacion.creado <= hasta_dt)
+    if creado is None and creado_desde is not None:
+        desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitClienteRecuperacion.creado >= desde_dt)
+    if creado is None and creado_hasta is not None:
+        hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitClienteRecuperacion.creado <= hasta_dt)
 
-    # Agrupar por creado y entregar SIN hacer la consulta
+    # Agrupar por creado y entregar
     return consulta.group_by(func.date(CitClienteRecuperacion.creado))

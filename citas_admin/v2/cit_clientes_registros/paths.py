@@ -11,6 +11,7 @@ from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
 
 from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_creados_por_dia
 from .schemas import CitClienteRegistroOut, CitClientesRegistrosCreadosPorDiaOut, OneCitClienteRegistroOut
@@ -58,7 +59,7 @@ async def listado_clientes_registros(
     return paginate(resultados)
 
 
-@cit_clientes_registros.get("/creados_por_dia", response_model=CitClientesRegistrosCreadosPorDiaOut)
+@cit_clientes_registros.get("/creados_por_dia", response_model=CustomList[CitClientesRegistrosCreadosPorDiaOut])
 async def calcular_cantidades_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
@@ -66,24 +67,25 @@ async def calcular_cantidades_creados_por_dia(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    size: int = 10,
 ):
     """Calcular las cantidades de registros de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES REGISTROS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_clientes_registros_creados_por_dia(
+        resultados = get_cit_clientes_registros_creados_por_dia(
             db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             settings=settings,
+            size=size,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    total = 0
-    for fecha_cantidad in fechas_cantidades:
-        total += fecha_cantidad["cantidad"]
-    return CitClientesRegistrosCreadosPorDiaOut(items=fechas_cantidades, total=total)
+        return make_custom_error_list(error)
+    items = [CitClientesRegistrosCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
+    result = ListResult(total=resultados.count(), items=items, size=size)
+    return CustomList(result=result)
 
 
 @cit_clientes_registros.get("/{cit_cliente_registro_id}", response_model=OneCitClienteRegistroOut)

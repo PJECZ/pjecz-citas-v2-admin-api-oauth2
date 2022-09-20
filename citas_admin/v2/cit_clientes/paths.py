@@ -11,6 +11,7 @@ from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
 
 from .crud import get_cit_clientes, get_cit_cliente, get_cit_clientes_creados_por_dia
 from .schemas import CitClienteOut, CitClienteCreadosPorDiaOut, OneCitClienteOut
@@ -62,7 +63,7 @@ async def listado_clientes(
     return paginate(resultados)
 
 
-@cit_clientes.get("/creados_por_dia", response_model=CitClienteCreadosPorDiaOut)
+@cit_clientes.get("/creados_por_dia", response_model=CustomList[CitClienteCreadosPorDiaOut])
 async def cantidades_clientes_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
@@ -70,24 +71,25 @@ async def cantidades_clientes_creados_por_dia(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    size: int = 10,
 ):
     """Calcular cantidades de clientes creados por dia"""
     if current_user.permissions.get("CIT CLIENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_clientes_creados_por_dia(
+        resultados = get_cit_clientes_creados_por_dia(
             db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             settings=settings,
+            size=size,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    total = 0
-    for fecha_cantidad in fechas_cantidades:
-        total += fecha_cantidad["cantidad"]
-    return CitClienteCreadosPorDiaOut(items=fechas_cantidades, total=total)
+        return make_custom_error_list(error)
+    items = [CitClienteCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
+    result = ListResult(total=resultados.count(), items=items, size=size)
+    return CustomList(result=result)
 
 
 @cit_clientes.get("/perfil", response_model=OneCitClienteOut)

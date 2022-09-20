@@ -196,7 +196,7 @@ def get_cit_citas_creados_por_dia(
         hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCita.creado <= hasta_dt)
 
-    # Agrupar por la fecha de creacion y entregar SIN hacer la consulta
+    # Agrupar por la fecha de creacion y entregar
     return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado))
 
 
@@ -251,7 +251,7 @@ def get_cit_citas_agendadas_por_servicio_oficina(
         hasta_dt = datetime(year=inicio_hasta.year, month=inicio_hasta.month, day=inicio_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCita.inicio <= hasta_dt)
 
-    # Agrupar por oficina y servicio y entregar SIN hacer la consulta
+    # Agrupar por oficina y servicio y entregar
     return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave)
 
 
