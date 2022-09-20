@@ -84,7 +84,8 @@ async def calcular_cantidades_creados_por_dia(
     except CitasAnyError as error:
         return make_custom_error_list(error)
     items = [CitClientesRegistrosCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
-    result = ListResult(total=resultados.count(), items=items, size=size)
+    total = sum(item.cantidad for item in items)
+    result = ListResult(total=total, items=items, size=size)
     return CustomList(result=result)
 
 

@@ -27,5 +27,5 @@ X-Api-Key: {{api_key}}
 
 ### Cantidad de citas agendadas por oficina y por servicio en 2022-09-12
 GET {{baseUrl}}/cit_citas/agendadas_por_servicio_oficina
-    ?inicio=2022-09-12
+    ?inicio=2022-09-13
 X-Api-Key: {{api_key}}
