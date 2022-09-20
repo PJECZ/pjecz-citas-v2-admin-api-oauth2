@@ -27,8 +27,6 @@ from ..distritos.crud import get_distrito
 from ..oficinas.crud import get_oficina
 from ..oficinas.models import Oficina
 
-DEFAULT_DIAS = 7
-
 
 def get_cit_citas(
     db: Session,
@@ -156,6 +154,7 @@ def get_cit_citas_creados_por_dia(
     creado_desde: date = None,
     creado_hasta: date = None,
     distrito_id: int = None,
+    size: int = 10,
 ) -> Any:
     """Calcular las cantidades de citas creados por dia"""
 
@@ -178,11 +177,11 @@ def get_cit_citas_creados_por_dia(
     # Filtrar estados
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
 
-    # Si NO se reciben creados, se limitan a los últimos DEFAULT_DIAS días
+    # Si NO se reciben creados, se limitan a los últimos "size" días
     if creado is None and creado_desde is None and creado_hasta is None:
         hoy_servidor = datetime.now(servidor_huso_horario)
         hoy = hoy_servidor.astimezone(local_huso_horario).date()
-        creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        creado_desde = hoy - timedelta(days=size - 1)
         creado_hasta = hoy
 
     # Si se recibe creado, se limita a esa fecha
@@ -190,15 +189,14 @@ def get_cit_citas_creados_por_dia(
         desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
         hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCita.creado >= desde_dt).filter(CitCita.creado <= hasta_dt)
-    else:
-        if creado_desde is not None:
-            desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitCita.creado >= desde_dt)
-        if creado_hasta is not None:
-            hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitCita.creado <= hasta_dt)
+    if creado is None and creado_desde is not None:
+        desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.creado >= desde_dt)
+    if creado is None and creado_hasta is not None:
+        hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.creado <= hasta_dt)
 
-    # Agrupar por la fecha de creacion y entregar SIN hacer la consulta
+    # Agrupar por la fecha de creacion y entregar
     return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado))
 
 
@@ -208,6 +206,7 @@ def get_cit_citas_agendadas_por_servicio_oficina(
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
+    size: int = 10,
 ) -> Any:
     """Calcular las cantidades de citas agendadas por servicio y oficina"""
 
@@ -233,11 +232,11 @@ def get_cit_citas_agendadas_por_servicio_oficina(
     # Filtrar estados
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
 
-    # Si NO se reciben inicios, se limitan a los últimos DEFAULT_DIAS días
+    # Si NO se reciben inicios, se limitan a los últimos "size" días
     if inicio is None and inicio_desde is None and inicio_hasta is None:
         hoy_servidor = datetime.now(servidor_huso_horario)
         hoy = hoy_servidor.astimezone(local_huso_horario).date()
-        inicio_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        inicio_desde = hoy - timedelta(days=size - 1)
         inicio_hasta = hoy
 
     # Si se recibe inicio, se limita a esa fecha
@@ -245,15 +244,14 @@ def get_cit_citas_agendadas_por_servicio_oficina(
         desde_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
         hasta_dt = datetime(year=inicio.year, month=inicio.month, day=inicio.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCita.inicio >= desde_dt).filter(CitCita.inicio <= hasta_dt)
-    else:
-        if inicio_desde is not None:
-            desde_dt = datetime(year=inicio_desde.year, month=inicio_desde.month, day=inicio_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitCita.inicio >= desde_dt)
-        if inicio_hasta is not None:
-            hasta_dt = datetime(year=inicio_hasta.year, month=inicio_hasta.month, day=inicio_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
-            consulta = consulta.filter(CitCita.inicio <= hasta_dt)
+    if inicio is None and inicio_desde is not None:
+        desde_dt = datetime(year=inicio_desde.year, month=inicio_desde.month, day=inicio_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.inicio >= desde_dt)
+    if inicio is None and inicio_hasta is not None:
+        hasta_dt = datetime(year=inicio_hasta.year, month=inicio_hasta.month, day=inicio_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.inicio <= hasta_dt)
 
-    # Agrupar por oficina y servicio y entregar SIN hacer la consulta
+    # Agrupar por oficina y servicio y entregar
     return consulta.group_by(Oficina.clave, CitServicio.clave).order_by(Oficina.clave, CitServicio.clave)
 
 

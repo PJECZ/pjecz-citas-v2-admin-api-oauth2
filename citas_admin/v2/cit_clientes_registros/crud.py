@@ -14,8 +14,6 @@ from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import CitClienteRegistro
 
-DEFAULT_DIAS = 7
-
 
 def get_cit_clientes_registros(
     db: Session,
@@ -107,6 +105,7 @@ def get_cit_clientes_registros_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    size: int = 10,
 ) -> Any:
     """Calcular las cantidades de registros de clientes creados por dia"""
 
@@ -124,7 +123,7 @@ def get_cit_clientes_registros_creados_por_dia(
     if creado is None and creado_desde is None and creado_hasta is None:
         hoy_servidor = datetime.now(servidor_huso_horario)
         hoy = hoy_servidor.astimezone(local_huso_horario).date()
-        creado_desde = hoy - timedelta(days=DEFAULT_DIAS)
+        creado_desde = hoy - timedelta(days=size - 1)
         creado_hasta = hoy
 
     # Si se recibe creado, se limita a esa fecha
@@ -140,5 +139,5 @@ def get_cit_clientes_registros_creados_por_dia(
             hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
             consulta = consulta.filter(CitClienteRegistro.creado <= hasta_dt)
 
-    # Entregar
+    # Agrupar por creado y entregar
     return consulta.group_by(func.date(CitClienteRegistro.creado))

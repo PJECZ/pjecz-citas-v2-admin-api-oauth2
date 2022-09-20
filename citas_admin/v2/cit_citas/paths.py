@@ -11,6 +11,7 @@ from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
 
 from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina, get_mis_citas
 from .schemas import CitCitaIn, CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut
@@ -66,62 +67,66 @@ async def listado_citas(
     return paginate(resultados)
 
 
-@cit_citas.get("/creados_por_dia", response_model=CitCitasCreadosPorDiaOut)
+@cit_citas.get("/creados_por_dia", response_model=CustomList[CitCitasCreadosPorDiaOut])
 async def cantidades_creados_por_dia(
+    db: Session = Depends(get_db),
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
-    distrito_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+    distrito_id: int = None,
     settings: Settings = Depends(get_settings),
+    size: int = 10,
 ):
     """Calcular las cantidades de citas creadas por dia"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        fechas_cantidades = get_cit_citas_creados_por_dia(
+        resultados = get_cit_citas_creados_por_dia(
             db=db,
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             distrito_id=distrito_id,
             settings=settings,
+            size=size,
         )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    total = 0
-    for fecha_cantidad in fechas_cantidades:
-        total += fecha_cantidad["cantidad"]
-    return CitCitasCreadosPorDiaOut(items=fechas_cantidades, total=total)
+        return make_custom_error_list(error)
+    items = [CitCitasCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
+    total = sum(item.cantidad for item in items)
+    result = ListResult(total=total, items=items, size=size)
+    return CustomList(result=result)
 
 
-@cit_citas.get("/agendadas_por_servicio_oficina", response_model=CitCitasAgendadasPorServicioOficinaOut)
+@cit_citas.get("/agendadas_por_servicio_oficina", response_model=CustomList[CitCitasAgendadasPorServicioOficinaOut])
 async def cantidades_citas_agendadas_por_servicio_oficina(
+    db: Session = Depends(get_db),
+    current_user: UsuarioInDB = Depends(get_current_active_user),
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
-    current_user: UsuarioInDB = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    size: int = 10,
 ):
     """Calcular las cantidades de citas agendadas por oficina y servicio"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        oficinas_servicios_cantidades = get_cit_citas_agendadas_por_servicio_oficina(
+        resultados = get_cit_citas_agendadas_por_servicio_oficina(
             db=db,
             inicio=inicio,
             inicio_desde=inicio_desde,
             inicio_hasta=inicio_hasta,
             settings=settings,
-        ).all()  # Observe que se ejecuta la consulta
+            size=size,
+        )
     except CitasAnyError as error:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Not acceptable: {str(error)}") from error
-    total = 0
-    for oficina_servicio_cantidad in oficinas_servicios_cantidades:
-        total += oficina_servicio_cantidad["cantidad"]
-    return CitCitasAgendadasPorServicioOficinaOut(items=oficinas_servicios_cantidades, total=total)
+        return make_custom_error_list(error)
+    items = [CitCitasAgendadasPorServicioOficinaOut(oficina=oficina, servicio=servicio, cantidad=cantidad) for oficina, servicio, cantidad in resultados.all()]
+    total = sum(item.cantidad for item in items)
+    result = ListResult(total=total, items=items, size=size)
+    return CustomList(result=result)
 
 
 @cit_citas.post("/nueva", response_model=OneCitCitaOut)

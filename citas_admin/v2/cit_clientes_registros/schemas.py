@@ -36,5 +36,5 @@ class OneCitClienteRegistroOut(CitClienteRegistroOut, OneBaseOut):
 class CitClientesRegistrosCreadosPorDiaOut(BaseModel):
     """Esquema para entregar cantidades de registros creados por dia"""
 
-    items: dict
-    total: int
+    creado: date
+    cantidad: int

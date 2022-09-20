@@ -11,14 +11,13 @@ from config.settings import Settings
 
 from ..cit_dias_inhabiles.crud import get_cit_dias_inhabiles
 
-LIMITE_DIAS = 90
 QUITAR_PRIMER_DIA_DESPUES_HORAS = 14
 
 
 def get_cit_dias_disponibles(
     db: Session,
     settings: Settings,
-    size: int = LIMITE_DIAS,
+    size: int = 10,
 ) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []
