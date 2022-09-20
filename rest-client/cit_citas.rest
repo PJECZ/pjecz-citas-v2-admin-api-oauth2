@@ -9,17 +9,23 @@ GET {{root}}
 GET {{baseUrl}}/cit_citas
 X-Api-Key: {{api_key}}
 
-### Cantidad de citas creadas en los ultimos 30 dias
+### Cantidad de citas creadas, ultimos dias
 GET {{baseUrl}}/cit_citas/creados_por_dia
+    ?size=5
 X-Api-Key: {{api_key}}
 
-### Cantidad de citas creadas el 2022-07-23
+### Cantidad de citas creadas en 2022-09-01
 GET {{baseUrl}}/cit_citas/creados_por_dia
-    ?creado=2022-07-23
+    ?creado=2022-09-01
 X-Api-Key: {{api_key}}
 
-### Cantidad de citas creadas desde el 2020-07-23 hasta el 2020-07-26
+### Cantidad de citas creadas en un rango de fechas
 GET {{baseUrl}}/cit_citas/creados_por_dia
-    ?creado_desde=2022-07-23
-    &creado_hasta=2022-07-26
+    ?creado_desde=2022-09-01
+    &creado_hasta=2022-09-15
+X-Api-Key: {{api_key}}
+
+### Cantidad de citas agendadas por oficina y por servicio en 2022-09-12
+GET {{baseUrl}}/cit_citas/agendadas_por_servicio_oficina
+    ?inicio=2022-09-12
 X-Api-Key: {{api_key}}

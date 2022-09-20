@@ -54,12 +54,13 @@ class OneCitCitaOut(CitCitaOut, OneBaseOut):
 class CitCitasCreadosPorDiaOut(BaseModel):
     """Esquema para entregar cantidades de citas creadas por dia"""
 
-    items: dict
-    total: int
+    creado: date
+    cantidad: int
 
 
 class CitCitasAgendadasPorServicioOficinaOut(BaseModel):
     """Esquema para entregar cantidades de citas agendadas por servicio y oficina"""
 
-    items: list
-    total: int
+    oficina: str
+    servicio: str
+    cantidad: int
