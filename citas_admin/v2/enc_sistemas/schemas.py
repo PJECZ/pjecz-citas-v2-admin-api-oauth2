@@ -28,3 +28,9 @@ class EncSistemaOut(BaseModel):
 
 class OneEncSistemaOut(EncSistemaOut, OneBaseOut):
     """Esquema para entregar una encuesta de sistema"""
+
+
+class OneEncSistemaURLOut(OneBaseOut):
+    """Esquema para entregar una URL de encuesta de servicio"""
+
+    url: str | None

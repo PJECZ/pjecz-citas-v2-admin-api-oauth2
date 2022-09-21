@@ -12,8 +12,8 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 
-from .crud import get_enc_servicios, get_enc_servicio
-from .schemas import EncServicioOut, OneEncServicioOut
+from .crud import get_enc_servicios, get_enc_servicio, get_enc_servicio_url
+from .schemas import EncServicioOut, OneEncServicioOut, OneEncServicioURLOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -54,6 +54,31 @@ async def listado_encuestas_servicios(
     except CitasAnyError as error:
         return make_custom_error_page(error)
     return paginate(resultados)
+
+
+@enc_servicios.get("/pendiente", response_model=OneEncServicioURLOut)
+async def pendiente_encuesta_servicio(
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    """Entrega la URL de la encuesta de servicio PENDIENTE si existe"""
+    if current_user.permissions.get("ENC SERVICIOS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        url = get_enc_servicio_url(
+            db=db,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_curp=cit_cliente_curp,
+            cit_cliente_email=cit_cliente_email,
+            settings=settings,
+        )
+    except CitasAnyError as error:
+        return OneEncServicioURLOut(success=False, message=str(error))
+    return OneEncServicioURLOut(success=True, url=url)
 
 
 @enc_servicios.get("/{enc_servicio_id}", response_model=OneEncServicioOut)

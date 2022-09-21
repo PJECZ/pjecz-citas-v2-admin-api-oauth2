@@ -17,7 +17,7 @@ from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
 
-cit_horas_disponibles = APIRouter(prefix="/v2/cit_horas_disponibles", tags=["horas disponibles"])
+cit_horas_disponibles = APIRouter(prefix="/v2/cit_horas_disponibles", tags=["citas horas disponibles"])
 
 
 @cit_horas_disponibles.get("", response_model=CustomList[CitHoraDisponibleOut])

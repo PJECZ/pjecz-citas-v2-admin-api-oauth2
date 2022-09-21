@@ -27,10 +27,10 @@ class CitCliente(Base, UniversalMixin):
     contrasena_md5 = Column(String(256), nullable=False)
     contrasena_sha256 = Column(String(256), nullable=False)
     renovacion = Column(Date(), nullable=False)
-    limite_citas_pendientes = Column(Integer(), nullable=True, default=0)
+    limite_citas_pendientes = Column(Integer(), nullable=False, default=0)
 
     # Columnas booleanas
-    enviar_boletin = Column(Boolean(), nullable=True, default=True)
+    enviar_boletin = Column(Boolean(), nullable=False, default=True)
     es_adulto_mayor = Column(Boolean(), nullable=False, default=False)
     es_mujer = Column(Boolean(), nullable=False, default=False)
     es_identidad = Column(Boolean(), nullable=False, default=False)

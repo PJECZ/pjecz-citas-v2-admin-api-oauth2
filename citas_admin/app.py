@@ -31,8 +31,8 @@ from .v2.usuarios_roles.paths import usuarios_roles
 
 # FastAPI
 app = FastAPI(
-    title="Citas V2 Admin API OAuth2",
-    description="API OAuth2 del sistema de citas para brindar informacion a otros sistemas.",
+    title="Citas V2 Admin",
+    description="API del sistema de citas para brindar informacion a otros sistemas.",
 )
 
 # Paths
