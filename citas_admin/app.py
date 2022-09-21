@@ -2,7 +2,10 @@
 Citas V2 Admin API OAuth2
 """
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
+
+from config.settings import get_settings
 
 from .v2.autoridades.paths import autoridades
 from .v2.cit_categorias.paths import cit_categorias
@@ -29,10 +32,22 @@ from .v2.usuarios.paths import usuarios
 from .v2.usuarios_oficinas.paths import usuarios_oficinas
 from .v2.usuarios_roles.paths import usuarios_roles
 
+settings = get_settings()
+
+
 # FastAPI
 app = FastAPI(
     title="Citas V2 Admin",
     description="API del sistema de citas para brindar informacion a otros sistemas.",
+)
+
+# CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.origins.split(","),
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Paths
