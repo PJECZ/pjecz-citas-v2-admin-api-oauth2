@@ -64,3 +64,9 @@ class CitCitasAgendadasPorServicioOficinaOut(BaseModel):
     oficina: str
     servicio: str
     cantidad: int
+
+
+class CitCitasDisponiblesCantidadOut(OneBaseOut):
+    """Esquema para entregar la cantidad de citas disponibles"""
+
+    cantidad: int | None

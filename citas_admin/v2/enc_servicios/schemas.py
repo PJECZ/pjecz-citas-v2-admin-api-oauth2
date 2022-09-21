@@ -34,3 +34,9 @@ class EncServicioOut(BaseModel):
 
 class OneEncServicioOut(EncServicioOut, OneBaseOut):
     """Esquema para entregar una encuesta de servicio"""
+
+
+class OneEncServicioURLOut(OneBaseOut):
+    """Esquema para entregar una URL de encuesta de servicio"""
+
+    url: str | None

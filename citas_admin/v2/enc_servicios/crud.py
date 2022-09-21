@@ -2,14 +2,15 @@
 Encuestas Servicios v2, CRUD (create, read, update, and delete)
 """
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Optional
+
+from hashids import Hashids
+import pytz
+from sqlalchemy.orm import Session
 
 from config.settings import Settings
-from sqlalchemy.orm import Session
-import pytz
-
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
-from lib.safe_string import safe_clave, safe_email, safe_string
+from lib.safe_string import safe_clave, safe_curp, safe_email, safe_string
 
 from .models import EncServicio
 from ..cit_clientes.crud import get_cit_cliente
@@ -22,6 +23,7 @@ def get_enc_servicios(
     db: Session,
     settings: Settings,
     cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
     cit_cliente_email: str = None,
     creado: date = None,
     creado_desde: date = None,
@@ -43,12 +45,18 @@ def get_enc_servicios(
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
         consulta = consulta.filter(EncServicio.cit_cliente == cit_cliente)
-    elif cit_cliente_email is not None:
-        cit_cliente_email = safe_email(cit_cliente_email, search_fragment=True)
-        if cit_cliente_email:
-            raise CitasNotValidParamError("No es válido el correo electrónico")
+    elif cit_cliente_curp is not None:
+        curp = safe_curp(cit_cliente_curp, search_fragment=False)
+        if curp is None:
+            raise CitasNotValidParamError("No es válido el CURP")
         consulta = consulta.join(CitCliente)
-        consulta = consulta.filter(CitCliente.email == cit_cliente_email)
+        consulta = consulta.filter(CitCliente.curp == curp)
+    elif cit_cliente_email is not None:
+        email = safe_email(cit_cliente_email, search_fragment=True)
+        if email is None:
+            raise CitasNotValidParamError("No es válido el e-mail")
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.email == email)
 
     # Filtrar por creado
     if creado is not None:
@@ -92,3 +100,48 @@ def get_enc_servicio(db: Session, enc_servicio_id: int) -> EncServicio:
     if enc_servicio.estatus != "A":
         raise CitasIsDeletedError("No es activo ese encuesta de servicio, está eliminado")
     return enc_servicio
+
+
+def get_enc_servicio_url(
+    db: Session,
+    settings: Settings,
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+) -> Optional[str]:
+    """Obtener la URL de la encuesta de servicio PENDIENTE si existe"""
+
+    # Consultar
+    enc_servicio = db.query(EncServicio)
+
+    # Filtrar por el cliente
+    if cit_cliente_id is not None:
+        cit_cliente = get_cit_cliente(db, cit_cliente_id)
+        consulta = consulta.filter(EncServicio.cit_cliente == cit_cliente)
+    elif cit_cliente_curp is not None:
+        curp = safe_curp(cit_cliente_curp, search_fragment=False)
+        if curp is None:
+            raise CitasNotValidParamError("No es válido el CURP")
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.curp == curp)
+    elif cit_cliente_email is not None:
+        email = safe_email(cit_cliente_email, search_fragment=True)
+        if email is None:
+            raise CitasNotValidParamError("No es válido el e-mail")
+        consulta = consulta.join(CitCliente)
+        consulta = consulta.filter(CitCliente.email == email)
+    else:
+        raise CitasNotValidParamError("No se proporcionó el cliente")
+
+    # Consultar la encuesta de servicio PENDIENTE
+    enc_servicio = enc_servicio.filter(EncServicio.estado == "PENDIENTE").first()
+
+    # Si no existe, entregar None
+    if enc_servicio is None:
+        return None
+
+    # Preparar el cifrado
+    hashids = Hashids(settings.salt, min_length=8)
+
+    # Entregar la URL
+    return f"{settings.poll_service_url}?hashid={hashids.encode(enc_servicio.id)}"

@@ -13,8 +13,8 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
 from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
 
-from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina, get_mis_citas
-from .schemas import CitCitaIn, CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut
+from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina, get_cit_citas_pendientes, get_cit_citas_disponibles_cantidad
+from .schemas import CitCitaIn, CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut, CitCitasDisponiblesCantidadOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -129,6 +129,31 @@ async def cantidades_citas_agendadas_por_servicio_oficina(
     return CustomList(result=result)
 
 
+@cit_citas.get("/disponibles", response_model=CitCitasDisponiblesCantidadOut)
+async def cantidad_cit_citas_disponibles(
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    """Consultar la cantidad de citas que puede agendar (que es su limite menos las pendientes)"""
+    if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        cantidad = get_cit_citas_disponibles_cantidad(
+            db=db,
+            settings=settings,
+            cit_cliente_id=cit_cliente_id,
+            cit_cliente_curp=cit_cliente_curp,
+            cit_cliente_email=cit_cliente_email,
+        )
+    except CitasAnyError as error:
+        return CitCitasDisponiblesCantidadOut(success=False, message=str(error))
+    return CitCitasDisponiblesCantidadOut(success=True, cantidad=cantidad)
+
+
 @cit_citas.post("/nueva", response_model=OneCitCitaOut)
 async def nueva_cita(
     datos: CitCitaIn,
@@ -168,7 +193,7 @@ async def mis_citas(
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        resultados = get_mis_citas(
+        resultados = get_cit_citas_pendientes(
             db=db,
             cit_cliente_id=cit_cliente_id,
             cit_cliente_curp=cit_cliente_curp,

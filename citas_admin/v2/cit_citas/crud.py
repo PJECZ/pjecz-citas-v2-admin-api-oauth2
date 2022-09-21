@@ -264,7 +264,7 @@ def create_cit_cita(
     oficina_id: int,
     notas: str,
     settings: Settings,
-):
+) -> Any:
     """Crear una cita"""
 
     # Consultar el cliente
@@ -333,21 +333,54 @@ def create_cit_cita(
     return cit_cita
 
 
-def get_mis_citas(
+def get_cit_citas_pendientes(
     db: Session,
     settings: Settings,
     cit_cliente_id: int = None,
     cit_cliente_curp: str = None,
     cit_cliente_email: str = None,
-):
-    """Consultar las citas PENDIENTE de un cliente en especifico"""
+) -> Any:
+    """Consultar las citas PENDIENTE de un cliente"""
 
-    # Validar que se envie al menos un parametro
-    if not cit_cliente_id and not cit_cliente_curp and not cit_cliente_email:
-        raise CitasNotValidParamError("No se envio ningun parametro para consultar las citas")
+    # Consultar y validad al cliente
+    cit_cliente = get_cit_cliente(
+        db=db,
+        cit_cliente_id=cit_cliente_id,
+        cit_cliente_curp=cit_cliente_curp,
+        cit_cliente_email=cit_cliente_email,
+    )
+
+    # Consultar las citas PENDIENTES en el futuro
+    return get_cit_citas(
+        db=db,
+        cit_cliente_id=cit_cliente.id,
+        estado="PENDIENTE",
+        inicio_desde=date.today(),
+        settings=settings,
+    )
+
+
+def get_cit_citas_disponibles_cantidad(
+    db: Session,
+    settings: Settings,
+    cit_cliente_id: int = None,
+    cit_cliente_curp: str = None,
+    cit_cliente_email: str = None,
+) -> int:
+    """Consultar la cantidad de citas que puede agendar (que es su limite menos las pendientes)"""
 
     # Consultar el cliente
-    cit_cliente = get_cit_cliente(db=db, cit_cliente_id=cit_cliente_id, cit_cliente_curp=cit_cliente_curp, cit_cliente_email=cit_cliente_email)
+    cit_cliente = get_cit_cliente(db, cit_cliente_id=cit_cliente_id, cit_cliente_curp=cit_cliente_curp, cit_cliente_email=cit_cliente_email)
 
-    # Consultar las citas
-    return get_cit_citas(db=db, cit_cliente_id=cit_cliente.id, estado="PENDIENTE", settings=settings)
+    # Definir la cantidad limite de citas del cliente
+    limite = settings.limite_citas_pendientes
+    if cit_cliente.limite_citas_pendientes > limite:
+        limite = cit_cliente.limite_citas_pendientes
+
+    # Consultar las citas PENDIENTES
+    citas_pendientes_cantidad = get_cit_citas_pendientes(db=db, cit_cliente_id=cit_cliente.id, settings=settings).count()
+
+    # Entregar la cantidad de citas disponibles que puede agendar
+    if citas_pendientes_cantidad >= limite:
+        return 0
+    return limite - citas_pendientes_cantidad
