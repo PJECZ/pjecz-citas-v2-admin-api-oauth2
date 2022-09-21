@@ -7,6 +7,9 @@ GET {{root}}
 
 ### Citas
 GET {{baseUrl}}/cit_citas
+    ?cit_cliente_email=no.existe@company.com
+    &estado=PENDIENTE
+    &inicio_desde=2022-09-21
 X-Api-Key: {{api_key}}
 
 ### Cantidad de citas creadas, ultimos dias
@@ -25,7 +28,22 @@ GET {{baseUrl}}/cit_citas/creados_por_dia
     &creado_hasta=2022-09-15
 X-Api-Key: {{api_key}}
 
-### Cantidad de citas agendadas por oficina y por servicio en 2022-09-12
+### Cantidad de citas agendadas por oficina y por servicio
 GET {{baseUrl}}/cit_citas/agendadas_por_servicio_oficina
     ?inicio=2022-09-13
+X-Api-Key: {{api_key}}
+
+### Cantidad de citas disponibles
+GET {{baseUrl}}/cit_citas/disponibles
+    ?cit_cliente_id=1212
+X-Api-Key: {{api_key}}
+
+### Cantidad de citas disponibles
+GET {{baseUrl}}/cit_citas/disponibles
+    ?cit_cliente_curp=XXXX00000000000000
+X-Api-Key: {{api_key}}
+
+### Cantidad de citas disponibles
+GET {{baseUrl}}/cit_citas/disponibles
+    ?cit_cliente_email=no.existe@company.com
 X-Api-Key: {{api_key}}

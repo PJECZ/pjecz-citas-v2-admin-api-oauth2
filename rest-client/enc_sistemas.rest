@@ -6,11 +6,11 @@
 GET {{root}}
 
 ### GET Encuestas de servicios
-GET {{baseUrl}}/enc_servicios
+GET {{baseUrl}}/enc_sistemas
 X-Api-Key: {{api_key}}
 
 ### GET Detalle
-GET {{baseUrl}}/enc_servicios/2
+GET {{baseUrl}}/enc_sistemas/2
 X-Api-Key: {{api_key}}
 
 ### GET Cliente
@@ -18,16 +18,16 @@ GET {{baseUrl}}/cit_clientes/3976
 X-Api-Key: {{api_key}}
 
 ### GET Tiene una encuesta pendiente?
-GET {{baseUrl}}/enc_servicios/pendiente
+GET {{baseUrl}}/enc_sistemas/pendiente
     ?cit_cliente_id=3976
 X-Api-Key: {{api_key}}
 
 ### GET Tiene una encuesta pendiente?
-GET {{baseUrl}}/enc_servicios/pendiente
+GET {{baseUrl}}/enc_sistemas/pendiente
     ?cit_cliente_curp=XXXX00000000000000
 X-Api-Key: {{api_key}}
 
 ### GET Tiene una encuesta pendiente?
-GET {{baseUrl}}/enc_servicios/pendiente
+GET {{baseUrl}}/enc_sistemas/pendiente
     ?cit_cliente_email=no.existe@company.com
 X-Api-Key: {{api_key}}

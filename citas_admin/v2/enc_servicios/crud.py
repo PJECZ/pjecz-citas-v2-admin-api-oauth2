@@ -117,19 +117,19 @@ def get_enc_servicio_url(
     # Filtrar por el cliente
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
-        consulta = consulta.filter(EncServicio.cit_cliente == cit_cliente)
+        enc_servicio = enc_servicio.filter(EncServicio.cit_cliente == cit_cliente)
     elif cit_cliente_curp is not None:
         curp = safe_curp(cit_cliente_curp, search_fragment=False)
         if curp is None:
             raise CitasNotValidParamError("No es válido el CURP")
-        consulta = consulta.join(CitCliente)
-        consulta = consulta.filter(CitCliente.curp == curp)
+        enc_servicio = enc_servicio.join(CitCliente)
+        enc_servicio = enc_servicio.filter(CitCliente.curp == curp)
     elif cit_cliente_email is not None:
         email = safe_email(cit_cliente_email, search_fragment=True)
         if email is None:
             raise CitasNotValidParamError("No es válido el e-mail")
-        consulta = consulta.join(CitCliente)
-        consulta = consulta.filter(CitCliente.email == email)
+        enc_servicio = enc_servicio.join(CitCliente)
+        enc_servicio = enc_servicio.filter(CitCliente.email == email)
     else:
         raise CitasNotValidParamError("No se proporcionó el cliente")
 

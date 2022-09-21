@@ -97,36 +97,36 @@ def get_enc_sistema_url(
     """Obtener la URL de la encuesta de sistema si existe"""
 
     # Consultar
-    enc_servicio = db.query(EncSistema)
+    enc_sistema = db.query(EncSistema)
 
     # Filtrar por el cliente
     if cit_cliente_id is not None:
         cit_cliente = get_cit_cliente(db, cit_cliente_id)
-        consulta = consulta.filter(EncSistema.cit_cliente == cit_cliente)
+        enc_sistema = enc_sistema.filter(EncSistema.cit_cliente == cit_cliente)
     elif cit_cliente_curp is not None:
         curp = safe_curp(cit_cliente_curp, search_fragment=False)
         if curp is None:
             raise CitasNotValidParamError("No es válido el CURP")
-        consulta = consulta.join(CitCliente)
-        consulta = consulta.filter(CitCliente.curp == curp)
+        enc_sistema = enc_sistema.join(CitCliente)
+        enc_sistema = enc_sistema.filter(CitCliente.curp == curp)
     elif cit_cliente_email is not None:
         email = safe_email(cit_cliente_email, search_fragment=True)
         if email is None:
             raise CitasNotValidParamError("No es válido el e-mail")
-        consulta = consulta.join(CitCliente)
-        consulta = consulta.filter(CitCliente.email == email)
+        enc_sistema = enc_sistema.join(CitCliente)
+        enc_sistema = enc_sistema.filter(CitCliente.email == email)
     else:
         raise CitasNotValidParamError("No se proporcionó el cliente")
 
     # Consultar la encuesta de servicio PENDIENTE
-    enc_servicio = enc_servicio.filter(EncSistema.estado == "PENDIENTE").first()
+    enc_sistema = enc_sistema.filter(EncSistema.estado == "PENDIENTE").first()
 
     # Si no existe, entregar None
-    if enc_servicio is None:
+    if enc_sistema is None:
         return None
 
     # Preparar el cifrado
     hashids = Hashids(settings.salt, min_length=8)
 
     # Entregar la URL
-    return f"{settings.poll_system_url}?hashid={hashids.encode(enc_servicio.id)}"
+    return f"{settings.poll_system_url}?hashid={hashids.encode(enc_sistema.id)}"
