@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     db_pass: str
     db_user: str
     limite_citas_pendientes: int
+    origins: str
     poll_system_url: str
     poll_service_url: str
     salt: str

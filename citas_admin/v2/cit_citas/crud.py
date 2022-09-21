@@ -295,11 +295,7 @@ def create_cit_cita(
         raise CitasOutOfRangeParamError("No se puede crear la cita porque ya se alcanzo el limite de personas en la oficina")
 
     # Validar que la cantidad de citas con estado PENDIENTE no haya llegado al limite de este cliente
-    limite = settings.limite_citas_pendientes
-    if cit_cliente.limite_citas_pendientes > limite:
-        limite = cit_cliente.limite_citas_pendientes
-    cit_citas = get_cit_citas(db=db, cit_cliente_id=cit_cliente_id, estado="PENDIENTE", settings=settings)
-    if cit_citas.count() >= limite:
+    if get_cit_citas_disponibles_cantidad(db=db, cit_cliente_id=cit_cliente.id, settings=settings) <= 0:
         raise CitasOutOfRangeParamError("No se puede crear la cita porque ya se alcanzo el limite de citas pendientes")
 
     # Definir los tiempos de la cita
@@ -307,6 +303,7 @@ def create_cit_cita(
     termino_dt = datetime(year=fecha.year, month=fecha.month, day=fecha.day, hour=hora_minuto.hour, minute=hora_minuto.minute) + timedelta(hours=cit_servicio.duracion.hour, minutes=cit_servicio.duracion.minute)
 
     # Validar que no tenga una cita pendiente en la misma fecha y hora
+    cit_citas = get_cit_citas(db=db, cit_cliente_id=cit_cliente_id, estado="PENDIENTE", settings=settings)
     for cit_cita in cit_citas.all():
         if cit_cita.inicio == inicio_dt:
             raise CitasOutOfRangeParamError("No se puede crear la cita porque ya tiene una cita pendiente en la misma fecha y hora")
