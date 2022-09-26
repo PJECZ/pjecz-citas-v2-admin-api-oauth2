@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
-from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, custom_list_success_false
 
 from .crud import create_cit_cita, get_cit_citas, get_cit_cita, get_cit_citas_creados_por_dia, get_cit_citas_agendadas_por_servicio_oficina, get_cit_citas_pendientes, get_cit_citas_disponibles_cantidad
 from .schemas import CitCitaIn, CitCitaOut, CitCitasCreadosPorDiaOut, CitCitasAgendadasPorServicioOficinaOut, OneCitCitaOut, CitCitasDisponiblesCantidadOut
@@ -63,7 +63,7 @@ async def listado_citas(
             settings=settings,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 
@@ -92,7 +92,7 @@ async def cantidades_creados_por_dia(
             size=size,
         )
     except CitasAnyError as error:
-        return make_custom_error_list(error)
+        return custom_list_success_false(error)
     items = [CitCitasCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
     total = sum(item.cantidad for item in items)
     result = ListResult(total=total, items=items, size=size)
@@ -122,7 +122,7 @@ async def cantidades_citas_agendadas_por_servicio_oficina(
             size=size,
         )
     except CitasAnyError as error:
-        return make_custom_error_list(error)
+        return custom_list_success_false(error)
     items = [CitCitasAgendadasPorServicioOficinaOut(oficina=oficina, servicio=servicio, cantidad=cantidad) for oficina, servicio, cantidad in resultados.all()]
     total = sum(item.cantidad for item in items)
     result = ListResult(total=total, items=items, size=size)
@@ -201,7 +201,7 @@ async def mis_citas(
             settings=settings,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

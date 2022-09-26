@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_cit_horas_bloqueadas, get_cit_hora_bloqueada
 from .schemas import CitHoraBloqueadaOut, OneCitHoraBloqueadaOut
@@ -36,7 +36,7 @@ async def listado_horas_bloqueadas(
             fecha=fecha,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

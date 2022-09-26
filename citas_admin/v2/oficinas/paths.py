@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError, CitasNotExistsError, CitasIsDeletedError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_oficinas, get_oficina
 from .schemas import OficinaOut, OneOficinaOut
@@ -23,6 +23,7 @@ async def listado_oficinas(
     distrito_id: int = None,
     domicilio_id: int = None,
     es_jurisdiccional: bool = None,
+    estatus: str = None,
     puede_agendar_citas: bool = None,
     puede_enviar_qr: bool = False,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -37,11 +38,12 @@ async def listado_oficinas(
             distrito_id=distrito_id,
             domicilio_id=domicilio_id,
             es_jurisdiccional=es_jurisdiccional,
+            estatus=estatus,
             puede_agendar_citas=puede_agendar_citas,
             puede_enviar_qr=puede_enviar_qr,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_usuarios, get_usuario
 from .schemas import UsuarioOut, OneUsuarioOut
@@ -22,6 +22,7 @@ usuarios = APIRouter(prefix="/v2/usuarios", tags=["usuarios"])
 async def listado_usuarios(
     autoridad_id: int = None,
     autoridad_clave: str = None,
+    estatus: str = None,
     oficina_id: int = None,
     oficina_clave: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -35,11 +36,12 @@ async def listado_usuarios(
             db=db,
             autoridad_id=autoridad_id,
             autoridad_clave=autoridad_clave,
+            estatus=estatus,
             oficina_id=oficina_id,
             oficina_clave=oficina_clave,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

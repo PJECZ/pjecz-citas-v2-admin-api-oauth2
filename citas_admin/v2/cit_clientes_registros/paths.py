@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
-from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, custom_list_success_false
 
 from .crud import get_cit_clientes_registros, get_cit_cliente_registro, get_cit_clientes_registros_creados_por_dia
 from .schemas import CitClienteRegistroOut, CitClientesRegistrosCreadosPorDiaOut, OneCitClienteRegistroOut
@@ -55,7 +55,7 @@ async def listado_clientes_registros(
             settings=settings,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 
@@ -82,7 +82,7 @@ async def calcular_cantidades_creados_por_dia(
             size=size,
         )
     except CitasAnyError as error:
-        return make_custom_error_list(error)
+        return custom_list_success_false(error)
     items = [CitClientesRegistrosCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
     total = sum(item.cantidad for item in items)
     result = ListResult(total=total, items=items, size=size)

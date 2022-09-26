@@ -19,6 +19,7 @@ def get_usuarios(
     db: Session,
     autoridad_id: int = None,
     autoridad_clave: str = None,
+    estatus: str = None,
     oficina_id: int = None,
     oficina_clave: str = None,
 ) -> Any:
@@ -30,13 +31,17 @@ def get_usuarios(
     elif autoridad_clave is not None:
         autoridad = get_autoridad_with_clave(db, autoridad_clave)
         consulta = consulta.filter(Usuario.autoridad == autoridad)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
         consulta = consulta.filter(Usuario.oficina == oficina)
     elif oficina_clave is not None:
         oficina = get_oficina_with_clave(db, oficina_clave)
         consulta = consulta.filter(Usuario.oficina == oficina)
-    return consulta.filter_by(estatus="A").order_by(Usuario.id.desc())
+    return consulta.order_by(Usuario.id.desc())
 
 
 def get_usuario(db: Session, usuario_id: int) -> Usuario:
@@ -51,7 +56,7 @@ def get_usuario(db: Session, usuario_id: int) -> Usuario:
 
 def get_usuario_with_email(db: Session, email: str) -> Usuario:
     """Consultar un usuario por su id"""
-    email = safe_email(email)
+    email = safe_email(email, search_fragment=False)
     if email is None or email == "":
         raise CitasNotValidParamError("El email no es válido")
     usuario = db.query(Usuario).filter_by(email=email).first()

@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_enc_sistemas, get_enc_sistema, get_enc_sistema_url
 from .schemas import EncSistemaOut, OneEncSistemaOut, OneEncSistemaURLOut
@@ -48,7 +48,7 @@ async def listado_encuestas_sistemas(
             settings=settings,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

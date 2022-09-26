@@ -48,7 +48,7 @@ def get_enc_sistemas(
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.curp == curp)
     elif cit_cliente_email is not None:
-        email = safe_email(cit_cliente_email, search_fragment=True)
+        email = safe_email(cit_cliente_email, search_fragment=False)
         if email is None:
             raise CitasNotValidParamError("No es válido el e-mail")
         consulta = consulta.join(CitCliente)
@@ -110,7 +110,7 @@ def get_enc_sistema_url(
         enc_sistema = enc_sistema.join(CitCliente)
         enc_sistema = enc_sistema.filter(CitCliente.curp == curp)
     elif cit_cliente_email is not None:
-        email = safe_email(cit_cliente_email, search_fragment=True)
+        email = safe_email(cit_cliente_email, search_fragment=False)
         if email is None:
             raise CitasNotValidParamError("No es válido el e-mail")
         enc_sistema = enc_sistema.join(CitCliente)
