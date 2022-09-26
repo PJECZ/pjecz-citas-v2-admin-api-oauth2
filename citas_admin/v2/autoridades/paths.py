@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_autoridades, get_autoridad
 from .schemas import AutoridadOut, OneAutoridadOut
@@ -23,6 +23,7 @@ async def listado_autoridades(
     distrito_id: int = None,
     es_jurisdiccional: bool = None,
     es_notaria: bool = None,
+    estatus: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -35,9 +36,10 @@ async def listado_autoridades(
             distrito_id=distrito_id,
             es_jurisdiccional=es_jurisdiccional,
             es_notaria=es_notaria,
+            estatus=estatus,
         )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

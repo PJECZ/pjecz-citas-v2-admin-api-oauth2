@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_modulos, get_modulo
 from .schemas import ModuloOut, OneModuloOut
@@ -20,6 +20,7 @@ modulos = APIRouter(prefix="/v2/modulos", tags=["usuarios"])
 
 @modulos.get("", response_model=CustomPage[ModuloOut])
 async def listado_modulos(
+    estatus: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -27,9 +28,12 @@ async def listado_modulos(
     if current_user.permissions.get("MODULOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        resultados = get_modulos(db=db)
+        resultados = get_modulos(
+            db=db,
+            estatus=estatus,
+        )
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 

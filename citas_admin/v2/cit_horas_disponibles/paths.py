@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_list import CustomList, ListResult, make_custom_error_list
+from lib.fastapi_pagination_custom_list import CustomList, ListResult, custom_list_success_false
 
 from .crud import get_cit_horas_disponibles
 from .schemas import CitHoraDisponibleOut
@@ -43,7 +43,7 @@ async def listado_cit_horas_disponibles(
             size=size,
         )
     except CitasAnyError as error:
-        return make_custom_error_list(error)
+        return custom_list_success_false(error)
     items = [CitHoraDisponibleOut(horas_minutos=item) for item in resultados]
     result = ListResult(total=len(items), items=items, size=size)
     return CustomList(result=result)

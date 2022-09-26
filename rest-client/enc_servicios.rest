@@ -10,7 +10,7 @@ GET {{baseUrl}}/enc_servicios
 X-Api-Key: {{api_key}}
 
 ### GET Detalle
-GET {{baseUrl}}/enc_servicios/2
+GET {{baseUrl}}/enc_servicios/1
 X-Api-Key: {{api_key}}
 
 ### GET Cliente

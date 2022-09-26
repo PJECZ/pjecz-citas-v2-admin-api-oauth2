@@ -1,11 +1,11 @@
-@root = http://{{$dotenv HOST}}:{{$dotenv PORT}}
+@root = {{$dotenv HOST}}
 @baseUrl = {{root}}/v2
 @api_key = {{$dotenv API_KEY}}
 
 ### Bienvenida
 GET {{root}}
-
 X-Api-Key: {{api_key}}
+
 ### Modulos
 GET {{baseUrl}}/modulos
 X-Api-Key: {{api_key}}
@@ -44,6 +44,11 @@ X-Api-Key: {{api_key}}
 
 ### Usuarios
 GET {{baseUrl}}/usuarios
+X-Api-Key: {{api_key}}
+
+### Usuarios eliminados
+GET {{baseUrl}}/usuarios
+    ?estatus=B
 X-Api-Key: {{api_key}}
 
 ### Usuarios-Roles

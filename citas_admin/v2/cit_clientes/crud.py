@@ -61,12 +61,12 @@ def get_cit_clientes(
         hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCliente.creado <= hasta_dt)
 
-    # Filtrar por CURP
+    # Filtrar por fragmento de CURP
     curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
         consulta = consulta.filter(CitCliente.curp.contains(curp))
 
-    # Filtrar por email
+    # Filtrar por fragmento de email
     email = safe_email(email, search_fragment=True)
     if email is not None:
         if email is None or email == "":

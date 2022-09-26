@@ -5,16 +5,22 @@
 ### Bienvenida
 GET {{root}}
 
-### Citas
+### Citas PENDIENTE de un juzgado
+GET {{baseUrl}}/cit_citas
+    ?oficina_clave=SLT-J1-FAM
+    &estado=PENDIENTE
+    &inicio=2022-09-26
+X-Api-Key: {{api_key}}
+
+### Citas PENDIENTE de un cliente
 GET {{baseUrl}}/cit_citas
     ?cit_cliente_email=no.existe@company.com
-    &estado=PENDIENTE
-    &inicio_desde=2022-09-21
+    &inicio_desde=2022-09-15
 X-Api-Key: {{api_key}}
 
 ### Cantidad de citas creadas, ultimos dias
 GET {{baseUrl}}/cit_citas/creados_por_dia
-    ?size=5
+    ?size=4
 X-Api-Key: {{api_key}}
 
 ### Cantidad de citas creadas en 2022-09-01
@@ -35,7 +41,7 @@ X-Api-Key: {{api_key}}
 
 ### Cantidad de citas disponibles
 GET {{baseUrl}}/cit_citas/disponibles
-    ?cit_cliente_id=1212
+    ?cit_cliente_id=4067
 X-Api-Key: {{api_key}}
 
 ### Cantidad de citas disponibles

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
-from lib.fastapi_pagination_custom_page import CustomPage, make_custom_error_page
+from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
 from .crud import get_cit_categorias, get_cit_categoria
 from .schemas import CitCategoriaOut, OneCitCategoriaOut
@@ -29,7 +29,7 @@ async def listado_categorias(
     try:
         resultados = get_cit_categorias(db=db)
     except CitasAnyError as error:
-        return make_custom_error_page(error)
+        return custom_page_success_false(error)
     return paginate(resultados)
 
 
