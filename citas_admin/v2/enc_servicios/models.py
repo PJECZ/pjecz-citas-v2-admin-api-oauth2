@@ -36,7 +36,7 @@ class EncServicio(Base, UniversalMixin):
     respuesta_01 = Column(Integer(), nullable=True)
     respuesta_02 = Column(Integer(), nullable=True)
     respuesta_03 = Column(Integer(), nullable=True)
-    respuesta_04 = Column(String(255), nullable=True)
+    respuesta_04 = Column(String(512), nullable=True)
     estado = Column(Enum(*ESTADOS, name="estados", native_enum=False))
 
     @property
