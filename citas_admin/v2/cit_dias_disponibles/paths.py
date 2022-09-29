@@ -23,7 +23,7 @@ async def listado_dias_disponibles(
     db: Session = Depends(get_db),
     current_user: UsuarioInDB = Depends(get_current_active_user),
     settings: Settings = Depends(get_settings),
-    size: int = 90,
+    size: int = 100,
 ):
     """Listado de dias disponibles"""
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:

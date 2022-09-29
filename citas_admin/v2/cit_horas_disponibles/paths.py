@@ -28,7 +28,7 @@ async def listado_cit_horas_disponibles(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
-    size: int = 90,
+    size: int = 100,
 ):
     """Listado de horas disponibles"""
     if current_user.permissions.get("CIT HORAS BLOQUEADAS", 0) < Permiso.VER:
@@ -37,8 +37,8 @@ async def listado_cit_horas_disponibles(
         resultados = get_cit_horas_disponibles(
             db=db,
             cit_servicio_id=cit_servicio_id,
-            oficina_id=oficina_id,
             fecha=fecha,
+            oficina_id=oficina_id,
             settings=settings,
             size=size,
         )

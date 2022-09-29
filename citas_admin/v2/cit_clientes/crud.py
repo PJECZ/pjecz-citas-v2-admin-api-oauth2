@@ -132,7 +132,7 @@ def get_cit_clientes_creados_por_dia(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
-    size: int = 10,
+    size: int = 100,
 ) -> Any:
     """Calcular las cantidades de clientes creados por dia"""
 

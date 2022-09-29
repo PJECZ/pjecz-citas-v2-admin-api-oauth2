@@ -154,7 +154,7 @@ def get_cit_citas_creados_por_dia(
     creado_desde: date = None,
     creado_hasta: date = None,
     distrito_id: int = None,
-    size: int = 10,
+    size: int = 100,
 ) -> Any:
     """Calcular las cantidades de citas creados por dia"""
 
@@ -206,7 +206,7 @@ def get_cit_citas_agendadas_por_servicio_oficina(
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
-    size: int = 10,
+    size: int = 100,
 ) -> Any:
     """Calcular las cantidades de citas agendadas por servicio y oficina"""
 
