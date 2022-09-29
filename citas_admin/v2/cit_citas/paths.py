@@ -69,14 +69,14 @@ async def listado_citas(
 
 @cit_citas.get("/creados_por_dia", response_model=CustomList[CitCitasCreadosPorDiaOut])
 async def cantidades_creados_por_dia(
-    db: Session = Depends(get_db),
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     distrito_id: int = None,
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
-    size: int = 10,
+    size: int = 100,
 ):
     """Calcular las cantidades de citas creadas por dia"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
@@ -101,13 +101,13 @@ async def cantidades_creados_por_dia(
 
 @cit_citas.get("/agendadas_por_servicio_oficina", response_model=CustomList[CitCitasAgendadasPorServicioOficinaOut])
 async def cantidades_citas_agendadas_por_servicio_oficina(
-    db: Session = Depends(get_db),
-    current_user: UsuarioInDB = Depends(get_current_active_user),
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
+    db: Session = Depends(get_db),
+    current_user: UsuarioInDB = Depends(get_current_active_user),
     settings: Settings = Depends(get_settings),
-    size: int = 10,
+    size: int = 100,
 ):
     """Calcular las cantidades de citas agendadas por oficina y servicio"""
     if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:

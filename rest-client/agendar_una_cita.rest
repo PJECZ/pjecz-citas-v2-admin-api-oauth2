@@ -36,7 +36,7 @@ X-Api-Key: {{api_key}}
 GET {{baseUrl}}/cit_horas_disponibles
     ?oficina_id=71
     &cit_servicio_id=2
-    &fecha=2022-09-29
+    &fecha=2022-10-10
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID

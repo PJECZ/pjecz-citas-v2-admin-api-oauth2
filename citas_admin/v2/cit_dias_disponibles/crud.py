@@ -17,7 +17,7 @@ QUITAR_PRIMER_DIA_DESPUES_HORAS = 14
 def get_cit_dias_disponibles(
     db: Session,
     settings: Settings,
-    size: int = 10,
+    size: int = 100,
 ) -> Any:
     """Consultar los dias disponibles, entrega un listado de fechas"""
     dias_disponibles = []

@@ -21,7 +21,7 @@ def get_cit_horas_disponibles(
     fecha: date,
     oficina_id: int,
     settings: Settings,
-    size: int = 32,
+    size: int = 100,
 ) -> Any:
     """Consultar las horas disponibles, entrega un listado de horas"""
 
