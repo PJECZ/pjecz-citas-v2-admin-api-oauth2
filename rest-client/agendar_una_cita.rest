@@ -66,14 +66,14 @@ X-Api-Key: {{api_key}}
     "cit_cliente_id": 3976,
     "oficina_id": 71,
     "cit_servicio_id": 2,
-    "fecha": "2022-09-29",
-    "hora_minuto": "11:00",
+    "fecha": "2022-10-10",
+    "hora_minuto": "10:00",
     "notas": "Cita de prueba"
 }
 
 ### GET mis citas por ID de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_id=12832
+    ?cit_cliente_id=3976
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por CURP de cliente
@@ -86,11 +86,15 @@ GET {{baseUrl}}/cit_citas/mis_citas
     ?cit_cliente_email=anonymous@company.com
 X-Api-Key: {{api_key}}
 
+### GET cita
+GET {{baseUrl}}/cit_citas/32238
+X-Api-Key: {{api_key}}
+
 ### POST cancelar una cita PENDIENTE
 POST {{baseUrl}}/cit_citas/cancelar
 X-Api-Key: {{api_key}}
 
 {
-    "cit_cliente_id": 3575,
-    "cit_cita_id": 1299
+    "id": 32238,
+    "cit_cliente_id": 999
 }
