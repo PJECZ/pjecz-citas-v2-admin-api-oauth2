@@ -7,8 +7,15 @@ from pydantic import BaseModel
 from lib.schemas_base import OneBaseOut
 
 
+class CitCitaCancelIn(BaseModel):
+    """Esquema para cancelar citas"""
+
+    id: int
+    cit_cliente_id: int
+
+
 class CitCitaIn(BaseModel):
-    """Esquema para entregar citas"""
+    """Esquema para agendar citas"""
 
     cit_cliente_id: int
     cit_servicio_id: int

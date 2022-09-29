@@ -137,7 +137,10 @@ def get_cit_citas(
     return consulta
 
 
-def get_cit_cita(db: Session, cit_cita_id: int) -> CitCita:
+def get_cit_cita(
+    db: Session,
+    cit_cita_id: int,
+) -> CitCita:
     """Consultar un cita por su id"""
     cit_cita = db.query(CitCita).get(cit_cita_id)
     if cit_cita is None:
@@ -381,3 +384,42 @@ def get_cit_citas_disponibles_cantidad(
     if citas_pendientes_cantidad >= limite:
         return 0
     return limite - citas_pendientes_cantidad
+
+
+def cancel_cit_cita(
+    db: Session,
+    cit_cita_id: int,
+    cit_cliente_id: int,
+) -> CitCita:
+    """Cancelar una cita"""
+
+    # Consultar la cita
+    cit_cita = get_cit_cita(db=db, cit_cita_id=cit_cita_id)
+
+    # Validar que la cita sea del cliente
+    if cit_cita.cit_cliente_id != cit_cliente_id:
+        raise CitasNotExistsError("La cita no es de Usted")
+
+    # Validar que no este cancelada
+    if cit_cita.estado == "CANCELO":
+        raise CitasNotExistsError("Ya esta cancelada esta cita")
+
+    # Validar que el estado sea PENDIENTE
+    if cit_cita.estado != "PENDIENTE":
+        raise CitasNotExistsError("No se puede cancelar la cita porque no tiene el estado pendiente")
+
+    # Validar la fecha, no debe ser de hoy o del pasado
+    manana = date.today() + timedelta(days=1)
+    if cit_cita.inicio < datetime(year=manana.year, month=manana.month, day=manana.day):
+        raise CitasNotExistsError("No se puede cancelar esta cita porque es de hoy o del pasado")
+
+    # Actualizar registro
+    cit_cita.estado = "CANCELO"
+    db.add(cit_cita)
+    db.commit()
+    db.refresh(cit_cita)
+
+    # TODO: Agregar tarea en el fondo para que se envie un mensaje via correo electronico
+
+    # Entregar
+    return cit_cita
