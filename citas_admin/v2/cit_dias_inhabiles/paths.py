@@ -20,6 +20,7 @@ cit_dias_inhabiles = APIRouter(prefix="/v2/cit_dias_inhabiles", tags=["citas dia
 
 @cit_dias_inhabiles.get("", response_model=CustomPage[CitDiaInhabilOut])
 async def listado_dias_inhabiles(
+    estatus: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -27,7 +28,10 @@ async def listado_dias_inhabiles(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        resultados = get_cit_dias_inhabiles(db=db)
+        resultados = get_cit_dias_inhabiles(
+            db=db,
+            estatus=estatus,
+        )
     except CitasAnyError as error:
         return custom_page_success_false(error)
     return paginate(resultados)

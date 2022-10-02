@@ -29,6 +29,7 @@ async def listar_recuperaciones(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    estatus: str = None,
     ya_recuperado: bool = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -45,8 +46,9 @@ async def listar_recuperaciones(
             creado=creado,
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
-            ya_recuperado=ya_recuperado,
+            estatus=estatus,
             settings=settings,
+            ya_recuperado=ya_recuperado,
         )
     except CitasAnyError as error:
         return custom_page_success_false(error)

@@ -20,6 +20,7 @@ usuarios_oficinas = APIRouter(prefix="/v2/usuarios_oficinas", tags=["usuarios"])
 
 @usuarios_oficinas.get("", response_model=CustomPage[UsuarioOficinaOut])
 async def listado_usuarios_oficinas(
+    estatus: str = None,
     oficina_id: int = None,
     usuario_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -31,6 +32,7 @@ async def listado_usuarios_oficinas(
     try:
         resultados = get_usuarios_oficinas(
             db=db,
+            estatus=estatus,
             oficina_id=oficina_id,
             usuario_id=usuario_id,
         )

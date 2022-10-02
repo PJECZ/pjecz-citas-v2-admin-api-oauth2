@@ -20,6 +20,7 @@ usuarios_roles = APIRouter(prefix="/v2/usuarios_roles", tags=["usuarios"])
 
 @usuarios_roles.get("", response_model=CustomPage[UsuarioRolOut])
 async def listado_usuarios_roles(
+    estatus: str = None,
     rol_id: int = None,
     usuario_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
@@ -31,6 +32,7 @@ async def listado_usuarios_roles(
     try:
         resultados = get_usuarios_roles(
             db=db,
+            estatus=estatus,
             rol_id=rol_id,
             usuario_id=usuario_id,
         )

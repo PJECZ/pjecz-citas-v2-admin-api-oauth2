@@ -21,6 +21,7 @@ cit_servicios = APIRouter(prefix="/v2/cit_servicios", tags=["citas servicios"])
 @cit_servicios.get("", response_model=CustomPage[CitServicioOut])
 async def listado_servicios(
     cit_categoria_id: int = None,
+    estatus: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -31,6 +32,7 @@ async def listado_servicios(
         resultados = get_cit_servicios(
             db=db,
             cit_categoria_id=cit_categoria_id,
+            estatus=estatus,
         )
     except CitasAnyError as error:
         return custom_page_success_false(error)

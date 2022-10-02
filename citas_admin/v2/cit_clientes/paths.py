@@ -32,6 +32,7 @@ async def listado_clientes(
     curp: str = None,
     email: str = None,
     enviar_boletin: bool = None,
+    estatus: str = None,
     nombres: str = None,
     telefono: str = None,
     tiene_contrasena_sha256: bool = None,
@@ -53,10 +54,11 @@ async def listado_clientes(
             curp=curp,
             email=email,
             enviar_boletin=enviar_boletin,
+            estatus=estatus,
             nombres=nombres,
+            settings=settings,
             telefono=telefono,
             tiene_contrasena_sha256=tiene_contrasena_sha256,
-            settings=settings,
         )
     except CitasAnyError as error:
         return custom_page_success_false(error)
