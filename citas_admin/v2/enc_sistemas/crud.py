@@ -27,6 +27,7 @@ def get_enc_sistemas(
     creado_desde: date = None,
     creado_hasta: date = None,
     estado: str = None,
+    estatus: str = None,
 ) -> Any:
     """Consultar los encuestas de sistemas activos"""
 
@@ -73,8 +74,14 @@ def get_enc_sistemas(
             raise CitasNotValidParamError("El estado no es válido")
         consulta = consulta.filter(EncSistema.estado == estado)
 
+    # Filtrar por estatus
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+
     # Entregar
-    return consulta.filter_by(estatus="A").order_by(EncSistema.id.desc())
+    return consulta.order_by(EncSistema.id.desc())
 
 
 def get_enc_sistema(db: Session, enc_sistema_id: int) -> EncSistema:

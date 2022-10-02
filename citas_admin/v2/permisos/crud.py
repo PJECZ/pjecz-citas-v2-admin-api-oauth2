@@ -13,18 +13,23 @@ from ..roles.crud import get_rol
 
 def get_permisos(
     db: Session,
+    estatus: str = None,
     modulo_id: int = None,
     rol_id: int = None,
 ) -> Any:
     """Consultar los permisos activos"""
     consulta = db.query(Permiso)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
     if modulo_id is not None:
         modulo = get_modulo(db, modulo_id)
         consulta = consulta.filter(Permiso.modulo == modulo)
     if rol_id is not None:
         rol = get_rol(db, rol_id)
         consulta = consulta.filter(Permiso.rol == rol)
-    return consulta.filter_by(estatus="A").order_by(Permiso.id)
+    return consulta.order_by(Permiso.id)
 
 
 def get_permiso(db: Session, permiso_id: int) -> Permiso:

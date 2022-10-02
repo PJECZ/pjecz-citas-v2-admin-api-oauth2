@@ -9,7 +9,12 @@ from ..oficinas.crud import get_oficina
 from ..cit_citas.models import CitCita
 
 
-def get_cit_citas_anonimas(db: Session, oficina_id: int, fecha: date = None, hora_minuto: time = None) -> Any:
+def get_cit_citas_anonimas(
+    db: Session,
+    oficina_id: int,
+    fecha: date = None,
+    hora_minuto: time = None,
+) -> Any:
     """Consultar las citas"""
     consulta = db.query(CitCita)
 
@@ -42,5 +47,8 @@ def get_cit_citas_anonimas(db: Session, oficina_id: int, fecha: date = None, hor
     # Descartar las citas canceladas
     consulta = consulta.filter(CitCita.estado != "CANCELO")
 
+    # Descartar las citas eliminadas
+    consulta = consulta.filter_by(estatus="A")
+
     # Entregar
-    return consulta.filter_by(estatus="A").order_by(CitCita.id)
+    return consulta.order_by(CitCita.id)

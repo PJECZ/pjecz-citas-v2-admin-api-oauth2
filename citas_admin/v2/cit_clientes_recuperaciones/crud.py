@@ -25,6 +25,7 @@ def get_cit_clientes_recuperaciones(
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
+    estatus: str = None,
     ya_recuperado: bool = None,
 ) -> Any:
     """Consultar las recuperaciones"""
@@ -59,6 +60,12 @@ def get_cit_clientes_recuperaciones(
         hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCliente.creado <= hasta_dt)
 
+    # Filtrar por estatus
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+
     # Filtrar por ya recuperado
     if ya_recuperado is None:
         consulta = consulta.filter_by(ya_recuperado=False)  # Si no se especifica, se filtra por no recuperados
@@ -66,7 +73,7 @@ def get_cit_clientes_recuperaciones(
         consulta = consulta.filter_by(ya_recuperado=ya_recuperado)
 
     # Entregar
-    return consulta.filter_by(estatus="A").order_by(CitClienteRecuperacion.id.desc())
+    return consulta.order_by(CitClienteRecuperacion.id.desc())
 
 
 def get_cit_cliente_recuperacion(db: Session, cit_cliente_recuperacion_id: int) -> CitClienteRecuperacion:

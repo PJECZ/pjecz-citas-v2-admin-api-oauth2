@@ -13,20 +13,29 @@ from ..oficinas.crud import get_oficina
 
 def get_cit_horas_bloqueadas(
     db: Session,
-    oficina_id: int = None,
+    estatus: str = None,
     fecha: date = None,
+    oficina_id: int = None,
 ) -> Any:
     """Consultar las horas bloqueadas activas"""
     consulta = db.query(CitHoraBloqueada)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+    if fecha is not None:
+        consulta = consulta.filter_by(fecha=fecha)
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
         consulta = consulta.filter(CitHoraBloqueada.oficina == oficina)
-    if fecha is not None:
-        consulta = consulta.filter_by(fecha=fecha)
-    return consulta.filter_by(estatus="A").filter(CitHoraBloqueada.fecha >= date.today()).order_by(CitHoraBloqueada.fecha, CitHoraBloqueada.inicio)
+    consulta = consulta.filter(CitHoraBloqueada.fecha >= date.today())  # Solo los dias de hoy en adelante
+    return consulta.order_by(CitHoraBloqueada.fecha, CitHoraBloqueada.inicio)
 
 
-def get_cit_hora_bloqueada(db: Session, cit_hora_bloqueada_id: int) -> CitHoraBloqueada:
+def get_cit_hora_bloqueada(
+    db: Session,
+    cit_hora_bloqueada_id: int,
+) -> CitHoraBloqueada:
     """Consultar un hora bloqueada por su id"""
     cit_hora_bloqueada = db.query(CitHoraBloqueada).get(cit_hora_bloqueada_id)
     if cit_hora_bloqueada is None:
