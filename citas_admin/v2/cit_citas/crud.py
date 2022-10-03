@@ -40,6 +40,7 @@ def get_cit_citas(
     creado_desde: date = None,
     creado_hasta: date = None,
     estado: str = None,
+    estatus: str = None,
     inicio: date = None,
     inicio_desde: date = None,
     inicio_hasta: date = None,
@@ -92,6 +93,12 @@ def get_cit_citas(
     if creado is None and creado_hasta is not None:
         hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCita.creado <= hasta_dt)
+
+    # Filtrar por estatus
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
 
     # Filtrar por inicio
     if inicio is not None:

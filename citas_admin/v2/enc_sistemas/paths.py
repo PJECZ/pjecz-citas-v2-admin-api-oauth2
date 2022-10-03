@@ -29,6 +29,7 @@ async def listado_encuestas_sistemas(
     creado_desde: date = None,
     creado_hasta: date = None,
     estado: str = None,
+    estatus: str = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -45,6 +46,7 @@ async def listado_encuestas_sistemas(
             creado_desde=creado_desde,
             creado_hasta=creado_hasta,
             estado=estado,
+            estatus=estatus,
             settings=settings,
         )
     except CitasAnyError as error:

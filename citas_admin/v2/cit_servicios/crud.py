@@ -10,16 +10,27 @@ from .models import CitServicio
 from ..cit_categorias.crud import get_cit_categoria
 
 
-def get_cit_servicios(db: Session, cit_categoria_id: int = None) -> Any:
+def get_cit_servicios(
+    db: Session,
+    cit_categoria_id: int = None,
+    estatus: str = None,
+) -> Any:
     """Consultar los servicios activos"""
     consulta = db.query(CitServicio)
     if cit_categoria_id is not None:
         cit_categoria = get_cit_categoria(db, cit_categoria_id)
         consulta = consulta.filter(CitServicio.cit_categoria == cit_categoria)
-    return consulta.filter_by(estatus="A").order_by(CitServicio.clave)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+    return consulta.order_by(CitServicio.clave)
 
 
-def get_cit_servicio(db: Session, cit_servicio_id: int) -> CitServicio:
+def get_cit_servicio(
+    db: Session,
+    cit_servicio_id: int,
+) -> CitServicio:
     """Consultar un servicio por su id"""
     cit_servicio = db.query(CitServicio).get(cit_servicio_id)
     if cit_servicio is None:

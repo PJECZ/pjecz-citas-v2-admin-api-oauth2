@@ -29,6 +29,7 @@ def get_enc_servicios(
     creado_desde: date = None,
     creado_hasta: date = None,
     estado: str = None,
+    estatus: str = None,
     oficina_id: int = None,
     oficina_clave: str = None,
 ) -> Any:
@@ -77,6 +78,12 @@ def get_enc_servicios(
             raise CitasNotValidParamError("El estado no es válido")
         consulta = consulta.filter(EncServicio.estado == estado)
 
+    # Filtrar por estatus
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+
     # Filtrar por la oficina
     if oficina_id is not None:
         oficina = get_oficina(db, oficina_id)
@@ -89,7 +96,7 @@ def get_enc_servicios(
         consulta = consulta.filter(Oficina.clave == oficina_clave)
 
     # Entregar
-    return consulta.filter_by(estatus="A").order_by(EncServicio.id.desc())
+    return consulta.order_by(EncServicio.id.desc())
 
 
 def get_enc_servicio(db: Session, enc_servicio_id: int) -> EncServicio:

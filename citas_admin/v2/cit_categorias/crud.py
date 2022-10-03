@@ -9,12 +9,23 @@ from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 from .models import CitCategoria
 
 
-def get_cit_categorias(db: Session) -> Any:
+def get_cit_categorias(
+    db: Session,
+    estatus: str = None,
+) -> Any:
     """Consultar las categorias activas"""
-    return db.query(CitCategoria).filter_by(estatus="A").order_by(CitCategoria.nombre)
+    consulta = db.query(CitCategoria)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+    return consulta.order_by(CitCategoria.nombre)
 
 
-def get_cit_categoria(db: Session, cit_categoria_id: int) -> CitCategoria:
+def get_cit_categoria(
+    db: Session,
+    cit_categoria_id: int,
+) -> CitCategoria:
     """Consultar una categoria por su id"""
     cit_categoria = db.query(CitCategoria).get(cit_categoria_id)
     if cit_categoria is None:

@@ -26,6 +26,7 @@ def get_cit_clientes(
     curp: str = None,
     email: str = None,
     enviar_boletin: bool = None,
+    estatus: str = None,
     nombres: str = None,
     telefono: str = None,
     tiene_contrasena_sha256: bool = None,
@@ -61,6 +62,12 @@ def get_cit_clientes(
         hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
         consulta = consulta.filter(CitCliente.creado <= hasta_dt)
 
+    # Filtrar por estatus
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+
     # Filtrar por fragmento de CURP
     curp = safe_curp(curp, search_fragment=True)
     if curp is not None:
@@ -95,7 +102,7 @@ def get_cit_clientes(
             consulta = consulta.filter(CitCliente.contrasena_sha256 == "")
 
     # Entregar
-    return consulta.filter_by(estatus="A").order_by(CitCliente.id.desc())
+    return consulta.order_by(CitCliente.id.desc())
 
 
 def get_cit_cliente(

@@ -21,6 +21,7 @@ cit_oficinas_servicios = APIRouter(prefix="/v2/cit_oficinas_servicios", tags=["c
 @cit_oficinas_servicios.get("", response_model=CustomPage[CitOficinaServicioOut])
 async def listado_oficinas_servicios(
     cit_servicio_id: int = None,
+    estatus: str = None,
     oficina_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -32,6 +33,7 @@ async def listado_oficinas_servicios(
         resultados = get_cit_oficinas_servicios(
             db=db,
             cit_servicio_id=cit_servicio_id,
+            estatus=estatus,
             oficina_id=oficina_id,
         )
     except CitasAnyError as error:

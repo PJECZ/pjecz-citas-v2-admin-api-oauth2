@@ -10,12 +10,24 @@ from lib.exceptions import CitasIsDeletedError, CitasNotExistsError
 from .models import CitDiaInhabil
 
 
-def get_cit_dias_inhabiles(db: Session) -> Any:
+def get_cit_dias_inhabiles(
+    db: Session,
+    estatus: str = None,
+) -> Any:
     """Consultar los dias inhabiles activos, desde hoy"""
-    return db.query(CitDiaInhabil).filter_by(estatus="A").filter(CitDiaInhabil.fecha >= date.today()).order_by(CitDiaInhabil.fecha)
+    consulta = db.query(CitDiaInhabil)
+    if estatus is None:
+        consulta = consulta.filter_by(estatus="A")  # Si no se da el estatus, solo activos
+    else:
+        consulta = consulta.filter_by(estatus=estatus)
+    consulta = consulta.filter(CitDiaInhabil.fecha >= date.today())  # Solo los dias de hoy en adelante
+    return consulta.order_by(CitDiaInhabil.fecha)
 
 
-def get_cit_dia_inhabil(db: Session, cit_dia_inhabil_id: int) -> CitDiaInhabil:
+def get_cit_dia_inhabil(
+    db: Session,
+    cit_dia_inhabil_id: int,
+) -> CitDiaInhabil:
     """Consultar un dia inhabil por su id"""
     cit_dia_inhabil = db.query(CitDiaInhabil).get(cit_dia_inhabil_id)
     if cit_dia_inhabil is None:

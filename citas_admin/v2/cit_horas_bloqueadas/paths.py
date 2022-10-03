@@ -21,8 +21,9 @@ cit_horas_bloqueadas = APIRouter(prefix="/v2/cit_horas_bloqueadas", tags=["citas
 
 @cit_horas_bloqueadas.get("", response_model=CustomPage[CitHoraBloqueadaOut])
 async def listado_horas_bloqueadas(
-    oficina_id: int = None,
+    estatus: str = None,
     fecha: date = None,
+    oficina_id: int = None,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -32,8 +33,9 @@ async def listado_horas_bloqueadas(
     try:
         resultados = get_cit_horas_bloqueadas(
             db=db,
-            oficina_id=oficina_id,
+            estatus=estatus,
             fecha=fecha,
+            oficina_id=oficina_id,
         )
     except CitasAnyError as error:
         return custom_page_success_false(error)
