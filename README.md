@@ -4,9 +4,9 @@ API de Citas V2 para brindar informacion a otros sistemas.
 
 ## Mejores practicas
 
-Se va a mejorar con los consejos en [I've been abusing HTTP Status Codes in my APIs for years](https://blog.slimjim.xyz/posts/stop-using-http-codes/)
+Usa las recomendaciones de [I've been abusing HTTP Status Codes in my APIs for years](https://blog.slimjim.xyz/posts/stop-using-http-codes/)
 
-### Escenario exitoso
+### Respuesta exitosa
 
 Status code: **200**
 
@@ -16,14 +16,23 @@ Body que entrega un listado
         "success": true,
         "message": "Success",
         "result": {
-            "total": 914,
-            "items": [ { "id": 1 } ],
+            "total": 2812,
+            "items": [ { "id": 1, ... } ],
             "limit": 100,
             "offset": 0
         }
     }
 
-### Escenario fallido: registro no encontrado
+Body que entrega un item
+
+    {
+        "success": true,
+        "message": "Success",
+        "id": 123,
+        ...
+    }
+
+### Respuesta fallida: registro no encontrado
 
 Status code: **200**
 
@@ -34,7 +43,7 @@ Body
         "message": "No employee found for ID 100"
     }
 
-### Escenario fallido: ruta incorrecta
+### Respuesta fallida: ruta incorrecta
 
 Status code: **404**
 
@@ -61,6 +70,9 @@ Cree un archivo para las variables de entorno `.env`
     DB_USER=adminpjeczcitasv2
     DB_PASS=****************
 
+    # CORS Origins separados por comas
+    ORIGINS=http://localhost:8006,http://localhost:3000,http://127.0.0.1:8006,http://127.0.0.1:3000
+
     # Limite de citas pendientes por cliente
     LIMITE_CITAS_PENDIENTES=30
 
@@ -68,11 +80,18 @@ Cree un archivo para las variables de entorno `.env`
     REDIS_URL=redis://127.0.0.1:6379
     TASK_QUEUE=pjecz_citas_v2
 
+    # Salt sirve para cifrar el ID con HashID, debe ser igual que en la app Flask
+    SALT=************************
+
     # Timezone
     TZ=America/Mexico_City
 
-    # Salt sirve para cifrar el ID con HashID, debe ser igual que en la app Flask
-    SALT=************************
+    # URLs de las encuestas
+    POLL_SYSTEM_URL=http://127.0.0.1:3000/poll_system
+    POLL_SERVICE_URL=http://127.0.0.1:3000/poll_service
+
+    # Arrancar con gunicorn o uvicorn
+    ARRANCAR=uvicorn
 
 Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Konsole
 
@@ -85,7 +104,7 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
         export $(grep -v '^#' .env | xargs)
     fi
 
-    figlet Citas V2 API OAuth2
+    figlet Citas V2 API Key
     echo
 
     echo "== Variables de entorno"
@@ -103,8 +122,8 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
     export PGUSER=$DB_USER
     export PGPASSWORD=$DB_PASS
 
-    alias arrancar="uvicorn --port 8006 --reload citas_admin.app:app"
-    echo "-- FastAPI"
+    alias arrancar="python3 ${PWD}/arrancar.py"
+    echo "== Arrancar FastAPI con arrancar.py"
     echo "   arrancar"
     echo
 
