@@ -47,6 +47,7 @@ class CitCitaOut(BaseModel):
     asistencia: bool | None
     codigo_asistencia: str | None
     creado: datetime | None
+    puede_cancelarse: bool | None
 
     class Config:
         """SQLAlchemy config"""

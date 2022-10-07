@@ -2,6 +2,8 @@
 Cit Citas v2, modelos
 """
 from collections import OrderedDict
+from datetime import date, datetime, timedelta
+
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
@@ -67,6 +69,12 @@ class CitCita(Base, UniversalMixin):
     def cit_servicio_descripcion(self):
         """Descripción del servicio"""
         return self.cit_servicio.descripcion
+
+    @property
+    def puede_cancelarse(self):
+        """Puede cancelarse esta cita?"""
+        manana = date.today() + timedelta(days=1)
+        return self.estado == "PENDIENTE" and self.inicio <= datetime(year=manana.year, month=manana.month, day=manana.day)
 
     @property
     def oficina_clave(self):

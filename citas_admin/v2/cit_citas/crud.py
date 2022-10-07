@@ -135,7 +135,7 @@ def get_cit_citas(
     consulta = consulta.filter_by(estatus="A")
 
     # Ordenar
-    if inicio is not None or inicio_desde is not None or inicio_hasta is not None:
+    if cit_cliente_id is not None or cit_cliente_curp is not None or cit_cliente_email is not None or inicio is not None or inicio_desde is not None or inicio_hasta is not None:
         consulta = consulta.order_by(CitCita.inicio)
     else:
         consulta = consulta.order_by(CitCita.id.desc())

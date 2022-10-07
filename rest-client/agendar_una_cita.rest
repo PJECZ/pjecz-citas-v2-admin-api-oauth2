@@ -40,7 +40,7 @@ GET {{baseUrl}}/cit_horas_disponibles
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
-GET {{baseUrl}}/cit_clientes/3976
+GET {{baseUrl}}/cit_clientes/4632
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
@@ -73,7 +73,7 @@ X-Api-Key: {{api_key}}
 
 ### GET mis citas por ID de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_id=3976
+    ?cit_cliente_id=4632
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por CURP de cliente
