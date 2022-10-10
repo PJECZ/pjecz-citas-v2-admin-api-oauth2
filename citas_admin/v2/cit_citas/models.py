@@ -77,11 +77,11 @@ class CitCita(Base, UniversalMixin):
         """Puede cancelarse esta cita?"""
         if self.estado != "PENDIENTE":
             return False
+        ahora = datetime.now(tz=pytz.timezone("America/Mexico_City"))
+        ahora_sin_tz = ahora.replace(tzinfo=None)
         if self.cancelar_antes is None:
-            return True
-        america_mexico_city_dt = datetime.now(tz=pytz.timezone("America/Mexico_City"))
-        now_without_tz = america_mexico_city_dt.replace(tzinfo=None)
-        return now_without_tz < self.cancelar_antes
+            return ahora_sin_tz < self.inicio
+        return ahora_sin_tz < self.cancelar_antes
 
     @property
     def oficina_clave(self):

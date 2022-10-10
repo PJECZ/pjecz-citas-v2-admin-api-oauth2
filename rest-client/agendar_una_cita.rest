@@ -45,7 +45,7 @@ X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_id=4653
+    ?cit_cliente_id=12070
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por email
@@ -67,12 +67,12 @@ X-Api-Key: {{api_key}}
     "oficina_id": 71,
     "cit_servicio_id": 2,
     "fecha": "2022-10-25",
-    "hora_minuto": "10:30",
+    "hora_minuto": "11:30",
     "notas": "Cita de prueba"
 }
 
 ### GET cita
-GET {{baseUrl}}/cit_citas/30892
+GET {{baseUrl}}/cit_citas/37641
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por ID de cliente
@@ -95,6 +95,6 @@ POST {{baseUrl}}/cit_citas/cancelar
 X-Api-Key: {{api_key}}
 
 {
-    "id": 32238,
-    "cit_cliente_id": 999
+    "id": 37641,
+    "cit_cliente_id": 12070
 }

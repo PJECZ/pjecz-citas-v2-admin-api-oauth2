@@ -19,6 +19,7 @@ from ..cit_citas_anonimas.crud import get_cit_citas_anonimas
 from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
 from ..cit_dias_disponibles.crud import get_cit_dias_disponibles
+from ..cit_dias_inhabiles.crud import get_cit_dias_inhabiles
 from ..cit_horas_disponibles.crud import get_cit_horas_disponibles
 from ..cit_oficinas_servicios.crud import get_cit_oficinas_servicios
 from ..cit_servicios.crud import get_cit_servicio
@@ -318,12 +319,18 @@ def create_cit_cita(
         if cit_cita.inicio == inicio_dt:
             raise CitasOutOfRangeParamError("No se puede crear la cita porque ya tiene una cita pendiente en la misma fecha y hora")
 
-    # Definir cancelar_antes a 24 horas antes de la cita
+    # Definir cancelar_antes con 24 horas antes de la cita
     cancelar_antes = inicio_dt - timedelta(hours=24)
-    if cancelar_antes.weekday() == 6:  # Si es domingo, se cambia a viernes
-        cancelar_antes = cancelar_antes - timedelta(days=2)
-    if cancelar_antes.weekday() == 5:  # Si es sábado, se cambia a viernes
-        cancelar_antes = cancelar_antes - timedelta(days=1)
+
+    # Si cancelar_antes es un dia inhabil, domingo o sabado, se busca el dia habil anterior
+    dias_inhabiles = get_cit_dias_inhabiles(db=db).all()
+    while cancelar_antes.date() in dias_inhabiles or cancelar_antes.weekday() == 6 or cancelar_antes.weekday() == 5:
+        if cancelar_antes.date() in dias_inhabiles:
+            cancelar_antes = cancelar_antes - timedelta(days=1)
+        if cancelar_antes.weekday() == 6:  # Si es domingo, se cambia a viernes
+            cancelar_antes = cancelar_antes - timedelta(days=2)
+        if cancelar_antes.weekday() == 5:  # Si es sábado, se cambia a viernes
+            cancelar_antes = cancelar_antes - timedelta(days=1)
 
     # Insertar registro
     cit_cita = CitCita(
