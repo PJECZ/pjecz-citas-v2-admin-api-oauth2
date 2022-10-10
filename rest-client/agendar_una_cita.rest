@@ -18,34 +18,34 @@ GET {{baseUrl}}/oficinas
     ?distrito_id=6
 X-Api-Key: {{api_key}}
 
-### Oficina 71 J TERCERO FAMILIAR SALTILLO
-GET {{baseUrl}}/oficinas/71
+### Oficina 69 J PRIMERO FAMILIAR SALTILLO
+GET {{baseUrl}}/oficinas/69
 X-Api-Key: {{api_key}}
 
 ### GET Servicios de la Oficina
 GET {{baseUrl}}/cit_oficinas_servicios
-    ?oficina_id=71
+    ?oficina_id=69
 X-Api-Key: {{api_key}}
 
 ### GET Dias para elegir
 GET {{baseUrl}}/cit_dias_disponibles
-    ?oficina_id=71
+    ?oficina_id=69
 X-Api-Key: {{api_key}}
 
 ### GET Horas para elegir
 GET {{baseUrl}}/cit_horas_disponibles
-    ?oficina_id=71
+    ?oficina_id=69
     &cit_servicio_id=2
-    &fecha=2022-10-10
+    &fecha=2022-10-20
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
-GET {{baseUrl}}/cit_clientes/3976
+GET {{baseUrl}}/cit_clientes/4653
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por ID
 GET {{baseUrl}}/cit_clientes/perfil
-    ?cit_cliente_id=3976
+    ?cit_cliente_id=4653
 X-Api-Key: {{api_key}}
 
 ### GET Cliente por email
@@ -63,17 +63,21 @@ POST {{baseUrl}}/cit_citas/nueva
 X-Api-Key: {{api_key}}
 
 {
-    "cit_cliente_id": 3976,
+    "cit_cliente_id": 12070,
     "oficina_id": 71,
     "cit_servicio_id": 2,
-    "fecha": "2022-10-10",
-    "hora_minuto": "10:00",
+    "fecha": "2022-10-25",
+    "hora_minuto": "10:30",
     "notas": "Cita de prueba"
 }
 
+### GET cita
+GET {{baseUrl}}/cit_citas/30892
+X-Api-Key: {{api_key}}
+
 ### GET mis citas por ID de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
-    ?cit_cliente_id=3976
+    ?cit_cliente_id=12070
 X-Api-Key: {{api_key}}
 
 ### GET mis citas por CURP de cliente
@@ -84,10 +88,6 @@ X-Api-Key: {{api_key}}
 ### GET mis citas por email de cliente
 GET {{baseUrl}}/cit_citas/mis_citas
     ?cit_cliente_email=anonymous@company.com
-X-Api-Key: {{api_key}}
-
-### GET cita
-GET {{baseUrl}}/cit_citas/32238
 X-Api-Key: {{api_key}}
 
 ### POST cancelar una cita PENDIENTE

@@ -135,7 +135,7 @@ def get_cit_citas(
     consulta = consulta.filter_by(estatus="A")
 
     # Ordenar
-    if inicio is not None or inicio_desde is not None or inicio_hasta is not None:
+    if cit_cliente_id is not None or cit_cliente_curp is not None or cit_cliente_email is not None or inicio is not None or inicio_desde is not None or inicio_hasta is not None:
         consulta = consulta.order_by(CitCita.inicio)
     else:
         consulta = consulta.order_by(CitCita.id.desc())
@@ -318,6 +318,13 @@ def create_cit_cita(
         if cit_cita.inicio == inicio_dt:
             raise CitasOutOfRangeParamError("No se puede crear la cita porque ya tiene una cita pendiente en la misma fecha y hora")
 
+    # Definir cancelar_antes a 24 horas antes de la cita
+    cancelar_antes = inicio_dt - timedelta(hours=24)
+    if cancelar_antes.weekday() == 6:  # Si es domingo, se cambia a viernes
+        cancelar_antes = cancelar_antes - timedelta(days=2)
+    if cancelar_antes.weekday() == 5:  # Si es sábado, se cambia a viernes
+        cancelar_antes = cancelar_antes - timedelta(days=1)
+
     # Insertar registro
     cit_cita = CitCita(
         cit_servicio_id=cit_servicio.id,
@@ -329,6 +336,7 @@ def create_cit_cita(
         estado="PENDIENTE",
         asistencia=False,
         codigo_asistencia=generar_codigo_asistencia(),
+        cancelar_antes=cancelar_antes,
     )
     db.add(cit_cita)
     db.commit()
@@ -411,14 +419,9 @@ def cancel_cit_cita(
     if cit_cita.estado == "CANCELO":
         raise CitasNotExistsError("Ya esta cancelada esta cita")
 
-    # Validar que el estado sea PENDIENTE
-    if cit_cita.estado != "PENDIENTE":
-        raise CitasNotExistsError("No se puede cancelar la cita porque no tiene el estado pendiente")
-
-    # Validar la fecha, no debe ser de hoy o del pasado
-    manana = date.today() + timedelta(days=1)
-    if cit_cita.inicio < datetime(year=manana.year, month=manana.month, day=manana.day):
-        raise CitasNotExistsError("No se puede cancelar esta cita porque es de hoy o del pasado")
+    # Validar que se pueda cancelar
+    if cit_cita.puede_cancelarse is False:
+        raise CitasNotExistsError("No se puede cancelar esta cita")
 
     # Actualizar registro
     cit_cita.estado = "CANCELO"

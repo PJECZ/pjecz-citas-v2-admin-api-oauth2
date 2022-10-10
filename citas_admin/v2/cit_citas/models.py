@@ -2,6 +2,9 @@
 Cit Citas v2, modelos
 """
 from collections import OrderedDict
+from datetime import datetime
+
+import pytz
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
@@ -16,8 +19,8 @@ class CitCita(Base, UniversalMixin):
         [
             ("ASISTIO", "Asistió"),
             ("CANCELO", "Canceló"),
-            ("PENDIENTE", "Pendiente"),
             ("INASISTENCIA", "Inasistencia"),
+            ("PENDIENTE", "Pendiente"),
         ]
     )
 
@@ -42,6 +45,7 @@ class CitCita(Base, UniversalMixin):
     estado = Column(Enum(*ESTADOS, name="estados", native_enum=False))
     asistencia = Column(Boolean, nullable=False, default=False)
     codigo_asistencia = Column(String(4))
+    cancelar_antes = Column(DateTime())
 
     @property
     def cit_cliente_nombre(self):
@@ -67,6 +71,17 @@ class CitCita(Base, UniversalMixin):
     def cit_servicio_descripcion(self):
         """Descripción del servicio"""
         return self.cit_servicio.descripcion
+
+    @property
+    def puede_cancelarse(self):
+        """Puede cancelarse esta cita?"""
+        if self.estado != "PENDIENTE":
+            return False
+        if self.cancelar_antes is None:
+            return True
+        america_mexico_city_dt = datetime.now(tz=pytz.timezone("America/Mexico_City"))
+        now_without_tz = america_mexico_city_dt.replace(tzinfo=None)
+        return now_without_tz < self.cancelar_antes
 
     @property
     def oficina_clave(self):
