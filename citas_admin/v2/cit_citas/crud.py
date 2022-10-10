@@ -19,6 +19,7 @@ from ..cit_citas_anonimas.crud import get_cit_citas_anonimas
 from ..cit_clientes.crud import get_cit_cliente
 from ..cit_clientes.models import CitCliente
 from ..cit_dias_disponibles.crud import get_cit_dias_disponibles
+from ..cit_dias_inhabiles.crud import get_cit_dias_inhabiles
 from ..cit_horas_disponibles.crud import get_cit_horas_disponibles
 from ..cit_oficinas_servicios.crud import get_cit_oficinas_servicios
 from ..cit_servicios.crud import get_cit_servicio
@@ -323,6 +324,10 @@ def create_cit_cita(
     if cancelar_antes.weekday() == 6:  # Si es domingo, se cambia a viernes
         cancelar_antes = cancelar_antes - timedelta(days=2)
     if cancelar_antes.weekday() == 5:  # Si es sábado, se cambia a viernes
+        cancelar_antes = cancelar_antes - timedelta(days=1)
+
+    # Si cancelar_antes es un dia inhabil, se entra en un bucle hasta encontrar un dia habil
+    while cancelar_antes.date() in get_cit_dias_inhabiles(db=db):
         cancelar_antes = cancelar_antes - timedelta(days=1)
 
     # Insertar registro
