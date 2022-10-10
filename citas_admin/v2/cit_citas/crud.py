@@ -419,14 +419,9 @@ def cancel_cit_cita(
     if cit_cita.estado == "CANCELO":
         raise CitasNotExistsError("Ya esta cancelada esta cita")
 
-    # Validar que el estado sea PENDIENTE
-    if cit_cita.estado != "PENDIENTE":
-        raise CitasNotExistsError("No se puede cancelar la cita porque no tiene el estado pendiente")
-
-    # Validar la fecha, no debe ser de hoy o del pasado
-    manana = date.today() + timedelta(days=1)
-    if cit_cita.inicio < datetime(year=manana.year, month=manana.month, day=manana.day):
-        raise CitasNotExistsError("No se puede cancelar esta cita porque es de hoy o del pasado")
+    # Validar que se pueda cancelar
+    if cit_cita.puede_cancelarse is False:
+        raise CitasNotExistsError("No se puede cancelar esta cita")
 
     # Actualizar registro
     cit_cita.estado = "CANCELO"
