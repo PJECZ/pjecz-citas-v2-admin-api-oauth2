@@ -4,6 +4,7 @@ Cit Citas v2, modelos
 from collections import OrderedDict
 from datetime import datetime
 
+import pytz
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
@@ -74,7 +75,13 @@ class CitCita(Base, UniversalMixin):
     @property
     def puede_cancelarse(self):
         """Puede cancelarse esta cita?"""
-        return self.estado == "PENDIENTE" and datetime.now() < self.cancelar_antes
+        if self.estado != "PENDIENTE":
+            return False
+        if self.cancelar_antes is None:
+            return True
+        america_mexico_city_dt = datetime.now(tz=pytz.timezone("America/Mexico_City"))
+        now_without_tz = america_mexico_city_dt.replace(tzinfo=None)
+        return now_without_tz < self.cancelar_antes
 
     @property
     def oficina_clave(self):
