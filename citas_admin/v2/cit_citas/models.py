@@ -18,8 +18,8 @@ class CitCita(Base, UniversalMixin):
         [
             ("ASISTIO", "Asistió"),
             ("CANCELO", "Canceló"),
-            ("PENDIENTE", "Pendiente"),
             ("INASISTENCIA", "Inasistencia"),
+            ("PENDIENTE", "Pendiente"),
         ]
     )
 

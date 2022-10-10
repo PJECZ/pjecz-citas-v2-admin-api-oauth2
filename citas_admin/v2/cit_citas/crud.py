@@ -318,6 +318,13 @@ def create_cit_cita(
         if cit_cita.inicio == inicio_dt:
             raise CitasOutOfRangeParamError("No se puede crear la cita porque ya tiene una cita pendiente en la misma fecha y hora")
 
+    # Definir cancelar_antes 24 horas antes de la cita
+    cancelar_antes = inicio_dt - timedelta(hours=24)
+    if cancelar_antes.weekday() == 6:  # Si el tiempo es domingo, se cambia a viernes
+        cancelar_antes = cancelar_antes - timedelta(days=2)
+    if cancelar_antes.weekday() == 5:  # Si el tiempo es sábado, se cambia a viernes
+        cancelar_antes = cancelar_antes - timedelta(days=1)
+
     # Insertar registro
     cit_cita = CitCita(
         cit_servicio_id=cit_servicio.id,
@@ -329,6 +336,7 @@ def create_cit_cita(
         estado="PENDIENTE",
         asistencia=False,
         codigo_asistencia=generar_codigo_asistencia(),
+        cancelar_antes=cancelar_antes,
     )
     db.add(cit_cita)
     db.commit()
