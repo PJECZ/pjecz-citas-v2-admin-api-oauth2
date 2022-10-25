@@ -25,6 +25,7 @@ from ..cit_oficinas_servicios.crud import get_cit_oficinas_servicios
 from ..cit_servicios.crud import get_cit_servicio
 from ..cit_servicios.models import CitServicio
 from ..distritos.crud import get_distrito
+from ..distritos.models import Distrito
 from ..oficinas.crud import get_oficina
 from ..oficinas.models import Oficina
 
@@ -173,7 +174,7 @@ def get_cit_citas_creados_por_dia(
     local_huso_horario = pytz.timezone(settings.tz)
     servidor_huso_horario = pytz.utc
 
-    # Observe que para la columna `creado` se usa la función func.date()
+    # Iniciar la consulta
     consulta = db.query(
         func.date(CitCita.creado).label("creado"),
         func.count(CitCita.id).label("cantidad"),
@@ -185,7 +186,7 @@ def get_cit_citas_creados_por_dia(
         consulta = consulta.select_from(CitCita).join(Oficina)
         consulta = consulta.filter(Oficina.distrito == distrito)
 
-    # Filtrar estados
+    # Filtrar estados ASISTIO y PENDIENTE
     consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
 
     # Si NO se reciben creados, se limitan a los últimos "size" días
@@ -209,6 +210,59 @@ def get_cit_citas_creados_por_dia(
 
     # Agrupar por la fecha de creacion y entregar
     return consulta.group_by(func.date(CitCita.creado)).order_by(func.date(CitCita.creado))
+
+
+def get_cit_citas_creados_por_dia_distrito(
+    db: Session,
+    settings: Settings,
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    size: int = 100,
+) -> Any:
+    """Calcular las cantidades de citas creados por dia y por distrito"""
+
+    # Zonas horarias
+    local_huso_horario = pytz.timezone(settings.tz)
+    servidor_huso_horario = pytz.utc
+
+    # Iniciar la consulta
+    consulta = db.query(
+        func.date(CitCita.creado).label("creado"),
+        Distrito.nombre_corto.label("distrito"),
+        func.count(CitCita.id).label("cantidad"),
+    )
+
+    # Juntar con oficinas y distritos
+    consulta = consulta.select_from(CitCita).join(Oficina).join(Distrito)
+
+    # Filtrar estados ASISTIO y PENDIENTE
+    consulta = consulta.filter(or_(CitCita.estado == "ASISTIO", CitCita.estado == "PENDIENTE"))
+
+    # Si NO se reciben creados, se limitan a los últimos "size" días
+    if creado is None and creado_desde is None and creado_hasta is None:
+        hoy_servidor = datetime.now(servidor_huso_horario)
+        hoy = hoy_servidor.astimezone(local_huso_horario).date()
+        creado_desde = hoy - timedelta(days=size - 1)
+        creado_hasta = hoy
+
+    # Si se recibe creado, se limita a esa fecha
+    if creado is not None:
+        desde_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        hasta_dt = datetime(year=creado.year, month=creado.month, day=creado.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.creado >= desde_dt).filter(CitCita.creado <= hasta_dt)
+    if creado is None and creado_desde is not None:
+        desde_dt = datetime(year=creado_desde.year, month=creado_desde.month, day=creado_desde.day, hour=0, minute=0, second=0).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.creado >= desde_dt)
+    if creado is None and creado_hasta is not None:
+        hasta_dt = datetime(year=creado_hasta.year, month=creado_hasta.month, day=creado_hasta.day, hour=23, minute=59, second=59).astimezone(servidor_huso_horario)
+        consulta = consulta.filter(CitCita.creado <= hasta_dt)
+
+    # Agrupar por la fecha de creacion y entregar
+    consulta = consulta.group_by(func.date(CitCita.creado), Distrito.nombre_corto)
+
+    # Ordenar y entregar
+    return consulta.order_by(func.date(CitCita.creado), Distrito.nombre_corto)
 
 
 def get_cit_citas_agendadas_por_servicio_oficina(

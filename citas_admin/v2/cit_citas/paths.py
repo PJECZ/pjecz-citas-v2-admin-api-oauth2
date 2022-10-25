@@ -20,6 +20,7 @@ from .crud import (
     get_cit_citas,
     get_cit_citas_agendadas_por_servicio_oficina,
     get_cit_citas_creados_por_dia,
+    get_cit_citas_creados_por_dia_distrito,
     get_cit_citas_disponibles_cantidad,
     get_cit_citas_pendientes,
 )
@@ -28,6 +29,7 @@ from .schemas import (
     CitCitaOut,
     CitCitaCancelIn,
     CitCitasCreadosPorDiaOut,
+    CitCitasCreadosPorDiaDistritoOut,
     CitCitasAgendadasPorServicioOficinaOut,
     CitCitasDisponiblesCantidadOut,
     OneCitCitaOut,
@@ -163,6 +165,36 @@ async def cantidades_creados_por_dia(
     except CitasAnyError as error:
         return custom_list_success_false(error)
     items = [CitCitasCreadosPorDiaOut(creado=creado, cantidad=cantidad) for creado, cantidad in resultados.all()]
+    total = sum(item.cantidad for item in items)
+    result = ListResult(total=total, items=items, size=size)
+    return CustomList(result=result)
+
+
+@cit_citas.get("/creados_por_dia_distrito", response_model=CustomList[CitCitasCreadosPorDiaDistritoOut])
+async def cantidades_creados_por_dia_distrito(
+    creado: date = None,
+    creado_desde: date = None,
+    creado_hasta: date = None,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+    size: int = 100,
+):
+    """Calcular las cantidades de citas creadas por dia y por distrito"""
+    if current_user.permissions.get("CIT CITAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        resultados = get_cit_citas_creados_por_dia_distrito(
+            db=db,
+            creado=creado,
+            creado_desde=creado_desde,
+            creado_hasta=creado_hasta,
+            settings=settings,
+            size=size,
+        )
+    except CitasAnyError as error:
+        return custom_list_success_false(error)
+    items = [CitCitasCreadosPorDiaDistritoOut(creado=creado, distrito=distrito, cantidad=cantidad) for creado, distrito, cantidad in resultados.all()]
     total = sum(item.cantidad for item in items)
     result = ListResult(total=total, items=items, size=size)
     return CustomList(result=result)
