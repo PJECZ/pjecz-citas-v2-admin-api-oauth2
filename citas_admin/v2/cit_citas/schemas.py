@@ -66,6 +66,14 @@ class CitCitasCreadosPorDiaOut(BaseModel):
     cantidad: int
 
 
+class CitCitasCreadosPorDiaDistritoOut(BaseModel):
+    """Esquema para entregar cantidades de citas creadas por dia"""
+
+    creado: date
+    distrito: str
+    cantidad: int
+
+
 class CitCitasAgendadasPorServicioOficinaOut(BaseModel):
     """Esquema para entregar cantidades de citas agendadas por servicio y oficina"""
 
