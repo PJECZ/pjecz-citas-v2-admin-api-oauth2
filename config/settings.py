@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     """Settings"""
 
     db_host: str
+    db_port: int
     db_name: str
     db_pass: str
     db_user: str
