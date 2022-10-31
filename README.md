@@ -66,6 +66,7 @@ Cree un archivo para las variables de entorno `.env`
 
     # Base de datos
     DB_HOST=127.0.0.1
+    DB_PORT=5432
     DB_NAME=pjecz_citas_v2
     DB_USER=adminpjeczcitasv2
     DB_PASS=****************
@@ -110,6 +111,7 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
     echo "== Variables de entorno"
     export $(grep -v '^#' .env | xargs)
     echo "   DB_HOST: ${DB_HOST}"
+    echo "   DB_PORT: ${DB_PORT}"
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
@@ -117,7 +119,7 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
     echo
 
     export PGHOST=$DB_HOST
-    export PGPORT=5432
+    export PGPORT=$DB_PORT
     export PGDATABASE=$DB_NAME
     export PGUSER=$DB_USER
     export PGPASSWORD=$DB_PASS
