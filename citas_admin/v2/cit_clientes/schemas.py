@@ -22,6 +22,7 @@ class CitClienteOut(BaseModel):
     contrasena_sha256: str | None
     renovacion: date | None
     limite_citas_pendientes: int | None
+    autoriza_mensajes: bool | None
     enviar_boletin: bool | None
     es_adulto_mayor: bool | None
     es_mujer: bool | None
