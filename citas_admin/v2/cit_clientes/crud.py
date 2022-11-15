@@ -20,6 +20,7 @@ def get_cit_clientes(
     settings: Settings,
     apellido_primero: str = None,
     apellido_segundo: str = None,
+    autoriza_mensajes: bool = None,
     creado: date = None,
     creado_desde: date = None,
     creado_hasta: date = None,
@@ -49,6 +50,10 @@ def get_cit_clientes(
     apellido_segundo = safe_string(apellido_segundo)
     if apellido_segundo is not None:
         consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
+
+    # Filtrar por autoriza mensajes
+    if autoriza_mensajes is not None:
+        consulta = consulta.filter(CitCliente.autoriza_mensajes == autoriza_mensajes)
 
     # Filtrar por creado
     if creado is not None:

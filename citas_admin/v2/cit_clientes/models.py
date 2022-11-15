@@ -30,11 +30,13 @@ class CitCliente(Base, UniversalMixin):
     limite_citas_pendientes = Column(Integer(), nullable=False, default=0)
 
     # Columnas booleanas
-    enviar_boletin = Column(Boolean(), nullable=False, default=True)
+    autoriza_mensajes = Column(Boolean(), nullable=False, default=True)
+    enviar_boletin = Column(Boolean(), nullable=False, default=False)
     es_adulto_mayor = Column(Boolean(), nullable=False, default=False)
     es_mujer = Column(Boolean(), nullable=False, default=False)
     es_identidad = Column(Boolean(), nullable=False, default=False)
     es_discapacidad = Column(Boolean(), nullable=False, default=False)
+    es_personal_interno = Column(Boolean(), nullable=False, default=False)
 
     # Hijos
     cit_citas = relationship("CitCita", back_populates="cit_cliente")
