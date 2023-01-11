@@ -12,6 +12,9 @@ class PagPagoOut(BaseModel):
     cit_cliente_nombre: str
     cit_cliente_curp: str
     cit_cliente_email: str
+    pag_tramite_servicio_id: int
+    pag_tramite_servicio_clave: str
+    pag_tramite_servicio_descripcion: str
     total: float
     estado: str
     email: str

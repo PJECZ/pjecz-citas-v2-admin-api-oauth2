@@ -8,8 +8,8 @@ from lib.database import Base
 from lib.universal_mixin import UniversalMixin
 
 
-class PagTramitesServicios(Base, UniversalMixin):
-    """PagTramitesServicios"""
+class PagTramiteServicio(Base, UniversalMixin):
+    """PagTramiteServicio"""
 
     # Nombre de la tabla
     __tablename__ = "pag_tramites_servicios"
@@ -28,4 +28,4 @@ class PagTramitesServicios(Base, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<PagTramitesServicios {self.id}>"
+        return f"<PagTramiteServicio {self.id}>"

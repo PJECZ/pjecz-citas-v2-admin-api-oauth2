@@ -54,6 +54,16 @@ class PagPago(Base, UniversalMixin):
         """Email del cliente"""
         return self.cit_cliente.email
 
+    @property
+    def pag_tramite_servicio_clave(self):
+        """Clave del tramite o servicio"""
+        return self.pag_tramite_servicio.clave
+
+    @property
+    def pag_tramite_servicio_descripcion(self):
+        """Descripcion del tramite o servicio"""
+        return self.pag_tramite_servicio.descripcion
+
     def __repr__(self):
         """Representación"""
         return f"<PagPago {self.id}>"
