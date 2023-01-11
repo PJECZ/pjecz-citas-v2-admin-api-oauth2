@@ -39,6 +39,21 @@ class PagPago(Base, UniversalMixin):
     email = Column(String(256))  # Email opcional si el cliente desea que se le envie el comprobante a otra dirección
     ya_se_envio_comprobante = Column(Boolean, default=False)
 
+    @property
+    def cit_cliente_nombre(self):
+        """Nombre del cliente"""
+        return self.cit_cliente.nombre
+
+    @property
+    def cit_cliente_curp(self):
+        """Curp del cliente"""
+        return self.cit_cliente.curp
+
+    @property
+    def cit_cliente_email(self):
+        """Email del cliente"""
+        return self.cit_cliente.email
+
     def __repr__(self):
         """Representación"""
         return f"<PagPago {self.id}>"
