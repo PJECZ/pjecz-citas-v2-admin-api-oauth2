@@ -9,11 +9,11 @@ from lib.schemas_base import OneBaseOut
 class PagTramiteServicioOut(BaseModel):
     """Esquema para entregar tramites y servicios"""
 
-    id: int
-    clave: str
-    descripcion: str
-    costo: float
-    url: str
+    id: int | None
+    clave: str | None
+    descripcion: str | None
+    costo: float | None
+    url: str | None
 
     class Config:
         """SQLAlchemy config"""
@@ -22,4 +22,4 @@ class PagTramiteServicioOut(BaseModel):
 
 
 class OnePagTramiteServicioOut(PagTramiteServicioOut, OneBaseOut):
-    """Esquema para entregar un servicio"""
+    """Esquema para entregar un tramite y servicio"""

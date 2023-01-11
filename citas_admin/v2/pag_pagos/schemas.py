@@ -9,18 +9,18 @@ from lib.schemas_base import OneBaseOut
 class PagPagoOut(BaseModel):
     """Esquema para entregar pagos"""
 
-    id: int
-    cit_cliente_id: int
-    cit_cliente_nombre: str
-    cit_cliente_curp: str
-    cit_cliente_email: str
-    pag_tramite_servicio_id: int
-    pag_tramite_servicio_clave: str
-    pag_tramite_servicio_descripcion: str
-    total: float
-    estado: str
-    email: str
-    ya_se_envio_comprobante: bool
+    id: int | None
+    cit_cliente_id: int | None
+    cit_cliente_nombre: str | None
+    cit_cliente_curp: str | None
+    cit_cliente_email: str | None
+    pag_tramite_servicio_id: int | None
+    pag_tramite_servicio_clave: str | None
+    pag_tramite_servicio_descripcion: str | None
+    total: float | None
+    estado: str | None
+    email: str | None
+    ya_se_envio_comprobante: bool | None
 
     class Config:
         """SQLAlchemy config"""
@@ -29,4 +29,4 @@ class PagPagoOut(BaseModel):
 
 
 class OnePagPagoOut(PagPagoOut, OneBaseOut):
-    """Esquema para entregar un servicio"""
+    """Esquema para entregar un pago"""
