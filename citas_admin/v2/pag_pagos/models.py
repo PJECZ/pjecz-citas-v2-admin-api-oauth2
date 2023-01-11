@@ -34,9 +34,9 @@ class PagPago(Base, UniversalMixin):
     pag_tramite_servicio = relationship("PagTramiteServicio", back_populates="pag_pagos")
 
     # Columnas
-    total = Column(Numeric(precision=8, scale=2, decimal_return_scale=2), nullable=False)
-    estado = Column(Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
     email = Column(String(256))  # Email opcional si el cliente desea que se le envie el comprobante a otra dirección
+    estado = Column(Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
+    total = Column(Numeric(precision=8, scale=2, decimal_return_scale=2), nullable=False)
     ya_se_envio_comprobante = Column(Boolean, default=False)
 
     @property
