@@ -5,7 +5,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from lib.exceptions import CitasIsDeletedError, CitasNotExistsError, CitasNotValidParamError
-from lib.safe_string import safe_clave, safe_curp, safe_email, safe_string
+from lib.safe_string import safe_curp, safe_email, safe_string
 
 from .models import PagPago
 from ..cit_clientes.crud import get_cit_cliente

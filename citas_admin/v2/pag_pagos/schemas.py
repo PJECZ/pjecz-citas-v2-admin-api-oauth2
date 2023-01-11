@@ -3,6 +3,8 @@ Pagos Pagos v2, esquemas de pydantic
 """
 from pydantic import BaseModel
 
+from lib.schemas_base import OneBaseOut
+
 
 class PagPagoOut(BaseModel):
     """Esquema para entregar pagos"""
@@ -24,3 +26,7 @@ class PagPagoOut(BaseModel):
         """SQLAlchemy config"""
 
         orm_mode = True
+
+
+class OnePagPagoOut(PagPagoOut, OneBaseOut):
+    """Esquema para entregar un servicio"""
