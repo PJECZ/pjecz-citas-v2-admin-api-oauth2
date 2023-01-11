@@ -26,6 +26,8 @@ from .v2.enc_sistemas.paths import enc_sistemas
 from .v2.materias.paths import materias
 from .v2.modulos.paths import modulos
 from .v2.oficinas.paths import oficinas
+from .v2.pag_pagos.paths import pag_pagos
+from .v2.pag_tramites_servicios.paths import pag_tramites_servicios
 from .v2.permisos.paths import permisos
 from .v2.roles.paths import roles
 from .v2.usuarios.paths import usuarios
@@ -70,6 +72,8 @@ app.include_router(enc_sistemas)
 app.include_router(materias)
 app.include_router(modulos)
 app.include_router(oficinas)
+app.include_router(pag_pagos)
+app.include_router(pag_tramites_servicios)
 app.include_router(permisos)
 app.include_router(roles)
 app.include_router(usuarios)

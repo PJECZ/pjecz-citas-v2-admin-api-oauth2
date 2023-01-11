@@ -10,7 +10,7 @@ from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_list import CustomList, ListResult, custom_list_success_false
 
 from .crud import get_cit_dias_disponibles, get_cit_dia_disponible
-from .schemas import CitDiaDisponibleOut
+from .schemas import CitDiaDisponibleOut, OneCitDiaDisponibleOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -41,7 +41,7 @@ async def listado_dias_disponibles(
     return CustomList(result=result)
 
 
-@cit_dias_disponibles.get("/proximo", response_model=CitDiaDisponibleOut)
+@cit_dias_disponibles.get("/proximo", response_model=OneCitDiaDisponibleOut)
 async def proximo_dia_disponible(
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -50,4 +50,4 @@ async def proximo_dia_disponible(
     if current_user.permissions.get("CIT DIAS INHABILES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     fecha = get_cit_dia_disponible(db=db)
-    return CitDiaDisponibleOut(fecha=fecha)
+    return OneCitDiaDisponibleOut(fecha=fecha)
