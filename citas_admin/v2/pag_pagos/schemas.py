@@ -17,9 +17,10 @@ class PagPagoOut(BaseModel):
     pag_tramite_servicio_id: int | None
     pag_tramite_servicio_clave: str | None
     pag_tramite_servicio_descripcion: str | None
-    total: float | None
-    estado: str | None
     email: str | None
+    estado: str | None
+    folio: str | None
+    total: float | None
     ya_se_envio_comprobante: bool | None
 
     class Config:

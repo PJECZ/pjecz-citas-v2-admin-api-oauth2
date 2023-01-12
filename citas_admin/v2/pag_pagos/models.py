@@ -34,10 +34,11 @@ class PagPago(Base, UniversalMixin):
     pag_tramite_servicio = relationship("PagTramiteServicio", back_populates="pag_pagos")
 
     # Columnas
-    email = Column(String(256))  # Email opcional si el cliente desea que se le envie el comprobante a otra dirección
     estado = Column(Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
+    email = Column(String(256), nullable=False, default="")  # Email opcional si el cliente desea que se le envie el comprobante a otra dirección
+    folio = Column(String(256), nullable=False, default="")
     total = Column(Numeric(precision=8, scale=2, decimal_return_scale=2), nullable=False)
-    ya_se_envio_comprobante = Column(Boolean, default=False)
+    ya_se_envio_comprobante = Column(Boolean, nullable=False, default=False)
 
     @property
     def cit_cliente_nombre(self):
