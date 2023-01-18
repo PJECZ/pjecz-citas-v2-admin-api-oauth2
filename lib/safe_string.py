@@ -70,11 +70,11 @@ def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True):
     return (final[:max_len] + "...") if len(final) > max_len else final
 
 
-def safe_telefono(input_str, max_len=10):
+def safe_telefono(input_str):
     """Safe telefono"""
     if not isinstance(input_str, str):
         return None
     solo_numeros = re.sub(r"[^0-9]+", "", unidecode(input_str))
-    if len(solo_numeros) > max_len:
-        return solo_numeros[:max_len]
+    if re.match(TELEFONO_REGEXP, solo_numeros) is None:
+        return None
     return solo_numeros

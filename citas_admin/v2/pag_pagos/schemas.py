@@ -31,3 +31,44 @@ class PagPagoOut(BaseModel):
 
 class OnePagPagoOut(PagPagoOut, OneBaseOut):
     """Esquema para entregar un pago"""
+
+
+class PagCarroIn(BaseModel):
+    """Esquema para recibir del carro de pagos"""
+
+    nombres: str | None
+    apellido_primero: str | None
+    apellido_segundo: str | None
+    curp: str | None
+    email: str | None
+    telefono: str | None
+    pag_tramite_servicio_clave: str | None
+
+
+class OnePagCarroOut(OneBaseOut):
+    """Esquema para entregar al carro de pagos"""
+
+    pag_pago_id: int | None
+    descripcion: str | None
+    email: str | None
+    monto: float | None
+    url: str | None
+
+
+class PagResultadoIn(BaseModel):
+    """Esquema para recibir del resultado de pagos"""
+
+    xml_encriptado: str | None
+
+
+class OnePagResultadoOut(OneBaseOut):
+    """Esquema para entregar al resultado de pagos"""
+
+    pag_pago_id: int | None
+    nombres: str | None
+    apellido_primero: str | None
+    apellido_segundo: str | None
+    email: str | None
+    estado: str | None
+    folio: str | None
+    total: float | None
