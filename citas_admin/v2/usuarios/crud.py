@@ -57,7 +57,7 @@ def get_usuario(db: Session, usuario_id: int) -> Usuario:
 def get_usuario_from_email(db: Session, email: str) -> Usuario:
     """Consultar un usuario por su email"""
     email = safe_email(email, search_fragment=False)
-    if email is None or email == "":
+    if email is None:
         raise CitasNotValidParamError("No es válido el email del usuario")
     usuario = db.query(Usuario).filter_by(email=email).first()
     if usuario is None:

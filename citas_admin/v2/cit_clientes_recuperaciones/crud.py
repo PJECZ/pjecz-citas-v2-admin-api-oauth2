@@ -43,7 +43,7 @@ def get_cit_clientes_recuperaciones(
         consulta = consulta.filter(CitClienteRecuperacion.cit_cliente == cit_cliente)
     elif cit_cliente_email is not None:
         cit_cliente_email = safe_email(cit_cliente_email, search_fragment=False)
-        if cit_cliente_email is None or cit_cliente_email == "":
+        if cit_cliente_email is None:
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)

@@ -6,6 +6,18 @@ from pydantic import BaseModel
 from lib.schemas_base import OneBaseOut
 
 
+class PagCarroIn(BaseModel):
+    """Esquema para recibir del carro de pagos"""
+
+    nombres: str | None
+    apellido_primero: str | None
+    apellido_segundo: str | None
+    curp: str | None
+    email: str | None
+    telefono: str | None
+    pag_tramite_servicio_clave: str | None
+
+
 class PagPagoOut(BaseModel):
     """Esquema para entregar pagos"""
 
@@ -33,19 +45,7 @@ class OnePagPagoOut(PagPagoOut, OneBaseOut):
     """Esquema para entregar un pago"""
 
 
-class PagCarroIn(BaseModel):
-    """Esquema para recibir del carro de pagos"""
-
-    nombres: str | None
-    apellido_primero: str | None
-    apellido_segundo: str | None
-    curp: str | None
-    email: str | None
-    telefono: str | None
-    pag_tramite_servicio_clave: str | None
-
-
-class OnePagCarroOut(OneBaseOut):
+class PagCarroOut(BaseModel):
     """Esquema para entregar al carro de pagos"""
 
     pag_pago_id: int | None
@@ -55,13 +55,17 @@ class OnePagCarroOut(OneBaseOut):
     url: str | None
 
 
+class OnePagCarroOut(PagCarroOut, OneBaseOut):
+    """Esquema para entregar un carro de pagos"""
+
+
 class PagResultadoIn(BaseModel):
     """Esquema para recibir del resultado de pagos"""
 
     xml_encriptado: str | None
 
 
-class OnePagResultadoOut(OneBaseOut):
+class PagResultadoOut(BaseModel):
     """Esquema para entregar al resultado de pagos"""
 
     pag_pago_id: int | None
@@ -72,3 +76,7 @@ class OnePagResultadoOut(OneBaseOut):
     estado: str | None
     folio: str | None
     total: float | None
+
+
+class OnePagResultadoOut(PagResultadoOut, OneBaseOut):
+    """Esquema para entregar un resultado de pagos"""

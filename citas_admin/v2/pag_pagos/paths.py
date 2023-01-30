@@ -61,14 +61,14 @@ async def carro(
     if current_user.permissions.get("PAG PAGOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        pag_carro_out = create_payment(
+        one_pag_carro_out = create_payment(
             db=db,
             datos=datos,
             settings=settings,
         )
     except CitasAnyError as error:
         return OnePagCarroOut(success=False, message=str(error))
-    return pag_carro_out
+    return one_pag_carro_out
 
 
 @pag_pagos.post("/resultado", response_model=OnePagResultadoOut)
@@ -81,18 +81,18 @@ async def resultado(
     if current_user.permissions.get("PAG PAGOS", 0) < Permiso.MODIFICAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        pag_resultado_out = update_payment(
+        one_pag_resultado_out = update_payment(
             db=db,
             datos=datos,
         )
     except CitasAnyError as error:
         return OnePagResultadoOut(success=False, message=str(error))
-    return pag_resultado_out
+    return one_pag_resultado_out
 
 
-@pag_pagos.get("/{pag_pago_id}", response_model=OnePagPagoOut)
+@pag_pagos.get("/{pag_pago_id_hasheado}", response_model=OnePagPagoOut)
 async def detalle_pag_pago(
-    pag_pago_id: int,
+    pag_pago_id_hasheado: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -102,7 +102,7 @@ async def detalle_pag_pago(
     try:
         pag_pago = get_pag_pago(
             db=db,
-            pag_pago_id=pag_pago_id,
+            pag_pago_id_hasheado=pag_pago_id_hasheado,
         )
     except CitasAnyError as error:
         return OnePagPagoOut(success=False, message=str(error))

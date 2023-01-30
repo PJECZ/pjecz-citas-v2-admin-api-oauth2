@@ -81,8 +81,6 @@ def get_cit_clientes(
     # Filtrar por fragmento de email
     email = safe_email(email, search_fragment=True)
     if email is not None:
-        if email is None or email == "":
-            raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.filter(CitCliente.email.contains(email))
 
     # Filtrar por enviar boletin
