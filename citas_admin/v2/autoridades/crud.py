@@ -39,10 +39,7 @@ def get_autoridades(
     return consulta.order_by(Autoridad.clave)
 
 
-def get_autoridad(
-    db: Session,
-    autoridad_id: int,
-) -> Autoridad:
+def get_autoridad(db: Session, autoridad_id: int) -> Autoridad:
     """Consultar una autoridad por su id"""
     autoridad = db.query(Autoridad).get(autoridad_id)
     if autoridad is None:
@@ -52,7 +49,7 @@ def get_autoridad(
     return autoridad
 
 
-def get_autoridad_with_clave(db: Session, clave: str) -> Autoridad:
+def get_autoridad_from_clave(db: Session, clave: str) -> Autoridad:
     """Consultar una autoridad por su clave"""
     clave = safe_clave(clave)
     if clave is None or clave == "":

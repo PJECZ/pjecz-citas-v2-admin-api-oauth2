@@ -44,10 +44,7 @@ def get_oficinas(
     return consulta.order_by(Oficina.clave)
 
 
-def get_oficina(
-    db: Session,
-    oficina_id: int,
-) -> Oficina:
+def get_oficina(db: Session, oficina_id: int) -> Oficina:
     """Consultar un oficina por su id"""
     oficina = db.query(Oficina).get(oficina_id)
     if oficina is None:
@@ -57,10 +54,10 @@ def get_oficina(
     return oficina
 
 
-def get_oficina_with_clave(db: Session, clave: str) -> Oficina:
+def get_oficina_from_clave(db: Session, clave: str) -> Oficina:
     """Consultar un oficina por su id"""
     clave = safe_clave(clave)
-    if clave is None or clave == "":
+    if clave is None:
         raise CitasNotValidParamError("No es válida la clave de la oficina")
     oficina = db.query(Oficina).filter_by(clave=clave).first()
     if oficina is None:

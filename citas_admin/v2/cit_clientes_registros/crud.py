@@ -72,10 +72,8 @@ def get_cit_clientes_registros(
         consulta = consulta.filter(CitClienteRegistro.curp.contains(curp))
 
     # Filtrar por fragmento de email
+    email = safe_email(email, search_fragment=True)
     if email is not None:
-        email = safe_email(email, search_fragment=True)
-        if email is None or email == "":
-            raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.filter(CitClienteRegistro.email.contains(email))
 
     # Filtrar por nombres

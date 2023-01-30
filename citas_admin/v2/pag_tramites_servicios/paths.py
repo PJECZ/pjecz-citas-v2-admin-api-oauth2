@@ -9,7 +9,7 @@ from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
-from .crud import get_pag_tramites_servicios, get_pag_tramite_servicio
+from .crud import get_pag_tramites_servicios, get_pag_tramite_servicio_from_clave
 from .schemas import PagTramiteServicioOut, OnePagTramiteServicioOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
@@ -37,19 +37,19 @@ async def listado_pag_tramites_servicios(
     return paginate(resultados)
 
 
-@pag_tramites_servicios.get("/{pag_tramite_servicio_id}", response_model=OnePagTramiteServicioOut)
+@pag_tramites_servicios.get("/{clave}", response_model=OnePagTramiteServicioOut)
 async def detalle_pag_tramite_servicio(
-    pag_tramite_servicio_id: int,
+    clave: str,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    """Detalle de una tramites y servicios a partir de su id"""
+    """Detalle de un tramite y servicio a partir de su clave"""
     if current_user.permissions.get("PAG TRAMITES SERVICIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        pag_tramite_servicio = get_pag_tramite_servicio(
+        pag_tramite_servicio = get_pag_tramite_servicio_from_clave(
             db=db,
-            pag_tramite_servicio_id=pag_tramite_servicio_id,
+            clave=clave,
         )
     except CitasAnyError as error:
         return OnePagTramiteServicioOut(success=False, message=str(error))

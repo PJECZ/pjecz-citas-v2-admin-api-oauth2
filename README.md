@@ -77,12 +77,18 @@ Cree un archivo para las variables de entorno `.env`
     # Limite de citas pendientes por cliente
     LIMITE_CITAS_PENDIENTES=30
 
-    # Redis
-    REDIS_URL=redis://127.0.0.1:6379
-    TASK_QUEUE=pjecz_citas_v2
-
     # Salt sirve para cifrar el ID con HashID, debe ser igual que en la app Flask
     SALT=************************
+
+    # Santander Web Pay Plus
+    WPP_COMMERCE_ID=XXXXXXXX
+    WPP_COMPANY_ID=XXXX
+    WPP_BRANCH_ID=NNNN
+    WPP_KEY=XXXXXXXX
+    WPP_PASS=XXXXXXXX
+    WPP_TIMEOUT=12
+    WPP_URL=https://noexiste.com
+    WPP_USER=XXXXXXXX
 
     # Timezone
     TZ=America/Mexico_City
@@ -110,12 +116,24 @@ Para Bash Shell cree un archivo `.bashrc` que se puede usar en el perfil de Kons
 
     echo "== Variables de entorno"
     export $(grep -v '^#' .env | xargs)
+    echo "   ARRANCAR: ${ARRANCAR}"
     echo "   DB_HOST: ${DB_HOST}"
     echo "   DB_PORT: ${DB_PORT}"
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
+    echo "   LIMITE_CITAS_PENDIENTES: ${LIMITE_CITAS_PENDIENTES}"
+    echo "   ORIGINS: ${ORIGINS}"
     echo "   SALT: ${SALT}"
+    echo "   TZ: ${TZ}"
+    echo "   WPP_COMMERCE_ID: ${WPP_COMMERCE_ID}"
+    echo "   WPP_COMPANY_ID: ${WPP_COMPANY_ID}"
+    echo "   WPP_BRANCH_ID: ${WPP_BRANCH_ID}"
+    echo "   WPP_KEY: ${WPP_KEY}"
+    echo "   WPP_PASS: ${WPP_PASS}"
+    echo "   WPP_TIMEOUT: ${WPP_TIMEOUT}"
+    echo "   WPP_URL: ${WPP_URL}"
+    echo "   WPP_USER: ${WPP_USER}"
     echo
 
     export PGHOST=$DB_HOST

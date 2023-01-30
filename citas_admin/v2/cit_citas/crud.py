@@ -62,13 +62,13 @@ def get_cit_citas(
         consulta = consulta.filter(CitCita.cit_cliente == cit_cliente)
     elif cit_cliente_curp is not None:
         cit_cliente_curp = safe_curp(cit_cliente_curp, search_fragment=False)
-        if cit_cliente_curp is None or cit_cliente_curp == "":
+        if cit_cliente_curp is None:
             raise CitasNotValidParamError("No es válido el CURP")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.curp == cit_cliente_curp)
     elif cit_cliente_email is not None:
         cit_cliente_email = safe_email(cit_cliente_email, search_fragment=False)
-        if cit_cliente_email is None or cit_cliente_email == "":
+        if cit_cliente_email is None:
             raise CitasNotValidParamError("No es válido el correo electrónico")
         consulta = consulta.join(CitCliente)
         consulta = consulta.filter(CitCliente.email == cit_cliente_email)
@@ -79,7 +79,7 @@ def get_cit_citas(
         consulta = consulta.filter(CitCita.cit_servicio == cit_servicio)
     elif cit_servicio_clave is not None:
         cit_servicio_clave = safe_clave(cit_servicio_clave)
-        if cit_servicio_clave is None or cit_servicio_clave == "":
+        if cit_servicio_clave is None:
             raise CitasNotValidParamError("No es válida la clave del servicio")
         consulta = consulta.join(CitServicio)
         consulta = consulta.filter(CitServicio.clave == cit_servicio_clave)
@@ -130,7 +130,7 @@ def get_cit_citas(
         consulta = consulta.filter(CitCita.oficina == oficina)
     elif oficina_clave is not None:
         oficina_clave = safe_clave(oficina_clave)
-        if oficina_clave is None or oficina_clave == "":
+        if oficina_clave is None:
             raise CitasNotValidParamError("No es válida la clave de la oficina")
         consulta = consulta.join(Oficina)
         consulta = consulta.filter(Oficina.clave == oficina_clave)

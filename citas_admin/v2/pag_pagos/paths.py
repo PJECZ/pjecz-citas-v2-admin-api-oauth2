@@ -5,12 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 
+from config.settings import Settings, get_settings
 from lib.database import get_db
 from lib.exceptions import CitasAnyError
 from lib.fastapi_pagination_custom_page import CustomPage, custom_page_success_false
 
-from .crud import get_pag_pagos, get_pag_pago
-from .schemas import PagPagoOut, OnePagPagoOut
+from .crud import get_pag_pagos, get_pag_pago, create_payment, update_payment
+from .schemas import PagPagoOut, OnePagPagoOut, PagCarroIn, OnePagCarroOut, PagResultadoIn, OnePagResultadoOut
 from ..permisos.models import Permiso
 from ..usuarios.authentications import get_current_active_user
 from ..usuarios.schemas import UsuarioInDB
@@ -49,9 +50,49 @@ async def listado_pag_pagos(
     return paginate(resultados)
 
 
-@pag_pagos.get("/{pag_pago_id}", response_model=OnePagPagoOut)
+@pag_pagos.post("/carro", response_model=OnePagCarroOut)
+async def carro(
+    datos: PagCarroIn,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    """Recibir, procesar y entregar datos del carro de pagos"""
+    if current_user.permissions.get("PAG PAGOS", 0) < Permiso.CREAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        one_pag_carro_out = create_payment(
+            db=db,
+            datos=datos,
+            settings=settings,
+        )
+    except CitasAnyError as error:
+        return OnePagCarroOut(success=False, message=str(error))
+    return one_pag_carro_out
+
+
+@pag_pagos.post("/resultado", response_model=OnePagResultadoOut)
+async def resultado(
+    datos: PagResultadoIn,
+    current_user: UsuarioInDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Recibir, procesar y entregar datos del resultado de pagos"""
+    if current_user.permissions.get("PAG PAGOS", 0) < Permiso.MODIFICAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        one_pag_resultado_out = update_payment(
+            db=db,
+            datos=datos,
+        )
+    except CitasAnyError as error:
+        return OnePagResultadoOut(success=False, message=str(error))
+    return one_pag_resultado_out
+
+
+@pag_pagos.get("/{pag_pago_id_hasheado}", response_model=OnePagPagoOut)
 async def detalle_pag_pago(
-    pag_pago_id: int,
+    pag_pago_id_hasheado: int,
     current_user: UsuarioInDB = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
@@ -61,7 +102,7 @@ async def detalle_pag_pago(
     try:
         pag_pago = get_pag_pago(
             db=db,
-            pag_pago_id=pag_pago_id,
+            pag_pago_id_hasheado=pag_pago_id_hasheado,
         )
     except CitasAnyError as error:
         return OnePagPagoOut(success=False, message=str(error))
