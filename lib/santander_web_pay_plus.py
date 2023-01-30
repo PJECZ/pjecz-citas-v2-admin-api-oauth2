@@ -247,7 +247,7 @@ def create_pay_link(
     try:
         url = get_url_from_xml_encrypt(respuesta)
     except Exception as error:
-        raise CitasGetURLFromXMLEncryptedError(f"Error al obtener la URL del Banco desde su XML encriptado. {str(error)}") from error
+        raise CitasGetURLFromXMLEncryptedError(f"Error al obtener la URL del Banco desde su XML encriptado: {str(error)}") from error
 
     # Entregar
     return url
@@ -257,7 +257,7 @@ def convert_xml_encrypt_to_dict(xml_encrypt_str: str) -> dict:
     """Convertir el xml encriptado a un diccionario"""
 
     if re.fullmatch(XML_ENCRYPT_REGEXP, xml_encrypt_str) is None:
-        raise CitasBankResponseInvalidError(f"Error en la respuesta del banco porque no cumple la validación por regexp. [{xml_encrypt_str}].")
+        raise CitasBankResponseInvalidError("Error en la respuesta del banco porque no cumple la validación por regexp")
 
     # Inicializar diccionario de respuesta
     respuesta = {
@@ -272,7 +272,7 @@ def convert_xml_encrypt_to_dict(xml_encrypt_str: str) -> dict:
     try:
         xml = decrypt_chain(xml_encrypt_str)
     except Exception as error:
-        raise CitasBankResponseInvalidError(f"Error en la respuesta del Banco porque es inválida. {str(error)}") from error
+        raise CitasBankResponseInvalidError(f"Error en la respuesta del Banco porque es inválida: {str(error)}") from error
 
     # Lee el archivo XML
     try:
