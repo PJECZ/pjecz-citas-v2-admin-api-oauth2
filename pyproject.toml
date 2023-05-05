@@ -29,7 +29,6 @@ uvicorn = "^0.18.2"
 pylint = "^2.14.5"
 pylint-sqlalchemy = "^0.2.0"
 black = "^22.6.0"
-ipykernel = "^6.15.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

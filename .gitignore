@@ -3,6 +3,7 @@
 .env
 .DS_Store
 .~lock.*
+poetry.lock
 *.py[cod]
 *.log
 
